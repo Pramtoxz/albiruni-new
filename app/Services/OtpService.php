@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Services;
+
+use App\Enums\OtpType;
+use App\Models\Otp;
+use App\Models\User;
+use App\Providers\WhatsAppGateway;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+class OtpService
+{
+    public function __construct(
+        protected WhatsAppGateway $gateway
+    ) {
+    }
+
+    /**
+     * Normalize phone number by stripping non-digit characters.
+     */
+    public function normalizePhone(string $phone): string
+    {
+        return preg_replace('/\D+/', '', $phone);
+    }
+
+    /**
+     * Create and send an OTP code for the given context.
+     *
+     * @param  array<string, mixed>  $context
+     */
+    public function send(string $phone, OtpType $type, array $context = []): void
+    {
+        $normalizedPhone = $this->normalizePhone($phone);
+
+        DB::transaction(function () use ($normalizedPhone, $type, $context) {
+            Otp::where('nohp', $normalizedPhone)
+                ->where('type', $type->value)
+                ->where('is_used', false)
+                ->update(['is_used' => true]);
+
+            $code = (string) random_int(100000, 999999);
+
+            Otp::create([
+                'email' => $context['email'] ?? null,
+                'nohp' => $normalizedPhone,
+                'otp_code' => $code,
+                'type' => $type->value,
+                'expires_at' => Carbon::now()->addMinutes($this->expiryMinutes()),
+            ]);
+
+            $message = $this->buildMessage($type, $code);
+
+            $this->gateway->sendText($normalizedPhone, $message);
+        });
+    }
+
+    /**
+     * Validate an OTP code and mark it as used.
+     */
+    public function validate(string $phone, string $code, OtpType $type, ?string $email = null): Otp
+    {
+        $normalizedPhone = $this->normalizePhone($phone);
+
+        return DB::transaction(function () use ($normalizedPhone, $code, $type, $email) {
+            $otpQuery = Otp::where('nohp', $normalizedPhone)
+                ->where('otp_code', $code)
+                ->where('type', $type->value)
+                ->where('is_used', false)
+                ->where('expires_at', '>=', Carbon::now());
+
+            if ($email !== null) {
+                $otpQuery->where('email', $email);
+            }
+
+            $otp = $otpQuery->latest('id')->lockForUpdate()->first();
+
+            if (! $otp) {
+                throw ValidationException::withMessages([
+                    'otp_code' => __('OTP tidak valid atau sudah kadaluarsa.'),
+                ]);
+            }
+
+            $otp->update(['is_used' => true]);
+
+            return $otp;
+        });
+    }
+
+    /**
+     * Ensure the phone number belongs to the given user.
+     */
+    public function assertPhoneMatchesUser(User $user, string $phone): void
+    {
+        $normalizedPhone = $this->normalizePhone($phone);
+
+        if ($user->nohp !== $normalizedPhone) {
+            throw ValidationException::withMessages([
+                'nohp' => __('Nomor WhatsApp tidak sesuai dengan akun.'),
+            ]);
+        }
+    }
+
+    /**
+     * Expiry duration in minutes.
+     */
+    protected function expiryMinutes(): int
+    {
+        return (int) config('services.otp.ttl', 5);
+    }
+
+    protected function buildMessage(OtpType $type, string $code): string
+    {
+        $base = __('Kode OTP Anda adalah :code. Berlaku selama :minutes menit.', [
+            'code' => $code,
+            'minutes' => $this->expiryMinutes(),
+        ]);
+
+        return match ($type) {
+            OtpType::Login => __('[Albiruni] OTP login: :message', ['message' => $base]),
+            OtpType::Register => __('[Albiruni] OTP pendaftaran: :message', ['message' => $base]),
+            OtpType::PasswordReset => __('[Albiruni] OTP reset password: :message', ['message' => $base]),
+        };
+    }
+}
