@@ -22,6 +22,40 @@ type LoginMode = 'password' | 'otp';
 
 const OTP_CODE_LENGTH = 6;
 
+interface OtpSendResponse {
+    message?: string;
+    errors?: Record<string, string[]>;
+}
+
+const isStringArray = (value: unknown): value is string[] =>
+    Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+
+const isRecordOfStringArray = (
+    value: unknown,
+): value is Record<string, string[]> => {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        return false;
+    }
+
+    return Object.values(value).every(isStringArray);
+};
+
+const isOtpSendResponse = (value: unknown): value is OtpSendResponse => {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        return false;
+    }
+
+    const { message, errors } = value as {
+        message?: unknown;
+        errors?: unknown;
+    };
+
+    return (
+        (message === undefined || typeof message === 'string') &&
+        (errors === undefined || isRecordOfStringArray(errors))
+    );
+};
+
 const getCsrfToken = () => {
     if (typeof document === 'undefined') {
         return '';
@@ -92,11 +126,15 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 }),
             });
 
-            let payload: any = null;
+            let payload: OtpSendResponse | null = null;
 
             try {
-                payload = await response.json();
-            } catch (_) {
+                const data: unknown = await response.json();
+
+                if (isOtpSendResponse(data)) {
+                    payload = data;
+                }
+            } catch {
                 payload = null;
             }
 
@@ -116,7 +154,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             setOtpMessage(
                 payload?.message ?? 'Kode OTP berhasil dikirim ke WhatsApp.',
             );
-        } catch (_) {
+        } catch {
             setOtpRequestError(
                 'Tidak dapat menghubungi layanan OTP. Pastikan koneksi internet stabil.',
             );
@@ -263,7 +301,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                     otpForm.clearErrors('nohp');
                                     setOtpSendErrors({});
                                 }}
-                                placeholder="08xxxxxxxxxx"
+                                placeholder="628123xxxxxxxxx"
                             />
                             <InputError
                                 message={

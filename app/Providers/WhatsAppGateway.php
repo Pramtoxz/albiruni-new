@@ -7,6 +7,16 @@ use Illuminate\Support\ServiceProvider;
 
 class WhatsAppGateway extends ServiceProvider
 {
+    private const SUCCESS_STATUSES = [
+        'PENDING',
+        'QUEUED',
+        'SENT',
+        'DELIVERED',
+        'DELIVERED_TO_DEVICE',
+        'DELIVERED_TO_GATEWAY',
+        'SUCCESS',
+    ];
+
     protected $baseUrl;
     protected $token;
     protected $session;
@@ -66,11 +76,110 @@ class WhatsAppGateway extends ServiceProvider
             throw new \RuntimeException('Respons gateway tidak valid: '.$body);
         }
 
-        if (!empty($decoded['success']) || isset($decoded['message'])) {
-            return; // asumsi sukses; jika gateway kirim flag lain, sesuaikan
+        if ($this->responseIndicatesSuccess($decoded)) {
+            return;
         }
 
         // fallback: anggap gagal bila struktur tidak sesuai
         throw new \RuntimeException('Gateway tidak mengembalikan status sukses: '.$body);
+    }
+
+    /**
+     * Determine whether the decoded response indicates a successful send.
+     *
+     * @param  array<string, mixed>  $response
+     */
+    protected function responseIndicatesSuccess(array $response): bool
+    {
+        $successFlag = $this->normalizeBoolean($response['success'] ?? null);
+
+        if ($successFlag === true) {
+            return true;
+        }
+
+        $status = $this->extractStatus($response);
+
+        if ($status !== null) {
+            if (is_numeric($status)) {
+                $numericStatus = (int) $status;
+
+                if ($numericStatus >= 200 && $numericStatus < 400) {
+                    return true;
+                }
+            }
+
+            if (in_array(strtoupper((string) $status), self::SUCCESS_STATUSES, true)) {
+                return true;
+            }
+        }
+
+        if (
+            isset($response['message'])
+            && ! isset($response['error'])
+            && ! isset($response['errors'])
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Recursively search for a status value inside the payload.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    protected function extractStatus(array $payload): ?string
+    {
+        if (array_key_exists('status', $payload)) {
+            $status = $payload['status'];
+
+            if (is_string($status) || is_numeric($status)) {
+                return (string) $status;
+            }
+        }
+
+        foreach ($payload as $value) {
+            if (is_array($value)) {
+                $nestedStatus = $this->extractStatus($value);
+
+                if ($nestedStatus !== null) {
+                    return $nestedStatus;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected function normalizeBoolean(mixed $value): ?bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            $normalized = strtolower($value);
+
+            if (in_array($normalized, ['true', '1', 'yes'], true)) {
+                return true;
+            }
+
+            if (in_array($normalized, ['false', '0', 'no'], true)) {
+                return false;
+            }
+        }
+
+        if (is_int($value)) {
+            if ($value === 1) {
+                return true;
+            }
+
+            if ($value === 0) {
+                return false;
+            }
+        }
+
+        return null;
     }
 }

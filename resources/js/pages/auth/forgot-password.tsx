@@ -180,7 +180,7 @@ export default function ForgotPassword({ status }: ForgotPasswordProps) {
                             name="nohp"
                             inputMode="numeric"
                             autoComplete="tel-national"
-                            placeholder="08xxxxxxxxxx"
+                            placeholder="628123xxxxxxxxx"
                             value={form.data.nohp}
                             onChange={(event) => {
                                 form.setData('nohp', event.target.value);

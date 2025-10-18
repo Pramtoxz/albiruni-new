@@ -204,7 +204,7 @@ export default function Register() {
                                     return next;
                                 });
                             }}
-                            placeholder="08xxxxxxxxxx"
+                            placeholder="628123xxxxxxxxx"
                         />
                         <InputError
                             message={
