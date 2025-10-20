@@ -115,7 +115,7 @@ export default function Register() {
             }
 
             setOtpMessage(
-                payload?.message ?? 'Kode OTP berhasil dikirim ke WhatsApp.',
+                payload?.message ?? 'Kode OTP berhasil dikirim.',
             );
         } catch (_) {
             setOtpRequestError(

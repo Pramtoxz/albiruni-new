@@ -3,12 +3,16 @@
 namespace App\Services;
 
 use App\Enums\OtpType;
+use App\Mail\OtpCodeMail;
 use App\Models\Otp;
 use App\Models\User;
 use App\Providers\WhatsAppGateway;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class OtpService
 {
@@ -53,6 +57,20 @@ class OtpService
             $message = $this->buildMessage($type, $code);
 
             $this->gateway->sendText($normalizedPhone, $message);
+
+            if (! empty($context['email'])) {
+                try {
+                    Mail::to($context['email'])->send(
+                        new OtpCodeMail($code, $type, $this->expiryMinutes())
+                    );
+                } catch (Throwable $exception) {
+                    Log::error('Failed to send OTP email.', [
+                        'email' => $context['email'],
+                        'type' => $type->value,
+                        'exception' => $exception,
+                    ]);
+                }
+            }
         });
     }
 

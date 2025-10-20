@@ -115,7 +115,7 @@ export default function ForgotPassword({ status }: ForgotPasswordProps) {
             }
 
             setOtpMessage(
-                payload?.message ?? 'Kode OTP berhasil dikirim ke WhatsApp.',
+                payload?.message ?? 'Kode OTP berhasil dikirim.',
             );
         } catch (_) {
             setOtpRequestError(

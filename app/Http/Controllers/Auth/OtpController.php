@@ -42,8 +42,12 @@ class OtpController extends Controller
             'email' => $email,
         ]));
 
+        $channelsMessage = $email
+            ? __('Kode OTP telah dikirim ke WhatsApp dan email Anda.')
+            : __('Kode OTP telah dikirim ke WhatsApp Anda.');
+
         return response()->json([
-            'message' => __('Kode OTP telah dikirim ke WhatsApp Anda.'),
+            'message' => $channelsMessage,
         ]);
     }
 
