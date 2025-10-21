@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import lottie from "lottie-web"
+import lottie from "lottie-web/build/player/esm/lottie_light.min.js"
 import { useScroll, motion, useTransform, useSpring } from "framer-motion"
 
 interface LottieAnimationProps {
