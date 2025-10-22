@@ -1,0 +1,70 @@
+/* Mobile-First Styles for Webview */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch-friendly buttons */
+button, a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Prevent text selection on double tap */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Allow text selection in inputs and textareas */
+input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Safe area for notch devices */
+@supports (padding: max(0px)) {
+    .safe-top {
+        padding-top: max(env(safe-area-inset-top), 1rem);
+    }
+    
+    .safe-bottom {
+        padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+    }
+}
+
+/* Smooth transitions */
+* {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Mobile card shadows */
+.mobile-card {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Active state for mobile */
+.mobile-active:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+}
+
+/* Bottom navigation safe area */
+.bottom-nav {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+}

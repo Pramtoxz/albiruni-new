@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class HandleAppearance
@@ -16,8 +15,14 @@ class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        $response = $next($request);
 
-        return $next($request);
+        // Handle appearance cookie for theme switching
+        if ($request->hasCookie('appearance')) {
+            $appearance = $request->cookie('appearance');
+            // You can add additional logic here if needed
+        }
+
+        return $response;
     }
 }

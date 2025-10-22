@@ -74,6 +74,11 @@ class RegisteredUserController extends Controller
 
         $request->session()->regenerate();
 
+        // Jika user adalah orangtua dan belum ada data siswa, redirect ke pendaftaran siswa
+        if ($user->role === 'orangtua' && !$user->siswa) {
+            return redirect()->route('siswa.create');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 }
