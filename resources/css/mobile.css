@@ -27,6 +27,14 @@ input, textarea, [contenteditable] {
 
 /* Safe area for notch devices */
 @supports (padding: max(0px)) {
+    .pt-safe-top {
+        padding-top: max(env(safe-area-inset-top), 1rem);
+    }
+    
+    .pb-safe {
+        padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+    }
+    
     .safe-top {
         padding-top: max(env(safe-area-inset-top), 1rem);
     }
@@ -34,6 +42,11 @@ input, textarea, [contenteditable] {
     .safe-bottom {
         padding-bottom: max(env(safe-area-inset-bottom), 1rem);
     }
+}
+
+/* Bottom navigation with safe area - tinggi extra untuk navigasi HP */
+.bottom-nav-safe {
+    padding-bottom: calc(max(env(safe-area-inset-bottom), 0.75rem) + 1rem);
 }
 
 /* Smooth transitions */

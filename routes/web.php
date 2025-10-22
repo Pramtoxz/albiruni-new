@@ -25,6 +25,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 return Inertia::render('dashboard/admin');
             }
             
+            if ($user->role === 'guru') {
+                return Inertia::render('dashboard/guru');
+            }
+            
             return Inertia::render('dashboard/orangtua');
         })->name('dashboard');
     });

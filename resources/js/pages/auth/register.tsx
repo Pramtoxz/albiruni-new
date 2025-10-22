@@ -1,14 +1,12 @@
 import { FormEvent, useState } from 'react';
 
 import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import AuthLayout from '@/layouts/auth-layout';
-import { login } from '@/routes';
-import { useForm, Head } from '@inertiajs/react';
+import { useForm, Head, Link } from '@inertiajs/react';
+import { LogIn, Mail, Lock, Phone, User, Shield, Send } from 'lucide-react';
 
 const OTP_CODE_LENGTH = 6;
 
@@ -37,9 +35,7 @@ export default function Register() {
     const [otpSending, setOtpSending] = useState(false);
     const [otpMessage, setOtpMessage] = useState<string | null>(null);
     const [otpRequestError, setOtpRequestError] = useState<string | null>(null);
-    const [otpSendErrors, setOtpSendErrors] = useState<
-        Record<string, string[]>
-    >({});
+    const [otpSendErrors, setOtpSendErrors] = useState<Record<string, string[]>>({});
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -108,15 +104,12 @@ export default function Register() {
                 }
 
                 setOtpRequestError(
-                    payload?.message ??
-                        'Gagal mengirim OTP. Silakan coba kembali.',
+                    payload?.message ?? 'Gagal mengirim OTP. Silakan coba kembali.',
                 );
                 return;
             }
 
-            setOtpMessage(
-                payload?.message ?? 'Kode OTP berhasil dikirim.',
-            );
+            setOtpMessage(payload?.message ?? 'Kode OTP berhasil dikirim.');
         } catch (_) {
             setOtpRequestError(
                 'Tidak dapat menghubungi layanan OTP. Pastikan koneksi internet stabil.',
@@ -127,198 +120,242 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout
-            title="Create an account"
-            description="Enter your details below to create your account"
-        >
+        <>
             <Head title="Register" />
-
-            <form
-                onSubmit={handleSubmit}
-                className="flex flex-col gap-6"
-                noValidate
-            >
-                <div className="grid gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            type="text"
-                            autoFocus
-                            required
-                            autoComplete="name"
-                            name="name"
-                            value={form.data.name}
-                            onChange={(event) => {
-                                form.setData('name', event.target.value);
-                                form.clearErrors('name');
-                            }}
-                            placeholder="Full name"
-                        />
-                        <InputError message={form.errors.name} />
+            <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5 pb-safe">
+                {/* Header */}
+                <div className="bg-primary px-6 pb-16 pt-safe-top pt-8 text-primary-foreground">
+                    <div className="mx-auto max-w-md">
+                        <div className="mb-6 flex justify-center">
+                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur">
+                                <Shield className="h-10 w-10" />
+                            </div>
+                        </div>
+                        <h1 className="text-center text-3xl font-bold">Buat Akun Baru</h1>
+                        <p className="mt-2 text-center opacity-90">
+                            Daftar untuk mengakses sistem TK Al-Biruni
+                        </p>
                     </div>
+                </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            required
-                            autoComplete="email"
-                            name="email"
-                            value={form.data.email}
-                            onChange={(event) => {
-                                form.setData('email', event.target.value);
-                                form.clearErrors('email');
-                                setOtpSendErrors((previous) => {
-                                    const next = { ...previous };
-                                    delete next.email;
-                                    return next;
-                                });
-                            }}
-                            placeholder="email@example.com"
-                        />
-                        <InputError
-                            message={
-                                form.errors.email || otpSendErrors.email?.[0]
-                            }
-                        />
-                    </div>
+                {/* Form Container */}
+                <div className="mx-auto -mt-10 w-full max-w-md px-6 pb-8">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="rounded-3xl bg-card p-6 shadow-2xl"
+                        noValidate
+                    >
+                        <div className="space-y-5">
+                            {/* Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="name" className="text-sm font-medium">
+                                    Nama Lengkap
+                                </Label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="name"
+                                        type="text"
+                                        autoFocus
+                                        required
+                                        autoComplete="name"
+                                        name="name"
+                                        value={form.data.name}
+                                        onChange={(event) => {
+                                            form.setData('name', event.target.value);
+                                            form.clearErrors('name');
+                                        }}
+                                        placeholder="Masukkan nama lengkap"
+                                        className="h-12 pl-11 text-base"
+                                    />
+                                </div>
+                                <InputError message={form.errors.name} />
+                            </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="nohp">Nomor WhatsApp</Label>
-                        <Input
-                            id="nohp"
-                            type="tel"
-                            required
-                            inputMode="numeric"
-                            autoComplete="tel-national"
-                            name="nohp"
-                            value={form.data.nohp}
-                            onChange={(event) => {
-                                form.setData('nohp', event.target.value);
-                                form.clearErrors('nohp');
-                                setOtpSendErrors((previous) => {
-                                    const next = { ...previous };
-                                    delete next.nohp;
-                                    return next;
-                                });
-                            }}
-                            placeholder="628123xxxxxxxxx"
-                        />
-                        <InputError
-                            message={
-                                form.errors.nohp || otpSendErrors.nohp?.[0]
-                            }
-                        />
-                    </div>
+                            {/* Email */}
+                            <div className="space-y-2">
+                                <Label htmlFor="email" className="text-sm font-medium">
+                                    Email
+                                </Label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        required
+                                        autoComplete="email"
+                                        name="email"
+                                        value={form.data.email}
+                                        onChange={(event) => {
+                                            form.setData('email', event.target.value);
+                                            form.clearErrors('email');
+                                            setOtpSendErrors((previous) => {
+                                                const next = { ...previous };
+                                                delete next.email;
+                                                return next;
+                                            });
+                                        }}
+                                        placeholder="email@example.com"
+                                        className="h-12 pl-11 text-base"
+                                    />
+                                </div>
+                                <InputError message={form.errors.email || otpSendErrors.email?.[0]} />
+                            </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            required
-                            autoComplete="new-password"
-                            name="password"
-                            value={form.data.password}
-                            onChange={(event) => {
-                                form.setData('password', event.target.value);
-                                form.clearErrors('password');
-                            }}
-                            placeholder="Password"
-                        />
-                        <InputError message={form.errors.password} />
-                    </div>
+                            {/* WhatsApp */}
+                            <div className="space-y-2">
+                                <Label htmlFor="nohp" className="text-sm font-medium">
+                                    Nomor WhatsApp
+                                </Label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="nohp"
+                                        type="tel"
+                                        required
+                                        inputMode="numeric"
+                                        autoComplete="tel-national"
+                                        name="nohp"
+                                        value={form.data.nohp}
+                                        onChange={(event) => {
+                                            form.setData('nohp', event.target.value);
+                                            form.clearErrors('nohp');
+                                            setOtpSendErrors((previous) => {
+                                                const next = { ...previous };
+                                                delete next.nohp;
+                                                return next;
+                                            });
+                                        }}
+                                        placeholder="628123xxxxxxxxx"
+                                        className="h-12 pl-11 text-base"
+                                    />
+                                </div>
+                                <InputError message={form.errors.nohp || otpSendErrors.nohp?.[0]} />
+                            </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">
-                            Confirm password
-                        </Label>
-                        <Input
-                            id="password_confirmation"
-                            type="password"
-                            required
-                            autoComplete="new-password"
-                            name="password_confirmation"
-                            value={form.data.password_confirmation}
-                            onChange={(event) => {
-                                form.setData(
-                                    'password_confirmation',
-                                    event.target.value,
-                                );
-                                form.clearErrors('password_confirmation');
-                            }}
-                            placeholder="Confirm password"
-                        />
-                        <InputError
-                            message={form.errors.password_confirmation}
-                        />
-                    </div>
+                            {/* Password */}
+                            <div className="space-y-2">
+                                <Label htmlFor="password" className="text-sm font-medium">
+                                    Password
+                                </Label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        required
+                                        autoComplete="new-password"
+                                        name="password"
+                                        value={form.data.password}
+                                        onChange={(event) => {
+                                            form.setData('password', event.target.value);
+                                            form.clearErrors('password');
+                                        }}
+                                        placeholder="Minimal 8 karakter"
+                                        className="h-12 pl-11 text-base"
+                                    />
+                                </div>
+                                <InputError message={form.errors.password} />
+                            </div>
 
-                    <div className="grid gap-2">
-                        <div className="flex items-center justify-between gap-3">
-                            <Label htmlFor="otp_code" className="m-0">
-                                Kode OTP
-                            </Label>
+                            {/* Confirm Password */}
+                            <div className="space-y-2">
+                                <Label htmlFor="password_confirmation" className="text-sm font-medium">
+                                    Konfirmasi Password
+                                </Label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="password_confirmation"
+                                        type="password"
+                                        required
+                                        autoComplete="new-password"
+                                        name="password_confirmation"
+                                        value={form.data.password_confirmation}
+                                        onChange={(event) => {
+                                            form.setData('password_confirmation', event.target.value);
+                                            form.clearErrors('password_confirmation');
+                                        }}
+                                        placeholder="Ulangi password"
+                                        className="h-12 pl-11 text-base"
+                                    />
+                                </div>
+                                <InputError message={form.errors.password_confirmation} />
+                            </div>
+
+                            {/* OTP Section */}
+                            <div className="rounded-xl border bg-muted/30 p-4">
+                                <div className="mb-3 flex items-center justify-between">
+                                    <Label htmlFor="otp_code" className="text-sm font-medium">
+                                        Kode OTP
+                                    </Label>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleSendOtp}
+                                        disabled={otpSending}
+                                        className="h-9"
+                                    >
+                                        {otpSending ? <Spinner /> : <Send className="mr-1 h-4 w-4" />}
+                                        Kirim OTP
+                                    </Button>
+                                </div>
+                                <Input
+                                    id="otp_code"
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength={OTP_CODE_LENGTH}
+                                    autoComplete="one-time-code"
+                                    required
+                                    name="otp_code"
+                                    value={form.data.otp_code}
+                                    onChange={(event) => {
+                                        form.setData('otp_code', event.target.value);
+                                        form.clearErrors('otp_code');
+                                    }}
+                                    placeholder="Masukkan 6 digit OTP"
+                                    className="h-12 text-center text-lg tracking-widest"
+                                />
+                                <InputError message={form.errors.otp_code} />
+                            </div>
+
+                            {/* Messages */}
+                            {otpMessage && (
+                                <div className="rounded-lg bg-green-50 p-3 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                                    ✓ {otpMessage}
+                                </div>
+                            )}
+
+                            {otpRequestError && (
+                                <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                                    ✗ {otpRequestError}
+                                </div>
+                            )}
+
+                            {/* Submit Button */}
                             <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleSendOtp}
-                                disabled={otpSending}
+                                type="submit"
+                                className="h-12 w-full text-base font-semibold"
+                                disabled={form.processing}
                             >
-                                {otpSending && <Spinner />}
-                                Kirim OTP
+                                {form.processing && <Spinner />}
+                                Buat Akun
                             </Button>
                         </div>
-                        <Input
-                            id="otp_code"
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={OTP_CODE_LENGTH}
-                            autoComplete="one-time-code"
-                            required
-                            name="otp_code"
-                            value={form.data.otp_code}
-                            onChange={(event) => {
-                                form.setData('otp_code', event.target.value);
-                                form.clearErrors('otp_code');
-                            }}
-                            placeholder="Masukkan 6 digit OTP"
-                        />
-                        <InputError message={form.errors.otp_code} />
+                    </form>
+
+                    {/* Login Link */}
+                    <div className="mt-6 text-center">
+                        <p className="text-sm text-muted-foreground">
+                            Sudah punya akun?{' '}
+                            <Link href="/login" className="font-semibold text-primary hover:underline">
+                                Masuk di sini
+                            </Link>
+                        </p>
                     </div>
-
-                    {otpMessage && (
-                        <p className="text-sm font-medium text-green-600">
-                            {otpMessage}
-                        </p>
-                    )}
-
-                    {otpRequestError && (
-                        <p className="text-sm font-medium text-red-600">
-                            {otpRequestError}
-                        </p>
-                    )}
-
-                    <Button
-                        type="submit"
-                        className="mt-2 w-full"
-                        disabled={form.processing}
-                        data-test="register-user-button"
-                    >
-                        {form.processing && <Spinner />}
-                        Create account
-                    </Button>
                 </div>
-
-                <div className="text-center text-sm text-muted-foreground">
-                    Already have an account?{' '}
-                    <TextLink href={login()} tabIndex={6}>
-                        Log in
-                    </TextLink>
-                </div>
-            </form>
-        </AuthLayout>
+            </div>
+        </>
     );
 }

@@ -178,7 +178,7 @@ export default function OrangtuaDashboard() {
 
                 {/* Bottom Navigation */}
                 <div className="fixed bottom-0 left-0 right-0 border-t bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-                    <div className="flex items-center justify-around px-4 py-3">
+                    <div className="bottom-nav-safe flex items-center justify-around px-4 pt-3">
                         {menuItems.map((item, index) => (
                             <button
                                 key={index}
