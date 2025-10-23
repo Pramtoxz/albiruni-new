@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Form, Head, Link, useForm } from '@inertiajs/react';
-import { store } from '@/routes/login';
-import { LogIn, Mail, Lock, Phone, Send, KeyRound } from 'lucide-react';
+import { store } from '@/routes/Login';
+import {  Mail, Lock, Phone, Send, KeyRound } from 'lucide-react';
 import Logo from '@/assets/home/logoalbiruni.webp'
 
 

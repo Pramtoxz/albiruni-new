@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useForm, Head, Link } from '@inertiajs/react';
-import { LogIn, Mail, Lock, Phone, User, Shield, Send } from 'lucide-react';
+import { Mail, Lock, Phone, User, Shield, Send } from 'lucide-react';
 
 const OTP_CODE_LENGTH = 6;
 

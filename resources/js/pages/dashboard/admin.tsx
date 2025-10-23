@@ -7,7 +7,7 @@ import { Head } from '@inertiajs/react';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard Admin',
-        href: dashboard().url,
+        href: dashboard.url(),
     },
 ];
 
@@ -20,7 +20,7 @@ export default function AdminDashboard() {
                     <h1 className="text-2xl font-bold">Dashboard Admin</h1>
                     <p className="text-muted-foreground">Selamat datang di panel admin</p>
                 </div>
-                
+
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />

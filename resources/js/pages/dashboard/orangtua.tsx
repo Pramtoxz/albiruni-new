@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     Bell,
     BookOpen,
@@ -9,9 +9,11 @@ import {
     CreditCard,
     FileText,
     Home,
+    LogOut,
     MessageSquare,
     Users,
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface Siswa {
     id: number;
@@ -35,6 +37,27 @@ interface PageProps {
 
 export default function OrangtuaDashboard() {
     const { auth, siswa } = usePage<PageProps>().props;
+
+    const handleLogout = () => {
+        Swal.fire({
+            title: 'Keluar?',
+            text: 'Apakah Anda yakin ingin keluar?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Keluar',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post('/logout', {}, {
+                    onSuccess: () => {
+                        router.visit('/login');
+                    }
+                });
+            }
+        });
+    };
 
     const menuItems = [
         { icon: Home, label: 'Beranda', active: true, href: '/dashboard' },
@@ -72,13 +95,24 @@ export default function OrangtuaDashboard() {
                                 <h1 className="text-lg font-semibold">{auth.user.name}</h1>
                             </div>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-primary-foreground hover:bg-primary-foreground/10"
-                        >
-                            <Bell className="h-5 w-5" />
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-primary-foreground hover:bg-primary-foreground/10"
+                            >
+                                <Bell className="h-5 w-5" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-primary-foreground hover:bg-primary-foreground/10"
+                                onClick={handleLogout}
+                                title="Logout"
+                            >
+                                <LogOut className="h-5 w-5" />
+                            </Button>
+                        </div>
                     </div>
 
                     {/* Info Card Siswa */}

@@ -1,4 +1,3 @@
-import NewPasswordController from '@/actions/App/Http/Controllers/Auth/NewPasswordController';
 import { Form, Head } from '@inertiajs/react';
 
 import InputError from '@/components/input-error';
@@ -7,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
+import { store as resetPasswordStore } from '@/actions/App/Http/Controllers/Auth/NewPasswordController';
 
 interface ResetPasswordProps {
     token: string;
@@ -22,7 +22,8 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
             <Head title="Reset password" />
 
             <Form
-                {...NewPasswordController.store.form()}
+                method="post"
+                action={resetPasswordStore.url()}
                 transform={(data) => ({ ...data, token, email })}
                 resetOnSuccess={['password', 'password_confirmation']}
             >
