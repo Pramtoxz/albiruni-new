@@ -61,7 +61,7 @@ export default function GuruDashboard() {
     ];
 
     const quickActions = [
-        { icon: PenTool, label: 'Daily Report', color: 'bg-blue-500', href: '/guru/daily-report/list' },
+        { icon: PenTool, label: 'Daily Report', color: 'bg-blue-500', href: '/guru/daily-report' },
         { icon: BookOpen, label: 'Upload Materi', color: 'bg-green-500', href: '/guru/materi/create' },
         { icon: CheckSquare, label: 'Absensi', color: 'bg-orange-500', href: '/guru/absensi' },
         { icon: Calendar, label: 'Jadwal', color: 'bg-purple-500', href: '/guru/jadwal' },

@@ -191,8 +191,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             type="button"
                             onClick={() => handleModeChange('otp')}
                             className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${mode === 'otp'
-                                    ? 'bg-primary text-primary-foreground shadow-md'
-                                    : 'text-muted-foreground hover:text-foreground'
+                                ? 'bg-primary text-primary-foreground shadow-md'
+                                : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             <Phone className="h-4 w-4" />
@@ -202,8 +202,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             type="button"
                             onClick={() => handleModeChange('password')}
                             className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${mode === 'password'
-                                    ? 'bg-primary text-primary-foreground shadow-md'
-                                    : 'text-muted-foreground hover:text-foreground'
+                                ? 'bg-primary text-primary-foreground shadow-md'
+                                : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             <KeyRound className="h-4 w-4" />
