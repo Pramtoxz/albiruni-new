@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Form, Head, Link, useForm } from '@inertiajs/react';
-import { store } from '@/routes/Login';
-import {  Mail, Lock, Phone, Send, KeyRound } from 'lucide-react';
+import { Mail, Lock, Phone, Send, KeyRound } from 'lucide-react';
 import Logo from '@/assets/home/logoalbiruni.webp'
 
 
@@ -171,9 +170,9 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     <div className="mx-auto max-w-md">
                         <div className="mb-6 flex justify-center">
                             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur">
-                               <img
-                                src={Logo}
-                                alt="Logo Albiruni"
+                                <img
+                                    src={Logo}
+                                    alt="Logo Albiruni"
                                 />
                             </div>
                         </div>
@@ -191,11 +190,10 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <button
                             type="button"
                             onClick={() => handleModeChange('otp')}
-                            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                                mode === 'otp'
+                            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${mode === 'otp'
                                     ? 'bg-primary text-primary-foreground shadow-md'
                                     : 'text-muted-foreground hover:text-foreground'
-                            }`}
+                                }`}
                         >
                             <Phone className="h-4 w-4" />
                             WhatsApp OTP
@@ -203,11 +201,10 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <button
                             type="button"
                             onClick={() => handleModeChange('password')}
-                            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                                mode === 'password'
+                            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${mode === 'password'
                                     ? 'bg-primary text-primary-foreground shadow-md'
                                     : 'text-muted-foreground hover:text-foreground'
-                            }`}
+                                }`}
                         >
                             <KeyRound className="h-4 w-4" />
                             Email & Password
@@ -326,7 +323,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     ) : (
                         /* Password Form */
                         <Form
-                            {...store.form()}
+                            method="post"
+                            action="/login"
                             resetOnSuccess={['password']}
                             className="rounded-3xl bg-card p-6 shadow-2xl"
                         >
