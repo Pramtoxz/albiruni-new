@@ -38,7 +38,7 @@ export default function GuruDashboard() {
     ];
 
     const quickActions = [
-        { icon: PenTool, label: 'Daily Report', color: 'bg-blue-500', href: '/guru/daily-report/create' },
+        { icon: PenTool, label: 'Daily Report', color: 'bg-blue-500', href: '/guru/daily-report/list' },
         { icon: BookOpen, label: 'Upload Materi', color: 'bg-green-500', href: '/guru/materi/create' },
         { icon: CheckSquare, label: 'Absensi', color: 'bg-orange-500', href: '/guru/absensi' },
         { icon: Calendar, label: 'Jadwal', color: 'bg-purple-500', href: '/guru/jadwal' },
@@ -141,29 +141,31 @@ export default function GuruDashboard() {
                         <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-base">📝 Daily Report Hari Ini</CardTitle>
-                                <Link href="/guru/daily-report/create">
+                                <Link href="/guru/daily-report">
                                     <Button size="sm" variant="outline" className="h-8 text-xs">
-                                        + Buat Baru
+                                        Lihat Semua
                                     </Button>
                                 </Link>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             {recentReports.map((report, index) => (
-                                <div key={index} className="flex gap-3 rounded-lg border p-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
-                                        <PenTool className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                <Link key={index} href={`/guru/daily-report/${index + 1}`}>
+                                    <div className="flex gap-3 rounded-lg border p-3 transition-all hover:bg-muted/50">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
+                                            <PenTool className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium">{report.title}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Kelas: {report.class} • {report.time}
+                                            </p>
+                                        </div>
+                                        <span className={`text-xs font-medium ${report.statusColor}`}>
+                                            {report.status}
+                                        </span>
                                     </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">{report.title}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            Kelas: {report.class} • {report.time}
-                                        </p>
-                                    </div>
-                                    <span className={`text-xs font-medium ${report.statusColor}`}>
-                                        {report.status}
-                                    </span>
-                                </div>
+                                </Link>
                             ))}
                             {recentReports.length === 0 && (
                                 <div className="py-8 text-center text-sm text-muted-foreground">
@@ -287,11 +289,10 @@ export default function GuruDashboard() {
                             <Link
                                 key={index}
                                 href={item.href}
-                                className={`flex flex-col items-center gap-1 transition-colors ${
-                                    item.active
+                                className={`flex flex-col items-center gap-1 transition-colors ${item.active
                                         ? 'text-primary'
                                         : 'text-muted-foreground hover:text-foreground'
-                                }`}
+                                    }`}
                             >
                                 <item.icon className="h-5 w-5" />
                                 <span className="text-xs font-medium">{item.label}</span>

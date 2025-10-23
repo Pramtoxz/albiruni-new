@@ -203,14 +203,26 @@ export default function RegisterSiswa() {
                                 />
                             </div>
 
-                            <div className="space-y-2">
+                            <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="foto_siswa">Foto Siswa (3x4)</Label>
                                 <Input
                                     id="foto_siswa"
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setData('foto_siswa', e.target.files?.[0] || null)}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0] || null;
+                                        setData('foto_siswa', file);
+                                    }}
                                 />
+                                {data.foto_siswa && (
+                                    <div className="mt-2">
+                                        <img
+                                            src={URL.createObjectURL(data.foto_siswa)}
+                                            alt="Preview"
+                                            className="h-32 w-24 rounded-lg border object-cover"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

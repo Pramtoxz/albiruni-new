@@ -3,7 +3,7 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
-import { initializeTheme } from './hooks/use-appearance';
+import { OfflineIndicator } from './components/offline-indicator';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -17,7 +17,12 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        root.render(
+            <>
+                <App {...props} />
+                <OfflineIndicator />
+            </>,
+        );
     },
     progress: {
         color: '#4B5563',
@@ -25,4 +30,6 @@ createInertiaApp({
 });
 
 // This will set light / dark mode on load...
-initializeTheme();
+// initializeTheme();
+document.documentElement.classList.add('light');
+document.documentElement.classList.remove('dark');

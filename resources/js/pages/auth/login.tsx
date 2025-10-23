@@ -8,7 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Form, Head, Link, useForm } from '@inertiajs/react';
 import { store } from '@/routes/login';
-import { LogIn, Mail, Lock, Phone, Shield, Send, KeyRound } from 'lucide-react';
+import { LogIn, Mail, Lock, Phone, Send, KeyRound } from 'lucide-react';
+import Logo from '@/assets/home/logoalbiruni.webp'
+
 
 interface LoginProps {
     status?: string;
@@ -169,12 +171,15 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     <div className="mx-auto max-w-md">
                         <div className="mb-6 flex justify-center">
                             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur">
-                                <LogIn className="h-10 w-10" />
+                               <img
+                                src={Logo}
+                                alt="Logo Albiruni"
+                                />
                             </div>
                         </div>
-                        <h1 className="text-center text-3xl font-bold">Selamat Datang</h1>
+                        <h1 className="text-center text-xl font-bold">Al Biruni Preschool And Daycare</h1>
                         <p className="mt-2 text-center opacity-90">
-                            Masuk ke sistem TK Al-Biruni
+                            Silahkan Login Untuk Masuk Ke Sistem
                         </p>
                     </div>
                 </div>

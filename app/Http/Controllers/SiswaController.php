@@ -81,7 +81,10 @@ class SiswaController extends Controller
 
         // Handle foto upload
         if ($request->hasFile('foto_siswa')) {
-            $validated['foto_siswa'] = $request->file('foto_siswa')->store('siswa-photos', 'public');
+            $file = $request->file('foto_siswa');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images/foto_siswa'), $filename);
+            $validated['foto_siswa'] = $filename;
         }
 
         // Create siswa record

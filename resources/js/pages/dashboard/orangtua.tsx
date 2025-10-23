@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import {
     Bell,
     BookOpen,
@@ -10,9 +10,16 @@ import {
     FileText,
     Home,
     MessageSquare,
-    User,
     Users,
 } from 'lucide-react';
+
+interface Siswa {
+    id: number;
+    nama_lengkap: string;
+    nama_panggilan: string;
+    kelas?: string;
+    foto_siswa?: string;
+}
 
 interface PageProps {
     auth: {
@@ -22,25 +29,26 @@ interface PageProps {
             role: string;
         };
     };
+    siswa: Siswa | null;
     [key: string]: any;
 }
 
 export default function OrangtuaDashboard() {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, siswa } = usePage<PageProps>().props;
 
     const menuItems = [
-        { icon: Home, label: 'Beranda', active: true },
-        { icon: Calendar, label: 'Jadwal', active: false },
-        { icon: FileText, label: 'Tugas', active: false },
-        { icon: CreditCard, label: 'Pembayaran', active: false },
-        { icon: MessageSquare, label: 'Pesan', active: false },
+        { icon: Home, label: 'Beranda', active: true, href: '/dashboard' },
+        { icon: FileText, label: 'Daily Report', active: false, href: '/orangtua/daily-report' },
+        { icon: Calendar, label: 'Jadwal', active: false, href: '/orangtua/jadwal' },
+        { icon: CreditCard, label: 'Pembayaran', active: false, href: '/orangtua/pembayaran' },
+        { icon: MessageSquare, label: 'Pesan', active: false, href: '/orangtua/pesan' },
     ];
 
     const quickActions = [
-        { icon: BookOpen, label: 'Rapor', color: 'bg-blue-500' },
-        { icon: Calendar, label: 'Absensi', color: 'bg-green-500' },
-        { icon: CreditCard, label: 'Tagihan', color: 'bg-orange-500' },
-        { icon: Bell, label: 'Notifikasi', color: 'bg-purple-500' },
+        { icon: FileText, label: 'Daily Report', color: 'bg-blue-500', href: '/orangtua/daily-report' },
+        { icon: BookOpen, label: 'Rapor', color: 'bg-green-500', href: '/orangtua/rapor' },
+        { icon: CreditCard, label: 'Tagihan', color: 'bg-orange-500', href: '/orangtua/tagihan' },
+        { icon: Calendar, label: 'Absensi', color: 'bg-purple-500', href: '/orangtua/absensi' },
     ];
 
     return (
@@ -74,35 +82,62 @@ export default function OrangtuaDashboard() {
                     </div>
 
                     {/* Info Card Siswa */}
-                    <Card className="border-0 bg-primary-foreground/10 backdrop-blur">
-                        <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-foreground/20">
-                                    <Users className="h-6 w-6 text-primary-foreground" />
+                    {siswa ? (
+                        <Card className="border-0 bg-primary-foreground/10 backdrop-blur">
+                            <CardContent className="p-4">
+                                <div className="flex items-center gap-3">
+                                    {siswa.foto_siswa ? (
+                                        <Avatar className="h-12 w-12 border-2 border-primary-foreground/20">
+                                            <AvatarImage src={`/assets/images/foto_siswa/${siswa.foto_siswa}`} />
+                                            <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground">
+                                                {siswa.nama_panggilan.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    ) : (
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-foreground/20">
+                                            <Users className="h-6 w-6 text-primary-foreground" />
+                                        </div>
+                                    )}
+                                    <div className="flex-1 text-primary-foreground">
+                                        <p className="text-sm opacity-90">Anak Anda</p>
+                                        <p className="font-semibold">{siswa.nama_panggilan}</p>
+                                        <p className="text-xs opacity-75">
+                                            {siswa.kelas ? `Kelas: ${siswa.kelas}` : 'Belum ada kelas'}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="flex-1 text-primary-foreground">
-                                    <p className="text-sm opacity-90">Anak Anda</p>
-                                    <p className="font-semibold">Nama Siswa</p>
-                                    <p className="text-xs opacity-75">Kelas: TK A</p>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <Card className="border-0 bg-primary-foreground/10 backdrop-blur">
+                            <CardContent className="p-4">
+                                <div className="text-center text-primary-foreground">
+                                    <p className="text-sm opacity-90">Belum ada data siswa</p>
+                                    <Link href="/siswa/register" className="mt-2 inline-block text-xs underline">
+                                        Daftar Siswa
+                                    </Link>
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
 
                 {/* Quick Actions */}
-                <div className="px-4 -mt-4">
+                <div className="-mt-4 px-4">
                     <div className="grid grid-cols-4 gap-3">
                         {quickActions.map((action, index) => (
-                            <button
+                            <Link
                                 key={index}
+                                href={action.href}
                                 className="flex flex-col items-center gap-2 rounded-xl bg-card p-3 shadow-sm transition-all active:scale-95"
                             >
-                                <div className={`flex h-12 w-12 items-center justify-center rounded-full ${action.color} text-white`}>
+                                <div
+                                    className={`flex h-12 w-12 items-center justify-center rounded-full ${action.color} text-white`}
+                                >
                                     <action.icon className="h-6 w-6" />
                                 </div>
                                 <span className="text-xs font-medium text-foreground">{action.label}</span>
-                            </button>
+                            </Link>
                         ))}
                     </div>
                 </div>
@@ -180,8 +215,9 @@ export default function OrangtuaDashboard() {
                 <div className="fixed bottom-0 left-0 right-0 border-t bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
                     <div className="bottom-nav-safe flex items-center justify-around px-4 pt-3">
                         {menuItems.map((item, index) => (
-                            <button
+                            <Link
                                 key={index}
+                                href={item.href}
                                 className={`flex flex-col items-center gap-1 transition-colors ${
                                     item.active
                                         ? 'text-primary'
@@ -190,7 +226,7 @@ export default function OrangtuaDashboard() {
                             >
                                 <item.icon className="h-5 w-5" />
                                 <span className="text-xs font-medium">{item.label}</span>
-                            </button>
+                            </Link>
                         ))}
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,22 +15,47 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('siswa.create');
     Route::post('siswa/register', [SiswaController::class, 'store'])
         ->name('siswa.store');
-    
+
+    // Routes untuk guru - Daily Report
+    Route::prefix('guru')->name('guru.')->group(function () {
+        Route::get('daily-report', [DailyReportController::class, 'index'])
+            ->name('daily-report.index');
+        Route::get('daily-report/create', [DailyReportController::class, 'create'])
+            ->name('daily-report.create');
+        Route::post('daily-report', [DailyReportController::class, 'store'])
+            ->name('daily-report.store');
+        Route::get('daily-report/{dailyReport}', [DailyReportController::class, 'show'])
+            ->name('daily-report.show');
+    });
+
+    // Routes untuk orang tua - Daily Report
+    Route::prefix('orangtua')->name('orangtua.')->middleware('check.siswa')->group(function () {
+        Route::get('daily-report', [DailyReportController::class, 'orangtuaIndex'])
+            ->name('daily-report.index');
+        Route::get('daily-report/{dailyReport}', [DailyReportController::class, 'orangtuaShow'])
+            ->name('daily-report.show');
+    });
+
     // Dashboard dengan middleware check.siswa
     Route::middleware('check.siswa')->group(function () {
         Route::get('dashboard', function () {
             $user = auth()->user();
-            
+
             // Pisahkan dashboard berdasarkan role
             if ($user->role === 'admin') {
                 return Inertia::render('dashboard/admin');
             }
-            
+
             if ($user->role === 'guru') {
                 return Inertia::render('dashboard/guru');
             }
-            
-            return Inertia::render('dashboard/orangtua');
+
+            // Dashboard orang tua dengan data siswa
+            $siswa = \App\Models\Siswa::where('user_id', $user->id)->first();
+
+            return Inertia::render('dashboard/orangtua', [
+                'siswa' => $siswa,
+            ]);
         })->name('dashboard');
     });
 });
