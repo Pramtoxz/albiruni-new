@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DailyReport;
 use App\Models\Siswa;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,8 +14,11 @@ class DailyReportController extends Controller
 {
     public function index(): Response
     {
+        /** @var User $user */
+        $user = auth()->user();
+
         $reports = DailyReport::with(['siswa', 'user'])
-            ->where('user_id', auth()->id())
+            ->where('user_id', $user->id)
             ->orderBy('tanggal', 'desc')
             ->paginate(10);
 
@@ -38,10 +42,22 @@ class DailyReportController extends Controller
     {
         $validated = $request->validate([
             'siswa_id' => 'required|exists:siswa,id',
-            'tanggal' => 'required|date',
+            'tanggal' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) use ($request) {
+                    $exists = DailyReport::where('siswa_id', $request->siswa_id)
+                        ->whereDate('tanggal', $value)
+                        ->exists();
+
+                    if ($exists) {
+                        $fail('Daily report untuk siswa ini pada tanggal tersebut sudah ada.');
+                    }
+                },
+            ],
             'mood' => 'nullable|string|max:50',
             'activity' => 'nullable|string',
-            
+
             // Menu
             'sarapan_pagi' => 'nullable|string|max:255',
             'sarapan_status' => 'nullable|in:habis,dimakan,tidak dimakan',
@@ -49,11 +65,11 @@ class DailyReportController extends Controller
             'makan_siang_status' => 'nullable|in:habis,dimakan,tidak dimakan',
             'snack_sore' => 'nullable|string|max:255',
             'snack_status' => 'nullable|in:habis,dimakan,tidak dimakan',
-            
+
             // Minum
             'minum_air_putih' => 'nullable|string|max:50',
             'minum_susu' => 'nullable|string|max:50',
-            
+
             // Tidur & Toilet
             'tidur_siang' => 'nullable|boolean',
             'tidur_siang_durasi' => 'nullable|string|max:50',
@@ -61,22 +77,27 @@ class DailyReportController extends Controller
             'bak_frekuensi' => 'nullable|integer|min:0',
             'bab' => 'nullable|boolean',
             'bab_frekuensi' => 'nullable|integer|min:0',
-            
+
             // Catatan
             'kebutuhan_besok' => 'nullable|string',
             'catatan_khusus' => 'nullable|string',
             'catatan_insiden' => 'nullable|string',
-            
+
             // Foto
             'foto_kegiatan' => 'nullable|image|max:5120', // 5MB
         ]);
 
         // Handle foto upload
         if ($request->hasFile('foto_kegiatan')) {
-            $validated['foto_kegiatan'] = $request->file('foto_kegiatan')->store('daily-reports', 'public');
+            $file = $request->file('foto_kegiatan');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images/daily_reports'), $filename);
+            $validated['foto_kegiatan'] = $filename;
         }
 
-        $validated['user_id'] = auth()->id();
+        /** @var User $user */
+        $user = auth()->user();
+        $validated['user_id'] = $user->id;
 
         DailyReport::create($validated);
 
@@ -95,9 +116,10 @@ class DailyReportController extends Controller
 
     public function orangtuaIndex(): Response
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
         $siswa = Siswa::where('user_id', $user->id)->first();
-        
+
         if (!$siswa) {
             return Inertia::render('orangtua/daily-report-list', [
                 'reports' => ['data' => []],
@@ -118,9 +140,10 @@ class DailyReportController extends Controller
 
     public function orangtuaShow(DailyReport $dailyReport): Response
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
         $siswa = Siswa::where('user_id', $user->id)->first();
-        
+
         if (!$siswa || $dailyReport->siswa_id !== $siswa->id) {
             abort(403, 'Unauthorized');
         }

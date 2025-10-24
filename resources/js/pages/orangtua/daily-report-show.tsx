@@ -287,9 +287,12 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                                     <h3 className="font-bold text-gray-800">📸 Foto Kegiatan</h3>
                                 </div>
                                 <img
-                                    src={`/storage/${report.foto_kegiatan}`}
+                                    src={`/assets/images/daily_reports/${report.foto_kegiatan}`}
                                     alt="Foto Kegiatan"
-                                    className="w-full rounded-lg shadow-md"
+                                    className="w-full rounded-lg object-cover shadow-md"
+                                    onError={(e) => {
+                                        e.currentTarget.src = '/assets/images/placeholder.jpg';
+                                    }}
                                 />
                             </CardContent>
                         </Card>
@@ -299,7 +302,7 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                     <Card className="border-2 border-gray-200 bg-gray-50">
                         <CardContent className="p-4 text-center">
                             <p className="text-xs text-gray-600">Dilaporkan oleh:</p>
-                            <p className="font-medium text-gray-800">{report.user.name}</p>
+                            <p className="font-medium text-gray-800">Aunty {report.user.name}</p>
                         </CardContent>
                     </Card>
                 </div>

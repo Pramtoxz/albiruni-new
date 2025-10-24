@@ -12,7 +12,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Head, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState, useRef } from 'react';
+import Swal from 'sweetalert2';
 
 interface Siswa {
     id: number;
@@ -50,9 +51,46 @@ export default function DailyReportCreate({ siswaList }: Props) {
         foto_kegiatan: null as File | null,
     });
 
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const isSubmitting = useRef(false);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        router.post('/guru/daily-report', data);
+        
+        // Prevent double submit
+        if (processing || isSubmitting.current) {
+            return;
+        }
+        
+        isSubmitting.current = true;
+        
+        router.post('/guru/daily-report', data, {
+            preserveScroll: true,
+            onSuccess: () => {
+                isSubmitting.current = false;
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Daily report berhasil disimpan',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK',
+                });
+            },
+            onError: (errors) => {
+                isSubmitting.current = false;
+                const errorMessage = errors.tanggal || Object.values(errors)[0] || 'Terjadi kesalahan';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: errorMessage,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK',
+                });
+            },
+            onFinish: () => {
+                isSubmitting.current = false;
+            },
+        });
     };
 
     return (
@@ -78,7 +116,7 @@ export default function DailyReportCreate({ siswaList }: Props) {
                 <form onSubmit={submit} className="mx-auto max-w-4xl space-y-4 p-4 pb-20">
                     {/* Siswa & Tanggal */}
                     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
-                        <h2 className="text-lg font-semibold">� ISiswa & Tanggal</h2>
+                        <h2 className="text-lg font-semibold">Siswa & Tanggal</h2>
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label>Siswa *</Label>
@@ -355,15 +393,57 @@ export default function DailyReportCreate({ siswaList }: Props) {
                             type="file"
                             accept="image/*"
                             capture="environment"
-                            onChange={(e) => setData('foto_kegiatan', e.target.files?.[0] || null)}
+                            onChange={(e) => {
+                                const file = e.target.files?.[0] || null;
+                                setData('foto_kegiatan', file);
+                                
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        setPreviewUrl(reader.result as string);
+                                    };
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    setPreviewUrl(null);
+                                }
+                            }}
                         />
+                        {previewUrl && (
+                            <div className="relative">
+                                <img
+                                    src={previewUrl}
+                                    alt="Preview"
+                                    className="w-full rounded-lg shadow-md"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setData('foto_kegiatan', null);
+                                        setPreviewUrl(null);
+                                    }}
+                                    className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Submit Button */}
-                    <Button type="submit" className="h-12 w-full text-base" disabled={processing}>
+                    <Button 
+                        type="submit" 
+                        className="h-12 w-full text-base" 
+                        disabled={processing || isSubmitting.current || !data.siswa_id || !data.tanggal}
+                    >
                         <Save className="mr-2 h-5 w-5" />
-                        {processing ? 'Menyimpan...' : 'Simpan Daily Report'}
+                        {(processing || isSubmitting.current) ? 'Menyimpan...' : 'Simpan Daily Report'}
                     </Button>
+                    
+                    {(processing || isSubmitting.current) && (
+                        <p className="text-center text-sm text-muted-foreground">
+                            Mohon tunggu, sedang menyimpan data...
+                        </p>
+                    )}
                 </form>
             </div>
         </>
