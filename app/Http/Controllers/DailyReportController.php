@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DailyReport;
 use App\Models\Siswa;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -33,8 +34,15 @@ class DailyReportController extends Controller
             ->orderBy('nama_lengkap')
             ->get();
 
+        $menuMakanan = \App\Models\MenuMakanan::where('is_active', true)
+            ->orderBy('jenis')
+            ->orderBy('nama_menu')
+            ->get()
+            ->groupBy('jenis');
+
         return Inertia::render('guru/daily-report-create', [
             'siswaList' => $siswaList,
+            'menuMakanan' => $menuMakanan,
         ]);
     }
 
@@ -60,11 +68,11 @@ class DailyReportController extends Controller
 
             // Menu
             'sarapan_pagi' => 'nullable|string|max:255',
-            'sarapan_status' => 'nullable|in:habis,dimakan,tidak dimakan',
+            'sarapan_status' => 'nullable|integer|min:0|max:5',
             'makan_siang' => 'nullable|string|max:255',
-            'makan_siang_status' => 'nullable|in:habis,dimakan,tidak dimakan',
+            'makan_siang_status' => 'nullable|integer|min:0|max:5',
             'snack_sore' => 'nullable|string|max:255',
-            'snack_status' => 'nullable|in:habis,dimakan,tidak dimakan',
+            'snack_status' => 'nullable|integer|min:0|max:5',
 
             // Minum
             'minum_air_putih' => 'nullable|string|max:50',
@@ -99,7 +107,11 @@ class DailyReportController extends Controller
         $user = auth()->user();
         $validated['user_id'] = $user->id;
 
-        DailyReport::create($validated);
+        $report = DailyReport::create($validated);
+
+        // Send notification to parent
+        $notificationService = app(NotificationService::class);
+        $notificationService->sendDailyReportToParent($report);
 
         return redirect()->route('guru.daily-report.index')
             ->with('success', 'Daily report berhasil disimpan!');

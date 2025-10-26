@@ -1,4 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
+import { StarRating } from '@/components/star-rating';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Check, X } from 'lucide-react';
 
@@ -15,11 +16,11 @@ interface DailyReport {
         name: string;
     };
     sarapan_pagi: string;
-    sarapan_status: string;
+    sarapan_status: number;
     makan_siang: string;
-    makan_siang_status: string;
+    makan_siang_status: number;
     snack_sore: string;
-    snack_status: string;
+    snack_status: number;
     minum_air_putih: string;
     minum_susu: string;
     tidur_siang: boolean;
@@ -67,12 +68,6 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
         ];
 
         return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-    };
-
-    const getStatusColor = (status: string) => {
-        if (status === 'habis') return 'bg-green-100 text-green-700';
-        if (status === 'dimakan') return 'bg-blue-100 text-blue-700';
-        return 'bg-red-100 text-red-700';
     };
 
     return (
@@ -133,40 +128,28 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                                 <h3 className="font-bold text-gray-800">🍽️ Makanan & Minuman</h3>
                             </div>
                             <div className="space-y-3">
-                                <div className="flex items-center justify-between rounded-lg bg-orange-50 p-3">
+                                <div className="rounded-lg bg-orange-50 p-3 space-y-2">
                                     <div>
                                         <p className="text-sm font-medium text-gray-800">Sarapan Pagi</p>
                                         <p className="text-xs text-gray-600">{report.sarapan_pagi}</p>
                                     </div>
-                                    <span
-                                        className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(report.sarapan_status)}`}
-                                    >
-                                        {report.sarapan_status}
-                                    </span>
+                                    <StarRating value={report.sarapan_status} readonly />
                                 </div>
 
-                                <div className="flex items-center justify-between rounded-lg bg-orange-50 p-3">
+                                <div className="rounded-lg bg-orange-50 p-3 space-y-2">
                                     <div>
                                         <p className="text-sm font-medium text-gray-800">Makan Siang</p>
                                         <p className="text-xs text-gray-600">{report.makan_siang}</p>
                                     </div>
-                                    <span
-                                        className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(report.makan_siang_status)}`}
-                                    >
-                                        {report.makan_siang_status}
-                                    </span>
+                                    <StarRating value={report.makan_siang_status} readonly />
                                 </div>
 
-                                <div className="flex items-center justify-between rounded-lg bg-orange-50 p-3">
+                                <div className="rounded-lg bg-orange-50 p-3 space-y-2">
                                     <div>
                                         <p className="text-sm font-medium text-gray-800">Snack Sore</p>
                                         <p className="text-xs text-gray-600">{report.snack_sore}</p>
                                     </div>
-                                    <span
-                                        className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(report.snack_status)}`}
-                                    >
-                                        {report.snack_status}
-                                    </span>
+                                    <StarRating value={report.snack_status} readonly />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">

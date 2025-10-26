@@ -10,6 +10,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { StarRating } from '@/components/star-rating';
 import { Head, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
 import { FormEventHandler, useState, useRef } from 'react';
@@ -21,22 +22,33 @@ interface Siswa {
     nama_panggilan: string;
 }
 
-interface Props {
-    siswaList: Siswa[];
+interface MenuMakanan {
+    id: number;
+    nama_menu: string;
+    jenis: string;
 }
 
-export default function DailyReportCreate({ siswaList }: Props) {
+interface Props {
+    siswaList: Siswa[];
+    menuMakanan: {
+        sarapan?: MenuMakanan[];
+        makan_siang?: MenuMakanan[];
+        snack?: MenuMakanan[];
+    };
+}
+
+export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
     const { data, setData, processing } = useForm({
         siswa_id: '',
         tanggal: new Date().toISOString().split('T')[0],
         mood: '',
         activity: '',
         sarapan_pagi: '',
-        sarapan_status: '',
+        sarapan_status: 0,
         makan_siang: '',
-        makan_siang_status: '',
+        makan_siang_status: 0,
         snack_sore: '',
-        snack_status: '',
+        snack_status: 0,
         minum_air_putih: '',
         minum_susu: '',
         tidur_siang: false,
@@ -56,14 +68,14 @@ export default function DailyReportCreate({ siswaList }: Props) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        
+
         // Prevent double submit
         if (processing || isSubmitting.current) {
             return;
         }
-        
+
         isSubmitting.current = true;
-        
+
         router.post('/guru/daily-report', data, {
             preserveScroll: true,
             onSuccess: () => {
@@ -180,84 +192,111 @@ export default function DailyReportCreate({ siswaList }: Props) {
                     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
                         <h2 className="text-lg font-semibold">🍽️ Makanan & Minuman</h2>
                         <div className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label>Sarapan Pagi</Label>
-                                    <Input
-                                        value={data.sarapan_pagi}
-                                        onChange={(e) => setData('sarapan_pagi', e.target.value)}
-                                        placeholder="Nasi goreng, telur"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Status</Label>
                                     <Select
-                                        value={data.sarapan_status}
-                                        onValueChange={(value) => setData('sarapan_status', value)}
+                                        value={data.sarapan_pagi}
+                                        onValueChange={(value) => setData('sarapan_pagi', value)}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Status" />
+                                            <SelectValue placeholder="Pilih menu sarapan" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="habis">Habis</SelectItem>
-                                            <SelectItem value="dimakan">Dimakan</SelectItem>
-                                            <SelectItem value="tidak dimakan">Tidak Dimakan</SelectItem>
+                                            {menuMakanan.sarapan?.map((menu) => (
+                                                <SelectItem key={menu.id} value={menu.nama_menu}>
+                                                    {menu.nama_menu}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
+                                <div className="space-y-2">
+                                    <Label>Rating Sarapan</Label>
+                                    <StarRating
+                                        value={data.sarapan_status}
+                                        onChange={(value) => setData('sarapan_status', value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        {data.sarapan_status === 0 && 'Belum dinilai'}
+                                        {data.sarapan_status === 1 && '⭐ Tidak dimakan'}
+                                        {data.sarapan_status === 2 && '⭐⭐ Sedikit'}
+                                        {data.sarapan_status === 3 && '⭐⭐⭐ Cukup'}
+                                        {data.sarapan_status === 4 && '⭐⭐⭐⭐ Banyak'}
+                                        {data.sarapan_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
+                                    </p>
+                                </div>
                             </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label>Makan Siang</Label>
-                                    <Input
-                                        value={data.makan_siang}
-                                        onChange={(e) => setData('makan_siang', e.target.value)}
-                                        placeholder="Nasi, ayam, sayur"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Status</Label>
                                     <Select
-                                        value={data.makan_siang_status}
-                                        onValueChange={(value) => setData('makan_siang_status', value)}
+                                        value={data.makan_siang}
+                                        onValueChange={(value) => setData('makan_siang', value)}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Status" />
+                                            <SelectValue placeholder="Pilih menu makan siang" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="habis">Habis</SelectItem>
-                                            <SelectItem value="dimakan">Dimakan</SelectItem>
-                                            <SelectItem value="tidak dimakan">Tidak Dimakan</SelectItem>
+                                            {menuMakanan.makan_siang?.map((menu) => (
+                                                <SelectItem key={menu.id} value={menu.nama_menu}>
+                                                    {menu.nama_menu}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Rating Makan Siang</Label>
+                                    <StarRating
+                                        value={data.makan_siang_status}
+                                        onChange={(value) => setData('makan_siang_status', value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        {data.makan_siang_status === 0 && 'Belum dinilai'}
+                                        {data.makan_siang_status === 1 && '⭐ Tidak dimakan'}
+                                        {data.makan_siang_status === 2 && '⭐⭐ Sedikit'}
+                                        {data.makan_siang_status === 3 && '⭐⭐⭐ Cukup'}
+                                        {data.makan_siang_status === 4 && '⭐⭐⭐⭐ Banyak'}
+                                        {data.makan_siang_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
+                                    </p>
                                 </div>
                             </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label>Snack Sore</Label>
-                                    <Input
-                                        value={data.snack_sore}
-                                        onChange={(e) => setData('snack_sore', e.target.value)}
-                                        placeholder="Biskuit, buah"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Status</Label>
                                     <Select
-                                        value={data.snack_status}
-                                        onValueChange={(value) => setData('snack_status', value)}
+                                        value={data.snack_sore}
+                                        onValueChange={(value) => setData('snack_sore', value)}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Status" />
+                                            <SelectValue placeholder="Pilih menu snack" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="habis">Habis</SelectItem>
-                                            <SelectItem value="dimakan">Dimakan</SelectItem>
-                                            <SelectItem value="tidak dimakan">Tidak Dimakan</SelectItem>
+                                            {menuMakanan.snack?.map((menu) => (
+                                                <SelectItem key={menu.id} value={menu.nama_menu}>
+                                                    {menu.nama_menu}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Rating Snack</Label>
+                                    <StarRating
+                                        value={data.snack_status}
+                                        onChange={(value) => setData('snack_status', value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        {data.snack_status === 0 && 'Belum dinilai'}
+                                        {data.snack_status === 1 && '⭐ Tidak dimakan'}
+                                        {data.snack_status === 2 && '⭐⭐ Sedikit'}
+                                        {data.snack_status === 3 && '⭐⭐⭐ Cukup'}
+                                        {data.snack_status === 4 && '⭐⭐⭐⭐ Banyak'}
+                                        {data.snack_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
+                                    </p>
                                 </div>
                             </div>
 
@@ -396,7 +435,7 @@ export default function DailyReportCreate({ siswaList }: Props) {
                             onChange={(e) => {
                                 const file = e.target.files?.[0] || null;
                                 setData('foto_kegiatan', file);
-                                
+
                                 if (file) {
                                     const reader = new FileReader();
                                     reader.onloadend = () => {
@@ -430,15 +469,15 @@ export default function DailyReportCreate({ siswaList }: Props) {
                     </div>
 
                     {/* Submit Button */}
-                    <Button 
-                        type="submit" 
-                        className="h-12 w-full text-base" 
+                    <Button
+                        type="submit"
+                        className="h-12 w-full text-base"
                         disabled={processing || isSubmitting.current || !data.siswa_id || !data.tanggal}
                     >
                         <Save className="mr-2 h-5 w-5" />
                         {(processing || isSubmitting.current) ? 'Menyimpan...' : 'Simpan Daily Report'}
                     </Button>
-                    
+
                     {(processing || isSubmitting.current) && (
                         <p className="text-center text-sm text-muted-foreground">
                             Mohon tunggu, sedang menyimpan data...

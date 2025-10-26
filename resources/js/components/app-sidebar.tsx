@@ -20,6 +20,7 @@ import {
     Users,
     UserCheck,
     CheckCircle2,
+    UtensilsCrossed,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -65,6 +66,11 @@ export function AppSidebar() {
             title: 'Data Siswa',
             href: '/admin/siswa/approved/list',
             icon: CheckCircle2,
+        });
+        mainNavItems.push({
+            title: 'Menu Makanan',
+            href: '/admin/menu-makanan',
+            icon: UtensilsCrossed,
         });
     }
 

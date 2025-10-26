@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StarRating } from '@/components/star-rating';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Calendar, Check, X } from 'lucide-react';
 
@@ -16,11 +17,11 @@ interface DailyReport {
         name: string;
     };
     sarapan_pagi: string;
-    sarapan_status: string;
+    sarapan_status: number;
     makan_siang: string;
-    makan_siang_status: string;
+    makan_siang_status: number;
     snack_sore: string;
-    snack_status: string;
+    snack_status: number;
     minum_air_putih: string;
     minum_susu: string;
     tidur_siang: boolean;
@@ -68,15 +69,6 @@ export default function DailyReportShow({ report }: Props) {
         ];
 
         return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-    };
-
-    const getStatusBadge = (status: string) => {
-        const badges: { [key: string]: string } = {
-            habis: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
-            dimakan: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
-            'tidak dimakan': 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
-        };
-        return badges[status] || badges.dimakan;
     };
 
     return (
@@ -134,40 +126,28 @@ export default function DailyReportShow({ report }: Props) {
                             <CardTitle className="text-base">🍽️ Makanan & Minuman</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            <div className="flex items-center justify-between rounded-lg border p-3">
+                            <div className="rounded-lg border p-3 space-y-2">
                                 <div>
                                     <p className="text-sm font-medium">Sarapan Pagi</p>
                                     <p className="text-xs text-muted-foreground">{report.sarapan_pagi}</p>
                                 </div>
-                                <span
-                                    className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(report.sarapan_status)}`}
-                                >
-                                    {report.sarapan_status}
-                                </span>
+                                <StarRating value={report.sarapan_status} readonly size="sm" />
                             </div>
 
-                            <div className="flex items-center justify-between rounded-lg border p-3">
+                            <div className="rounded-lg border p-3 space-y-2">
                                 <div>
                                     <p className="text-sm font-medium">Makan Siang</p>
                                     <p className="text-xs text-muted-foreground">{report.makan_siang}</p>
                                 </div>
-                                <span
-                                    className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(report.makan_siang_status)}`}
-                                >
-                                    {report.makan_siang_status}
-                                </span>
+                                <StarRating value={report.makan_siang_status} readonly size="sm" />
                             </div>
 
-                            <div className="flex items-center justify-between rounded-lg border p-3">
+                            <div className="rounded-lg border p-3 space-y-2">
                                 <div>
                                     <p className="text-sm font-medium">Snack Sore</p>
                                     <p className="text-xs text-muted-foreground">{report.snack_sore}</p>
                                 </div>
-                                <span
-                                    className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(report.snack_status)}`}
-                                >
-                                    {report.snack_status}
-                                </span>
+                                <StarRating value={report.snack_status} readonly size="sm" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
