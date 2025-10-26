@@ -60,6 +60,22 @@ export default function SiswaShow({ siswa }: Props) {
                     </div>
                 </div>
 
+                {/* Foto Siswa */}
+                {siswa.foto_siswa && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Foto Siswa</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex justify-center">
+                            <img
+                                src={`/assets/images/foto_siswa/${siswa.foto_siswa}`}
+                                alt={siswa.nama_lengkap}
+                                className="w-48 h-48 object-cover rounded-lg border-2 border-border"
+                            />
+                        </CardContent>
+                    </Card>
+                )}
+
                 <div className="grid gap-6 md:grid-cols-2">
                     {/* Informasi Umum */}
                     <Card>
@@ -161,6 +177,28 @@ export default function SiswaShow({ siswa }: Props) {
                             <InfoRow label="Tanggal Pendaftaran" value={formatDate(siswa.tanggal_pendaftaran)} />
                             <InfoRow label="Email Orang Tua" value={siswa.user?.email} />
                             <InfoRow label="Nama Akun" value={siswa.user?.name} />
+                            {siswa.status_siswa && (
+                                <>
+                                    <InfoRow
+                                        label="Status"
+                                        value="Diterima"
+                                    />
+                                    <InfoRow
+                                        label="Jenis Pembayaran"
+                                        value={
+                                            siswa.jenis_pembayaran === 'transfer'
+                                                ? 'Transfer Bank'
+                                                : siswa.jenis_pembayaran === 'cash'
+                                                  ? 'Cash / Tunai'
+                                                  : '-'
+                                        }
+                                    />
+                                    <InfoRow
+                                        label="Tanggal Disetujui"
+                                        value={formatDate(siswa.updated_at)}
+                                    />
+                                </>
+                            )}
                         </CardContent>
                     </Card>
                 </div>

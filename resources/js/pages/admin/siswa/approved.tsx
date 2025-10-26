@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Eye, UserCheck, Clock } from 'lucide-react';
+import { Eye, CheckCircle2, CreditCard, Banknote, Pencil } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Siswa } from '@/types';
 
 interface Props {
-    pendingSiswa: {
+    approvedSiswa: {
         data: Siswa[];
         links: any[];
         current_page: number;
@@ -22,7 +22,7 @@ interface Props {
     };
 }
 
-export default function SiswaIndex({ pendingSiswa }: Props) {
+export default function SiswaApproved({ approvedSiswa }: Props) {
     const formatDate = (dateString?: string) => {
         if (!dateString) return '-';
         return new Date(dateString).toLocaleDateString('id-ID', {
@@ -36,26 +36,46 @@ export default function SiswaIndex({ pendingSiswa }: Props) {
         return siswa.ayah_no_hp || siswa.ibu_no_hp || '-';
     };
 
+    const getPaymentBadge = (jenisPembayaran?: 'transfer' | 'cash') => {
+        if (jenisPembayaran === 'transfer') {
+            return (
+                <Badge variant="default" className="gap-1">
+                    <CreditCard className="h-3 w-3" />
+                    Transfer
+                </Badge>
+            );
+        }
+        if (jenisPembayaran === 'cash') {
+            return (
+                <Badge variant="secondary" className="gap-1">
+                    <Banknote className="h-3 w-3" />
+                    Cash
+                </Badge>
+            );
+        }
+        return <Badge variant="outline">-</Badge>;
+    };
+
     return (
         <AppLayout>
-            <Head title="Pendaftaran Siswa Baru" />
+            <Head title="Data Siswa" />
 
             <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Pendaftaran Siswa Baru</h1>
+                        <h1 className="text-3xl font-bold">Kelola Data Siswa</h1>
                         <p className="text-muted-foreground mt-1">
-                            Kelola persetujuan pendaftaran siswa baru
+                            Daftar siswa yang sudah disetujui
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Link href="/admin/siswa/approved/list">
-                            <Button variant="outline">Data Siswa</Button>
+                        <Link href="/admin/siswa">
+                            <Button variant="outline">Pendaftaran Baru</Button>
                         </Link>
-                        <Badge variant="secondary" className="text-lg px-4 py-2">
-                            <Clock className="mr-2 h-5 w-5" />
-                            {pendingSiswa.data.length} Menunggu
+                        <Badge variant="default" className="text-lg px-4 py-2">
+                            <CheckCircle2 className="mr-2 h-5 w-5" />
+                            {approvedSiswa.data.length} Siswa
                         </Badge>
                     </div>
                 </div>
@@ -67,24 +87,26 @@ export default function SiswaIndex({ pendingSiswa }: Props) {
                             <TableRow>
                                 <TableHead>Foto</TableHead>
                                 <TableHead>Nama Siswa</TableHead>
-                                <TableHead>Tanggal Daftar</TableHead>
+                                <TableHead>Jenis Kelamin</TableHead>
+                                <TableHead>Tanggal Lahir</TableHead>
                                 <TableHead>Kontak Orang Tua</TableHead>
-                                <TableHead>Lokasi</TableHead>
+                                <TableHead>Jenis Pembayaran</TableHead>
+                                <TableHead>Tanggal Disetujui</TableHead>
                                 <TableHead className="text-right">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {pendingSiswa.data.length === 0 ? (
+                            {approvedSiswa.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center py-8">
-                                        <UserCheck className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                                    <TableCell colSpan={8} className="text-center py-8">
+                                        <CheckCircle2 className="mx-auto h-12 w-12 text-muted-foreground/50" />
                                         <p className="mt-2 text-muted-foreground">
-                                            Tidak ada pendaftaran yang menunggu persetujuan
+                                            Belum ada siswa yang disetujui
                                         </p>
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                pendingSiswa.data.map((siswa) => (
+                                approvedSiswa.data.map((siswa) => (
                                     <TableRow key={siswa.id}>
                                         <TableCell>
                                             {siswa.foto_siswa ? (
@@ -102,20 +124,30 @@ export default function SiswaIndex({ pendingSiswa }: Props) {
                                         <TableCell className="font-medium">
                                             {siswa.nama_lengkap}
                                         </TableCell>
+                                        <TableCell>{siswa.jenis_kelamin}</TableCell>
                                         <TableCell>
-                                            {formatDate(siswa.tanggal_pendaftaran)}
+                                            {formatDate(siswa.tanggal_lahir)}
                                         </TableCell>
                                         <TableCell>{getContactInfo(siswa)}</TableCell>
                                         <TableCell>
-                                            {siswa.lokasi_pendaftaran || '-'}
+                                            {getPaymentBadge(siswa.jenis_pembayaran)}
+                                        </TableCell>
+                                        <TableCell>
+                                            {formatDate(siswa.updated_at)}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Link href={`/admin/siswa/${siswa.id}`}>
-                                                <Button variant="outline" size="sm">
-                                                    <Eye className="mr-2 h-4 w-4" />
-                                                    Lihat Detail
-                                                </Button>
-                                            </Link>
+                                            <div className="flex justify-end gap-2">
+                                                <Link href={`/admin/siswa/${siswa.id}`}>
+                                                    <Button variant="outline" size="sm">
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
+                                                </Link>
+                                                <Link href={`/admin/siswa/${siswa.id}/edit`}>
+                                                    <Button variant="outline" size="sm">
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                </Link>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -125,9 +157,9 @@ export default function SiswaIndex({ pendingSiswa }: Props) {
                 </div>
 
                 {/* Pagination */}
-                {pendingSiswa.last_page > 1 && (
+                {approvedSiswa.last_page > 1 && (
                     <div className="flex justify-center gap-2">
-                        {pendingSiswa.links.map((link, index) => (
+                        {approvedSiswa.links.map((link, index) => (
                             <Button
                                 key={index}
                                 variant={link.active ? 'default' : 'outline'}

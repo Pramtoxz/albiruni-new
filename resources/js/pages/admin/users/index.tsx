@@ -36,7 +36,7 @@ interface Props {
 export default function UsersIndex({ users }: Props) {
     const handleDelete = (userId: number) => {
         if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
-            router.delete(route('admin.users.destroy', userId));
+            router.delete(`/admin/users/${userId}`);
         }
     };
 
