@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Set remember token lifetime to 30 days (43200 minutes)
+        config(['session.lifetime' => config('auth.remember_token_lifetime', 43200)]);
     }
 }

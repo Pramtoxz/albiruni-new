@@ -22,11 +22,33 @@ class OtpService
     }
 
     /**
-     * Normalize phone number by stripping non-digit characters.
+     * Normalize phone number to 62 format.
+     * - 08xxx -> 628xxx
+     * - 62xxx -> 62xxx (unchanged)
+     * - 8xxx -> 628xxx
      */
     public function normalizePhone(string $phone): string
     {
-        return preg_replace('/\D+/', '', $phone);
+        // Remove all non-numeric characters
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+
+        // Convert 08xx to 628xx
+        if (str_starts_with($phone, '08')) {
+            return '62' . substr($phone, 1);
+        }
+
+        // If already starts with 62, return as is
+        if (str_starts_with($phone, '62')) {
+            return $phone;
+        }
+
+        // If starts with 8 (without 0), add 62
+        if (str_starts_with($phone, '8')) {
+            return '62' . $phone;
+        }
+
+        // Default: add 62 prefix
+        return '62' . $phone;
     }
 
     /**

@@ -1,8 +1,8 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { Users, FileText, Settings } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,19 +21,62 @@ export default function AdminDashboard() {
                     <p className="text-muted-foreground">Selamat datang di panel admin</p>
                 </div>
 
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                <div className="grid gap-4 md:grid-cols-3">
+                    {/* User Management Card */}
+                    <Link href="/admin/users">
+                        <div className="group relative overflow-hidden rounded-xl border bg-card p-6 transition-all hover:shadow-lg hover:border-primary">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-2">Manajemen User</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Kelola akun guru dan orang tua
+                                    </p>
+                                </div>
+                                <div className="rounded-lg bg-primary/10 p-3">
+                                    <Users className="h-6 w-6 text-primary" />
+                                </div>
+                            </div>
+                            <div className="mt-4 text-sm font-medium text-primary group-hover:underline">
+                                Lihat semua →
+                            </div>
+                        </div>
+                    </Link>
+
+                    {/* Daily Reports Card */}
+                    <div className="relative overflow-hidden rounded-xl border bg-card p-6 opacity-50">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2">Laporan Harian</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Lihat semua laporan harian
+                                </p>
+                            </div>
+                            <div className="rounded-lg bg-muted p-3">
+                                <FileText className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                        </div>
+                        <div className="mt-4 text-sm text-muted-foreground">
+                            Segera hadir
+                        </div>
                     </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                    {/* Settings Card */}
+                    <div className="relative overflow-hidden rounded-xl border bg-card p-6 opacity-50">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2">Pengaturan</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Konfigurasi sistem
+                                </p>
+                            </div>
+                            <div className="rounded-lg bg-muted p-3">
+                                <Settings className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                        </div>
+                        <div className="mt-4 text-sm text-muted-foreground">
+                            Segera hadir
+                        </div>
                     </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                 </div>
             </div>
         </AppLayout>

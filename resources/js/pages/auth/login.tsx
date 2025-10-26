@@ -2,21 +2,17 @@ import { FormEvent, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { Form, Head, Link, useForm } from '@inertiajs/react';
-import { Mail, Lock, Phone, Send, KeyRound } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { Phone, Send } from 'lucide-react';
 import Logo from '@/assets/home/logoalbiruni.webp'
 
 
 interface LoginProps {
     status?: string;
-    canResetPassword: boolean;
 }
-
-type LoginMode = 'password' | 'otp';
 
 const OTP_CODE_LENGTH = 6;
 
@@ -52,20 +48,24 @@ const isOtpSendResponse = (value: unknown): value is OtpSendResponse => {
     );
 };
 
-const getCsrfToken = () => {
+const getCsrfToken = (): string => {
     if (typeof document === 'undefined') {
         return '';
     }
 
-    return (
-        document
-            .querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
-            ?.getAttribute('content') ?? ''
-    );
+    const token = document
+        .querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
+        ?.getAttribute('content');
+
+    if (!token) {
+        console.error('CSRF token not found in meta tag');
+        return '';
+    }
+
+    return token;
 };
 
-export default function Login({ status, canResetPassword }: LoginProps) {
-    const [mode, setMode] = useState<LoginMode>('otp');
+export default function Login({ status }: LoginProps) {
     const otpForm = useForm({
         nohp: '',
         otp_code: '',
@@ -76,21 +76,15 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     const [otpRequestError, setOtpRequestError] = useState<string | null>(null);
     const [otpSendErrors, setOtpSendErrors] = useState<Record<string, string[]>>({});
 
-    const handleModeChange = (nextMode: LoginMode) => {
-        setMode(nextMode);
-        if (nextMode === 'otp') {
-            return;
-        }
-
-        otpForm.reset();
-        setOtpMessage(null);
-        setOtpRequestError(null);
-        setOtpSendErrors({});
-    };
-
     const handleSendOtp = async () => {
         if (!otpForm.data.nohp) {
             setOtpSendErrors({ nohp: ['Nomor WhatsApp wajib diisi.'] });
+            return;
+        }
+
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) {
+            setOtpRequestError('CSRF token tidak ditemukan. Silakan refresh halaman.');
             return;
         }
 
@@ -106,7 +100,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-CSRF-TOKEN': csrfToken,
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify({
@@ -128,6 +122,13 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             }
 
             if (!response.ok) {
+                if (response.status === 419) {
+                    setOtpRequestError(
+                        'Session expired. Silakan refresh halaman dan coba lagi.',
+                    );
+                    return;
+                }
+
                 if (response.status === 422 && payload?.errors) {
                     setOtpSendErrors(payload.errors);
                     return;
@@ -178,42 +179,18 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         </div>
                         <h1 className="text-center text-xl font-bold">Al Biruni Preschool And Daycare</h1>
                         <p className="mt-2 text-center opacity-90">
-                            Silahkan Login Untuk Masuk Ke Sistem
+                            Login dengan WhatsApp OTP
+                        </p>
+                        <p className="mt-1 text-center text-sm opacity-75">
+                            Hubungi admin untuk mendaftarkan nomor Anda
                         </p>
                     </div>
                 </div>
 
                 {/* Form Container */}
                 <div className="mx-auto -mt-10 w-full max-w-md px-6 pb-8">
-                    {/* Mode Switcher */}
-                    <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl bg-card p-2 shadow-lg">
-                        <button
-                            type="button"
-                            onClick={() => handleModeChange('otp')}
-                            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${mode === 'otp'
-                                ? 'bg-primary text-primary-foreground shadow-md'
-                                : 'text-muted-foreground hover:text-foreground'
-                                }`}
-                        >
-                            <Phone className="h-4 w-4" />
-                            WhatsApp OTP
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handleModeChange('password')}
-                            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${mode === 'password'
-                                ? 'bg-primary text-primary-foreground shadow-md'
-                                : 'text-muted-foreground hover:text-foreground'
-                                }`}
-                        >
-                            <KeyRound className="h-4 w-4" />
-                            Email & Password
-                        </button>
-                    </div>
-
                     {/* OTP Form */}
-                    {mode === 'otp' ? (
-                        <form
+                    <form
                             onSubmit={handleOtpSubmit}
                             className="rounded-3xl bg-card p-6 shadow-2xl"
                             noValidate
@@ -239,7 +216,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                 otpForm.clearErrors('nohp');
                                                 setOtpSendErrors({});
                                             }}
-                                            placeholder="628123xxxxxxxxx"
+                                            placeholder="08123xxxxxxxxx"
                                             className="h-12 pl-11 text-base"
                                         />
                                     </div>
@@ -282,19 +259,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                     <InputError message={otpForm.errors.otp_code} />
                                 </div>
 
-                                {/* Remember Me */}
-                                <div className="flex items-center space-x-3">
-                                    <Checkbox
-                                        id="rememberOtp"
-                                        checked={otpForm.data.remember}
-                                        onCheckedChange={(checked) =>
-                                            otpForm.setData('remember', Boolean(checked))
-                                        }
-                                    />
-                                    <Label htmlFor="rememberOtp" className="text-sm">
-                                        Ingat saya
-                                    </Label>
-                                </div>
+                                {/* Auto Remember Me - Hidden but always true */}
+                                <input type="hidden" name="remember" value="1" />
 
                                 {/* Messages */}
                                 {otpMessage && (
@@ -320,98 +286,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 </Button>
                             </div>
                         </form>
-                    ) : (
-                        /* Password Form */
-                        <Form
-                            method="post"
-                            action="/login"
-                            resetOnSuccess={['password']}
-                            className="rounded-3xl bg-card p-6 shadow-2xl"
-                        >
-                            {({ processing, errors }) => (
-                                <div className="space-y-5">
-                                    {/* Email */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email" className="text-sm font-medium">
-                                            Email
-                                        </Label>
-                                        <div className="relative">
-                                            <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                                            <Input
-                                                id="email"
-                                                type="email"
-                                                name="email"
-                                                required
-                                                autoFocus
-                                                autoComplete="email"
-                                                placeholder="email@example.com"
-                                                className="h-12 pl-11 text-base"
-                                            />
-                                        </div>
-                                        <InputError message={errors.email} />
-                                    </div>
-
-                                    {/* Password */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between">
-                                            <Label htmlFor="password" className="text-sm font-medium">
-                                                Password
-                                            </Label>
-                                            {canResetPassword && (
-                                                <Link
-                                                    href="/forgot-password"
-                                                    className="text-xs font-medium text-primary hover:underline"
-                                                >
-                                                    Lupa password?
-                                                </Link>
-                                            )}
-                                        </div>
-                                        <div className="relative">
-                                            <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                                            <Input
-                                                id="password"
-                                                type="password"
-                                                name="password"
-                                                required
-                                                autoComplete="current-password"
-                                                placeholder="Masukkan password"
-                                                className="h-12 pl-11 text-base"
-                                            />
-                                        </div>
-                                        <InputError message={errors.password} />
-                                    </div>
-
-                                    {/* Remember Me */}
-                                    <div className="flex items-center space-x-3">
-                                        <Checkbox id="remember" name="remember" />
-                                        <Label htmlFor="remember" className="text-sm">
-                                            Ingat saya
-                                        </Label>
-                                    </div>
-
-                                    {/* Submit Button */}
-                                    <Button
-                                        type="submit"
-                                        className="h-12 w-full text-base font-semibold"
-                                        disabled={processing}
-                                    >
-                                        {processing && <Spinner />}
-                                        Masuk
-                                    </Button>
-                                </div>
-                            )}
-                        </Form>
-                    )}
-
-                    {/* Register Link */}
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-muted-foreground">
-                            Belum punya akun?{' '}
-                            <Link href="/register" className="font-semibold text-primary hover:underline">
-                                Daftar sekarang
-                            </Link>
-                        </p>
-                    </div>
 
                     {/* Status Message */}
                     {status && (

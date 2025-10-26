@@ -77,7 +77,8 @@ class OtpController extends Controller
             OtpType::Login
         );
 
-        Auth::login($user, $validated['remember'] ?? false);
+        // Auto-enable remember me for webview compatibility
+        Auth::login($user, true);
 
         $request->session()->regenerate();
 

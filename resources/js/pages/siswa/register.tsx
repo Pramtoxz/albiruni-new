@@ -594,7 +594,7 @@ export default function RegisterSiswa() {
                                     id="lokasi_pendaftaran"
                                     value={data.lokasi_pendaftaran}
                                     onChange={(e) => setData('lokasi_pendaftaran', e.target.value)}
-                                    placeholder="Contoh: PADANG"
+                                    placeholder="Contoh: Ulak Karang"
                                 />
                             </div>
 

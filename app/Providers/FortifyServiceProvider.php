@@ -28,6 +28,21 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->configureViews();
         $this->configureRateLimiting();
+        $this->configureAuthentication();
+        
+        // Disable default login route (only OTP login allowed)
+        Fortify::authenticateUsing(function () {
+            return null;
+        });
+    }
+
+    /**
+     * Configure authentication behavior.
+     */
+    private function configureAuthentication(): void
+    {
+        // Disable default email/password authentication
+        // Only OTP login is allowed via OtpController
     }
 
     /**
@@ -36,7 +51,6 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureViews(): void
     {
         Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
-            'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'status' => $request->session()->get('status'),
         ]));
 

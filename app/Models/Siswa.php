@@ -59,6 +59,8 @@ class Siswa extends Model
         'kontak_darurat_no_hp',
         'lokasi_pendaftaran',
         'tanggal_pendaftaran',
+        'status_siswa',
+        'jenis_pembayaran',
     ];
 
     protected $casts = [
@@ -66,6 +68,7 @@ class Siswa extends Model
         'tanggal_pendaftaran' => 'date',
         'berat_badan' => 'decimal:2',
         'tinggi_badan' => 'decimal:2',
+        'status_siswa' => 'boolean',
     ];
 
     public function user(): BelongsTo
