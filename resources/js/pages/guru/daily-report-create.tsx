@@ -54,9 +54,9 @@ export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
         tidur_siang: false,
         tidur_siang_durasi: '',
         bak: false,
-        bak_frekuensi: 0,
+        bak_frekuensi: '',
         bab: false,
-        bab_frekuensi: 0,
+        bab_frekuensi: '',
         kebutuhan_besok: '',
         catatan_khusus: '',
         catatan_insiden: '',
@@ -357,9 +357,11 @@ export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
                                     {data.bak && (
                                         <Input
                                             type="number"
+                                            inputMode="numeric"
                                             value={data.bak_frekuensi}
-                                            onChange={(e) => setData('bak_frekuensi', parseInt(e.target.value) || 0)}
-                                            placeholder="Frekuensi"
+                                            onChange={(e) => setData('bak_frekuensi', e.target.value)}
+                                            placeholder="Frekuensi (contoh: 3)"
+                                            min="0"
                                         />
                                     )}
                                 </div>
@@ -375,9 +377,11 @@ export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
                                     {data.bab && (
                                         <Input
                                             type="number"
+                                            inputMode="numeric"
                                             value={data.bab_frekuensi}
-                                            onChange={(e) => setData('bab_frekuensi', parseInt(e.target.value) || 0)}
-                                            placeholder="Frekuensi"
+                                            onChange={(e) => setData('bab_frekuensi', e.target.value)}
+                                            placeholder="Frekuensi (contoh: 1)"
+                                            min="0"
                                         />
                                     )}
                                 </div>
