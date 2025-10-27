@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Bypass OTP in Development
+    |--------------------------------------------------------------------------
+    |
+    | When set to true, OTP validation will be bypassed in development.
+    | This is useful for faster testing. If not set, it defaults to true
+    | when APP_ENV is local or APP_DEBUG is true. Always false in production.
+    |
+    */
+
+    'bypass_otp_in_dev' => env('BYPASS_OTP_IN_DEV'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

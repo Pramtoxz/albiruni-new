@@ -52,6 +52,7 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
             'status' => $request->session()->get('status'),
+            'bypassOtp' => $this->shouldBypassOtp(),
         ]));
 
         Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/verify-email', [
@@ -61,6 +62,26 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
 
         Fortify::confirmPasswordView(fn () => Inertia::render('auth/confirm-password'));
+    }
+
+    /**
+     * Check if OTP should be bypassed in development environment.
+     */
+    private function shouldBypassOtp(): bool
+    {
+        // Never bypass in production
+        if (config('app.env') === 'production') {
+            return false;
+        }
+
+        // Check if explicit bypass setting exists
+        $bypassSetting = config('app.bypass_otp_in_dev');
+        if ($bypassSetting !== null) {
+            return (bool) $bypassSetting;
+        }
+
+        // Default: bypass if in local environment or debug mode is on
+        return config('app.env') === 'local' || config('app.debug') === true;
     }
 
     /**

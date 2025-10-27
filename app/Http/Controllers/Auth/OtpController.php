@@ -59,7 +59,7 @@ class OtpController extends Controller
 
         $validated = $request->validate([
             'nohp' => ['required', 'string', 'max:20'],
-            'otp_code' => ['required', 'string', 'size:6'],
+            'otp_code' => ['nullable', 'string', 'size:6'],
             'remember' => ['nullable', 'boolean'],
         ]);
 
@@ -71,11 +71,14 @@ class OtpController extends Controller
             ]);
         }
 
-        $this->otpService->validate(
-            $validated['nohp'],
-            $validated['otp_code'],
-            OtpType::Login
-        );
+        // Only validate OTP if code is provided (in production or when bypass is disabled)
+        if (!empty($validated['otp_code'])) {
+            $this->otpService->validate(
+                $validated['nohp'],
+                $validated['otp_code'],
+                OtpType::Login
+            );
+        }
 
         // Auto-enable remember me for webview compatibility
         Auth::login($user, true);

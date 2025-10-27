@@ -58,6 +58,15 @@ class OtpService
      */
     public function send(string $phone, OtpType $type, array $context = []): void
     {
+        // Skip OTP sending in development environment
+        if ($this->shouldBypassOtp()) {
+            Log::info('OTP bypass active - skipping OTP send', [
+                'phone' => $phone,
+                'type' => $type->value,
+            ]);
+            return;
+        }
+
         $normalizedPhone = $this->normalizePhone($phone);
 
         DB::transaction(function () use ($normalizedPhone, $type, $context) {
@@ -101,6 +110,24 @@ class OtpService
      */
     public function validate(string $phone, string $code, OtpType $type, ?string $email = null): Otp
     {
+        // Bypass OTP validation in development environment
+        if ($this->shouldBypassOtp()) {
+            Log::info('OTP bypass active - skipping OTP validation', [
+                'phone' => $phone,
+                'type' => $type->value,
+            ]);
+            
+            // Return a dummy OTP object for development
+            return new Otp([
+                'nohp' => $this->normalizePhone($phone),
+                'otp_code' => $code,
+                'type' => $type->value,
+                'email' => $email,
+                'is_used' => true,
+                'expires_at' => Carbon::now()->addMinutes($this->expiryMinutes()),
+            ]);
+        }
+
         $normalizedPhone = $this->normalizePhone($phone);
 
         return DB::transaction(function () use ($normalizedPhone, $code, $type, $email) {
@@ -162,5 +189,25 @@ class OtpService
             OtpType::Register => __('[Albiruni] OTP pendaftaran: :message', ['message' => $base]),
             OtpType::PasswordReset => __('[Albiruni] OTP reset password: :message', ['message' => $base]),
         };
+    }
+
+    /**
+     * Check if OTP should be bypassed in development environment.
+     */
+    protected function shouldBypassOtp(): bool
+    {
+        // Never bypass in production
+        if (config('app.env') === 'production') {
+            return false;
+        }
+
+        // Check if explicit bypass setting exists
+        $bypassSetting = config('app.bypass_otp_in_dev');
+        if ($bypassSetting !== null) {
+            return (bool) $bypassSetting;
+        }
+
+        // Default: bypass if in local environment or debug mode is on
+        return config('app.env') === 'local' || config('app.debug') === true;
     }
 }

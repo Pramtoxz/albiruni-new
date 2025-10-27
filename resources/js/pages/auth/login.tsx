@@ -12,6 +12,7 @@ import Logo from '@/assets/home/logoalbiruni.webp'
 
 interface LoginProps {
     status?: string;
+    bypassOtp?: boolean;
 }
 
 const OTP_CODE_LENGTH = 6;
@@ -65,7 +66,7 @@ const getCsrfToken = (): string => {
     return token;
 };
 
-export default function Login({ status }: LoginProps) {
+export default function Login({ status, bypassOtp = false }: LoginProps) {
     const otpForm = useForm({
         nohp: '',
         otp_code: '',
@@ -154,6 +155,14 @@ export default function Login({ status }: LoginProps) {
         event.preventDefault();
         setOtpRequestError(null);
 
+        // If OTP is bypassed, allow login without OTP code
+        if (bypassOtp && !otpForm.data.otp_code) {
+            otpForm.post('/login/otp', {
+                preserveScroll: true,
+            });
+            return;
+        }
+
         otpForm.post('/login/otp', {
             preserveScroll: true,
             onSuccess: () => {
@@ -179,11 +188,18 @@ export default function Login({ status }: LoginProps) {
                         </div>
                         <h1 className="text-center text-xl font-bold">Al Biruni Preschool And Daycare</h1>
                         <p className="mt-2 text-center opacity-90">
-                            Login dengan WhatsApp OTP
+                            {bypassOtp ? 'Login (Development Mode)' : 'Login dengan WhatsApp OTP'}
                         </p>
-                        <p className="mt-1 text-center text-sm opacity-75">
-                            Hubungi admin untuk mendaftarkan nomor Anda
-                        </p>
+                        {!bypassOtp && (
+                            <p className="mt-1 text-center text-sm opacity-75">
+                                Hubungi admin untuk mendaftarkan nomor Anda
+                            </p>
+                        )}
+                        {bypassOtp && (
+                            <p className="mt-1 text-center text-sm opacity-75 text-yellow-300">
+                                OTP dinonaktifkan - cukup masukkan nomor WhatsApp
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -223,41 +239,43 @@ export default function Login({ status }: LoginProps) {
                                     <InputError message={otpForm.errors.nohp || otpSendErrors.nohp?.[0]} />
                                 </div>
 
-                                {/* OTP Code */}
-                                <div className="rounded-xl border bg-muted/30 p-4">
-                                    <div className="mb-3 flex items-center justify-between">
-                                        <Label htmlFor="otp_code" className="text-sm font-medium">
-                                            Kode OTP
-                                        </Label>
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={handleSendOtp}
-                                            disabled={otpSending}
-                                            className="h-9"
-                                        >
-                                            {otpSending ? <Spinner /> : <Send className="mr-1 h-4 w-4" />}
-                                            Kirim OTP
-                                        </Button>
+                                {/* OTP Code - Only show if not bypassed */}
+                                {!bypassOtp && (
+                                    <div className="rounded-xl border bg-muted/30 p-4">
+                                        <div className="mb-3 flex items-center justify-between">
+                                            <Label htmlFor="otp_code" className="text-sm font-medium">
+                                                Kode OTP
+                                            </Label>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={handleSendOtp}
+                                                disabled={otpSending}
+                                                className="h-9"
+                                            >
+                                                {otpSending ? <Spinner /> : <Send className="mr-1 h-4 w-4" />}
+                                                Kirim OTP
+                                            </Button>
+                                        </div>
+                                        <Input
+                                            id="otp_code"
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="one-time-code"
+                                            name="otp_code"
+                                            maxLength={OTP_CODE_LENGTH}
+                                            value={otpForm.data.otp_code}
+                                            onChange={(event) => {
+                                                otpForm.setData('otp_code', event.target.value);
+                                                otpForm.clearErrors('otp_code');
+                                            }}
+                                            placeholder="Masukkan 6 digit OTP"
+                                            className="h-12 text-center text-lg tracking-widest"
+                                        />
+                                        <InputError message={otpForm.errors.otp_code} />
                                     </div>
-                                    <Input
-                                        id="otp_code"
-                                        type="text"
-                                        inputMode="numeric"
-                                        autoComplete="one-time-code"
-                                        name="otp_code"
-                                        maxLength={OTP_CODE_LENGTH}
-                                        value={otpForm.data.otp_code}
-                                        onChange={(event) => {
-                                            otpForm.setData('otp_code', event.target.value);
-                                            otpForm.clearErrors('otp_code');
-                                        }}
-                                        placeholder="Masukkan 6 digit OTP"
-                                        className="h-12 text-center text-lg tracking-widest"
-                                    />
-                                    <InputError message={otpForm.errors.otp_code} />
-                                </div>
+                                )}
 
                                 {/* Auto Remember Me - Hidden but always true */}
                                 <input type="hidden" name="remember" value="1" />
@@ -282,7 +300,7 @@ export default function Login({ status }: LoginProps) {
                                     disabled={otpForm.processing}
                                 >
                                     {otpForm.processing && <Spinner />}
-                                    Masuk dengan OTP
+                                    {bypassOtp ? 'Masuk' : 'Masuk dengan OTP'}
                                 </Button>
                             </div>
                         </form>
