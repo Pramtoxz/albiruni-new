@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\MenuMakananController;
+use App\Http\Controllers\Admin\PembayaranSppController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -22,4 +24,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('menu-makanan', [MenuMakananController::class, 'store'])->name('menu-makanan.store');
     Route::put('menu-makanan/{menuMakanan}', [MenuMakananController::class, 'update'])->name('menu-makanan.update');
     Route::delete('menu-makanan/{menuMakanan}', [MenuMakananController::class, 'destroy'])->name('menu-makanan.destroy');
+    
+    // Kelas Management
+    Route::resource('kelas', KelasController::class);
+    
+    // Pembayaran SPP Management
+    Route::get('pembayaran', [PembayaranSppController::class, 'index'])->name('pembayaran.index');
+    Route::get('pembayaran/{pembayaran}', [PembayaranSppController::class, 'show'])->name('pembayaran.show');
+    Route::post('pembayaran/{pembayaran}/verify', [PembayaranSppController::class, 'verify'])->name('pembayaran.verify');
+    Route::post('pembayaran/generate', [PembayaranSppController::class, 'generate'])->name('pembayaran.generate');
 });

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('siswa', function (Blueprint $table) {
             $table->boolean('status_siswa')->default(false)->after('tanggal_pendaftaran');
             $table->enum('jenis_pembayaran', ['transfer', 'cash'])->nullable()->after('status_siswa');
+            $table->boolean('is_active')->default(false);
         });
     }
 
@@ -23,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('siswa', function (Blueprint $table) {
-            $table->dropColumn(['status_siswa', 'jenis_pembayaran']);
+            $table->dropColumn(['status_siswa', 'jenis_pembayaran','is_active']);
         });
     }
 };

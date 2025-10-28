@@ -88,6 +88,7 @@ export default function SiswaApproved({ approvedSiswa }: Props) {
                                 <TableHead>Foto</TableHead>
                                 <TableHead>Nama Siswa</TableHead>
                                 <TableHead>Jenis Kelamin</TableHead>
+                                <TableHead>Kelas</TableHead>
                                 <TableHead>Tanggal Lahir</TableHead>
                                 <TableHead>Kontak Orang Tua</TableHead>
                                 <TableHead>Jenis Pembayaran</TableHead>
@@ -98,7 +99,7 @@ export default function SiswaApproved({ approvedSiswa }: Props) {
                         <TableBody>
                             {approvedSiswa.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="text-center py-8">
+                                    <TableCell colSpan={9} className="text-center py-8">
                                         <CheckCircle2 className="mx-auto h-12 w-12 text-muted-foreground/50" />
                                         <p className="mt-2 text-muted-foreground">
                                             Belum ada siswa yang disetujui
@@ -125,6 +126,13 @@ export default function SiswaApproved({ approvedSiswa }: Props) {
                                             {siswa.nama_lengkap}
                                         </TableCell>
                                         <TableCell>{siswa.jenis_kelamin}</TableCell>
+                                        <TableCell>
+                                            {siswa.kelas ? (
+                                                <Badge variant="outline">{siswa.kelas.nama_kelas}</Badge>
+                                            ) : (
+                                                <span className="text-muted-foreground">-</span>
+                                            )}
+                                        </TableCell>
                                         <TableCell>
                                             {formatDate(siswa.tanggal_lahir)}
                                         </TableCell>

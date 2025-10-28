@@ -158,11 +158,22 @@ export default function RegisterSiswa() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="agama">Agama</Label>
-                                <Input
-                                    id="agama"
+                                <Select
                                     value={data.agama}
-                                    onChange={(e) => setData('agama', e.target.value)}
-                                />
+                                    onValueChange={(value) => setData('agama', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih agama" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Islam">Islam</SelectItem>
+                                        <SelectItem value="Kristen">Kristen</SelectItem>
+                                        <SelectItem value="Katolik">Katolik</SelectItem>
+                                        <SelectItem value="Hindu">Hindu</SelectItem>
+                                        <SelectItem value="Buddha">Buddha</SelectItem>
+                                        <SelectItem value="Konghucu">Konghucu</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                             <div className="space-y-2">
@@ -589,13 +600,22 @@ export default function RegisterSiswa() {
                         
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="lokasi_pendaftaran">Lokasi Pendaftaran</Label>
-                                <Input
-                                    id="lokasi_pendaftaran"
+                                <Label htmlFor="lokasi_pendaftaran">Lokasi Pendaftaran / Cabang *</Label>
+                                <Select
                                     value={data.lokasi_pendaftaran}
-                                    onChange={(e) => setData('lokasi_pendaftaran', e.target.value)}
-                                    placeholder="Contoh: Ulak Karang"
-                                />
+                                    onValueChange={(value) => setData('lokasi_pendaftaran', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih cabang" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Ulak Karang">Ulak Karang</SelectItem>
+                                        <SelectItem value="Aur Duri">Aur Duri</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {errors.lokasi_pendaftaran && (
+                                    <p className="text-sm text-red-500">{errors.lokasi_pendaftaran}</p>
+                                )}
                             </div>
 
                             <div className="space-y-2">

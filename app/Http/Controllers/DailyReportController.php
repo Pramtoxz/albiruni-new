@@ -98,7 +98,7 @@ class DailyReportController extends Controller
         // Handle foto upload
         if ($request->hasFile('foto_kegiatan')) {
             $file = $request->file('foto_kegiatan');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('assets/images/daily_reports'), $filename);
             $validated['foto_kegiatan'] = $filename;
         }
@@ -132,7 +132,7 @@ class DailyReportController extends Controller
         $user = auth()->user();
         $siswa = Siswa::where('user_id', $user->id)->first();
 
-        if (!$siswa) {
+        if (! $siswa) {
             return Inertia::render('orangtua/daily-report-list', [
                 'reports' => ['data' => []],
                 'siswa' => null,
@@ -156,7 +156,7 @@ class DailyReportController extends Controller
         $user = auth()->user();
         $siswa = Siswa::where('user_id', $user->id)->first();
 
-        if (!$siswa || $dailyReport->siswa_id !== $siswa->id) {
+        if (! $siswa || $dailyReport->siswa_id !== $siswa->id) {
             abort(403, 'Unauthorized');
         }
 

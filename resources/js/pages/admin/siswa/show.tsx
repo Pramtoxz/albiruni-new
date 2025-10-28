@@ -5,15 +5,31 @@ import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Siswa } from '@/types';
 import { FormEventHandler } from 'react';
 
-interface Props {
-    siswa: Siswa;
+interface Kelas {
+    id: number;
+    nama_kelas: string;
+    deskripsi: string | null;
+    spp: string;
 }
 
-export default function SiswaShow({ siswa }: Props) {
+interface Props {
+    siswa: Siswa;
+    kelasList: Kelas[];
+}
+
+export default function SiswaShow({ siswa, kelasList }: Props) {
     const { data, setData, post, processing, errors } = useForm({
+        kelas_id: '',
         jenis_pembayaran: '' as 'transfer' | 'cash' | '',
     });
 
@@ -212,6 +228,28 @@ export default function SiswaShow({ siswa }: Props) {
                         <CardContent>
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-3">
+                                    <Label>Pilih Kelas *</Label>
+                                    <Select
+                                        value={data.kelas_id}
+                                        onValueChange={(value) => setData('kelas_id', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih kelas untuk siswa" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {kelasList.map((kelas) => (
+                                                <SelectItem key={kelas.id} value={kelas.id.toString()}>
+                                                    {kelas.nama_kelas} - SPP: Rp {parseFloat(kelas.spp).toLocaleString('id-ID')}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.kelas_id && (
+                                        <p className="text-sm text-destructive">{errors.kelas_id}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-3">
                                     <Label>Jenis Pembayaran *</Label>
                                     <RadioGroup
                                         value={data.jenis_pembayaran}
@@ -239,7 +277,7 @@ export default function SiswaShow({ siswa }: Props) {
 
                                 <Button
                                     type="submit"
-                                    disabled={processing || !data.jenis_pembayaran}
+                                    disabled={processing || !data.kelas_id || !data.jenis_pembayaran}
                                     className="w-full"
                                     size="lg"
                                 >

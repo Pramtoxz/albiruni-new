@@ -21,6 +21,8 @@ import {
     UserCheck,
     CheckCircle2,
     UtensilsCrossed,
+    School,
+    CreditCard,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -66,6 +68,16 @@ export function AppSidebar() {
             title: 'Data Siswa',
             href: '/admin/siswa/approved/list',
             icon: CheckCircle2,
+        });
+        mainNavItems.push({
+            title: 'Kelas',
+            href: '/admin/kelas',
+            icon: School,
+        });
+        mainNavItems.push({
+            title: 'Pembayaran SPP',
+            href: '/admin/pembayaran',
+            icon: CreditCard,
         });
         mainNavItems.push({
             title: 'Menu Makanan',

@@ -56,6 +56,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | WhatsApp Notification Delay
+    |--------------------------------------------------------------------------
+    |
+    | Delay in seconds between WhatsApp notifications during bulk operations
+    | to prevent spam and avoid hitting rate limits. Default is 2 seconds.
+    |
+    */
+
+    'whatsapp_notification_delay' => env('WHATSAPP_NOTIFICATION_DELAY', 2),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

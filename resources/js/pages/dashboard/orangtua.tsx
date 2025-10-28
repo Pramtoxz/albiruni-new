@@ -62,15 +62,15 @@ export default function OrangtuaDashboard() {
     const menuItems = [
         { icon: Home, label: 'Beranda', active: true, href: '/dashboard' },
         { icon: FileText, label: 'Daily Report', active: false, href: '/orangtua/daily-report' },
-        { icon: Calendar, label: 'Jadwal', active: false, href: '/orangtua/jadwal' },
         { icon: CreditCard, label: 'Pembayaran', active: false, href: '/orangtua/pembayaran' },
+        { icon: Calendar, label: 'Jadwal', active: false, href: '/orangtua/jadwal' },
         { icon: MessageSquare, label: 'Pesan', active: false, href: '/orangtua/pesan' },
     ];
 
     const quickActions = [
         { icon: FileText, label: 'Daily Report', color: 'bg-blue-500', href: '/orangtua/daily-report' },
+        { icon: CreditCard, label: 'Pembayaran SPP', color: 'bg-orange-500', href: '/orangtua/pembayaran' },
         { icon: BookOpen, label: 'Rapor', color: 'bg-green-500', href: '/orangtua/rapor' },
-        { icon: CreditCard, label: 'Tagihan', color: 'bg-orange-500', href: '/orangtua/tagihan' },
         { icon: Calendar, label: 'Absensi', color: 'bg-purple-500', href: '/orangtua/absensi' },
     ];
 

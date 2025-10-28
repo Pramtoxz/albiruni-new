@@ -17,13 +17,22 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Siswa } from '@/types';
 import { FormEventHandler } from 'react';
 
-interface Props {
-    siswa: Siswa;
+interface Kelas {
+    id: number;
+    nama_kelas: string;
+    deskripsi: string | null;
+    spp: string;
 }
 
-export default function SiswaEdit({ siswa }: Props) {
+interface Props {
+    siswa: Siswa & { kelas?: Kelas; kelas_id?: number };
+    kelasList: Kelas[];
+}
+
+export default function SiswaEdit({ siswa, kelasList }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
+        kelas_id: siswa.kelas_id?.toString() || '',
         nama_lengkap: siswa.nama_lengkap || '',
         nama_panggilan: siswa.nama_panggilan || '',
         jenis_kelamin: siswa.jenis_kelamin || '',
@@ -515,6 +524,28 @@ export default function SiswaEdit({ siswa }: Props) {
                                     value={data.tanggal_pendaftaran}
                                     onChange={(e) => setData('tanggal_pendaftaran', e.target.value)}
                                 />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Kelas *</Label>
+                                <Select
+                                    value={data.kelas_id}
+                                    onValueChange={(value) => setData('kelas_id', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih kelas" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {kelasList.map((kelas) => (
+                                            <SelectItem key={kelas.id} value={kelas.id.toString()}>
+                                                {kelas.nama_kelas} - SPP: Rp {parseFloat(kelas.spp).toLocaleString('id-ID')}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.kelas_id && (
+                                    <p className="text-sm text-destructive">{errors.kelas_id}</p>
+                                )}
                             </div>
 
                             <div className="space-y-2">

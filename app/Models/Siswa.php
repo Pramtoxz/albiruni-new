@@ -11,6 +11,7 @@ class Siswa extends Model
 
     protected $fillable = [
         'user_id',
+        'kelas_id',
         'nama_lengkap',
         'nama_panggilan',
         'jenis_kelamin',
@@ -69,10 +70,16 @@ class Siswa extends Model
         'berat_badan' => 'decimal:2',
         'tinggi_badan' => 'decimal:2',
         'status_siswa' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function kelas(): BelongsTo
+    {
+        return $this->belongsTo(Kelas::class);
     }
 }

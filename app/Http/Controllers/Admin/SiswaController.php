@@ -36,10 +36,12 @@ class SiswaController extends Controller
     {
         $this->checkAdmin();
 
-        $siswa->load('user');
+        $siswa->load(['user', 'kelas']);
+        $kelasList = \App\Models\Kelas::orderBy('nama_kelas')->get();
 
         return Inertia::render('admin/siswa/show', [
             'siswa' => $siswa,
+            'kelasList' => $kelasList,
         ]);
     }
 
@@ -49,7 +51,7 @@ class SiswaController extends Controller
 
         $approvedSiswa = Siswa::query()
             ->where('status_siswa', true)
-            ->with('user')
+            ->with(['user', 'kelas'])
             ->latest('updated_at')
             ->paginate(10);
 
@@ -68,10 +70,12 @@ class SiswaController extends Controller
                 ->with('error', 'Hanya siswa yang sudah disetujui yang dapat diedit.');
         }
 
-        $siswa->load('user');
+        $siswa->load(['user', 'kelas']);
+        $kelasList = \App\Models\Kelas::orderBy('nama_kelas')->get();
 
         return Inertia::render('admin/siswa/edit', [
             'siswa' => $siswa,
+            'kelasList' => $kelasList,
         ]);
     }
 
@@ -145,12 +149,11 @@ class SiswaController extends Controller
             // Persetujuan
             'lokasi_pendaftaran' => 'nullable|string|max:255',
             'tanggal_pendaftaran' => 'nullable|date',
+            'kelas_id' => 'required|exists:kelas,id',
             'jenis_pembayaran' => ['required', Rule::in(['transfer', 'cash'])],
         ]);
 
-        // Handle foto upload
         if ($request->hasFile('foto_siswa')) {
-            // Delete old photo if exists
             if ($siswa->foto_siswa) {
                 $oldPhotoPath = public_path('assets/images/foto_siswa/' . $siswa->foto_siswa);
                 if (file_exists($oldPhotoPath)) {
@@ -163,7 +166,6 @@ class SiswaController extends Controller
             $file->move(public_path('assets/images/foto_siswa'), $filename);
             $validated['foto_siswa'] = $filename;
         } else {
-            // Remove foto_siswa from validated data if no file uploaded
             unset($validated['foto_siswa']);
         }
 
@@ -178,11 +180,14 @@ class SiswaController extends Controller
         $this->checkAdmin();
 
         $validated = $request->validate([
+            'kelas_id' => 'required|exists:kelas,id',
             'jenis_pembayaran' => ['required', Rule::in(['transfer', 'cash'])],
         ]);
 
         $siswa->update([
             'status_siswa' => true,
+            'is_active'=>true,
+            'kelas_id' => $validated['kelas_id'],
             'jenis_pembayaran' => $validated['jenis_pembayaran'],
         ]);
 

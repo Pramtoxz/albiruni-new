@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DailyReportController;
+use App\Http\Controllers\PembayaranSppController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,12 +29,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('daily-report.show');
     });
 
-    // Routes untuk orang tua - Daily Report
+    // Routes untuk orang tua - Daily Report & Pembayaran
     Route::prefix('orangtua')->name('orangtua.')->middleware('check.siswa')->group(function () {
         Route::get('daily-report', [DailyReportController::class, 'orangtuaIndex'])
             ->name('daily-report.index');
         Route::get('daily-report/{dailyReport}', [DailyReportController::class, 'orangtuaShow'])
             ->name('daily-report.show');
+        
+        // Pembayaran SPP
+        Route::get('pembayaran', [PembayaranSppController::class, 'index'])
+            ->name('pembayaran.index');
+        Route::post('pembayaran/{pembayaran}/upload', [PembayaranSppController::class, 'upload'])
+            ->name('pembayaran.upload');
     });
 
     // Dashboard dengan middleware check.siswa
