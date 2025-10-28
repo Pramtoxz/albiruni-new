@@ -10,9 +10,8 @@ return [
     | This file contains the credentials needed to authenticate with Firebase.
     |
     */
-    'credentials' => env(
-        'FIREBASE_CREDENTIALS',
-        app_path('Providers/albiruni-pre-school-firebase-adminsdk-fbsvc-9724349ba8.json')
+    'credentials' => base_path(
+        env('FIREBASE_CREDENTIALS', 'app/Providers/albiruni-pre-school-firebase-adminsdk-fbsvc-9724349ba8.json')
     ),
 
     /*

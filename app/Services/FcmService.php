@@ -15,11 +15,23 @@ class FcmService
     public function __construct()
     {
         try {
-            $factory = (new Factory)->withServiceAccount(config('firebase.credentials'));
+            $credentialsPath = config('firebase.credentials');
+            
+            if (!file_exists($credentialsPath)) {
+                Log::error('Firebase credentials file not found', [
+                    'path' => $credentialsPath,
+                ]);
+                return;
+            }
+            
+            $factory = (new Factory)->withServiceAccount($credentialsPath);
             $this->messaging = $factory->createMessaging();
+            
+            Log::info('Firebase initialized successfully');
         } catch (\Exception $e) {
             Log::error('Failed to initialize Firebase', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
         }
     }
@@ -29,6 +41,13 @@ class FcmService
      */
     public function sendToUser(int $userId, string $title, string $body, string $url, array $extraData = []): void
     {
+        if ($this->messaging === null) {
+            Log::warning('FCM messaging not initialized, skipping notification', [
+                'user_id' => $userId,
+            ]);
+            return;
+        }
+        
         $tokens = DeviceToken::where('user_id', $userId)
             ->where('is_active', true)
             ->pluck('fcm_token')
