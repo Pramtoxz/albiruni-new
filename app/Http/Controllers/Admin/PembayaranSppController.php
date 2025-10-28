@@ -95,6 +95,7 @@ class PembayaranSppController extends Controller
 
         // Get all active students with kelas
         $siswaList = Siswa::where('status_siswa', true)
+            ->where('is_active', true)
             ->whereNotNull('kelas_id')
             ->with(['kelas', 'user'])
             ->get();
@@ -124,19 +125,19 @@ class PembayaranSppController extends Controller
             try {
                 // WhatsApp notification
                 $notificationService->sendSppNotificationToParent($pembayaran);
-                
+
                 // FCM push notification
                 $fcmService->sendToUser(
                     userId: $siswa->user_id,
                     title: 'Tagihan SPP Baru',
-                    body: "Tagihan SPP bulan ini telah tersedia",
-                    url: "/orangtua/pembayaran",
+                    body: 'Tagihan SPP bulan ini telah tersedia',
+                    url: '/orangtua/pembayaran',
                     extraData: [
                         'type' => 'spp_billing',
                         'pembayaran_id' => $pembayaran->id,
                     ]
                 );
-                
+
                 // Add delay between notifications (except for the last one)
                 if ($generated < $siswaList->count() - 1) {
                     sleep($delaySeconds);
