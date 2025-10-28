@@ -68,3 +68,67 @@ createInertiaApp({
 // initializeTheme();
 document.documentElement.classList.add('light');
 document.documentElement.classList.remove('dark');
+
+// ============================================
+// Flutter WebView Bridge for FCM
+// ============================================
+
+// Detect if running in Flutter WebView
+const isFlutterWebView = typeof (window as any).FlutterBridge !== 'undefined';
+
+if (isFlutterWebView) {
+    console.log('[FCM] Running in Flutter WebView');
+
+    // Request FCM token from Flutter after user is authenticated
+    const checkAuthAndRequestToken = () => {
+        // Check if user is authenticated (Laravel session)
+        const isAuthenticated = document.querySelector('meta[name="user-authenticated"]')?.getAttribute('content') === 'true';
+        
+        if (isAuthenticated) {
+            console.log('[FCM] User authenticated, requesting FCM token from Flutter');
+            (window as any).FlutterBridge.postMessage('get_fcm_token');
+        }
+    };
+
+    // Callback function to receive FCM token from Flutter
+    (window as any).receiveFCMToken = function(token: string) {
+        console.log('[FCM] Received token from Flutter:', token.substring(0, 20) + '...');
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        if (!csrfToken) {
+            console.error('[FCM] CSRF token not found');
+            return;
+        }
+
+        // Send token to Laravel backend
+        fetch('/api/device-tokens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify({
+                fcm_token: token,
+                device_type: 'android',
+                device_name: navigator.userAgent,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('[FCM] Token registered successfully:', data);
+        })
+        .catch(error => {
+            console.error('[FCM] Failed to register token:', error);
+        });
+    };
+
+    // Request token on page load if authenticated
+    checkAuthAndRequestToken();
+
+    // Also request token after Inertia navigation (in case user just logged in)
+    router.on('navigate', () => {
+        setTimeout(checkAuthAndRequestToken, 500);
+    });
+}

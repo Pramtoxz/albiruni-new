@@ -106,6 +106,7 @@ class PembayaranSppController extends Controller
 
         $generated = 0;
         $notificationService = app(\App\Services\NotificationService::class);
+        $fcmService = app(\App\Services\FcmService::class);
         $delaySeconds = config('app.whatsapp_notification_delay', 2);
 
         foreach ($siswaList as $siswa) {
@@ -119,9 +120,22 @@ class PembayaranSppController extends Controller
                 'status_bayar' => 'pending',
             ]);
 
-            // Send notification to parent with delay to prevent spam
+            // Send notifications to parent
             try {
+                // WhatsApp notification
                 $notificationService->sendSppNotificationToParent($pembayaran);
+                
+                // FCM push notification
+                $fcmService->sendToUser(
+                    userId: $siswa->user_id,
+                    title: 'Tagihan SPP Baru',
+                    body: "Tagihan SPP bulan ini telah tersedia",
+                    url: "/orangtua/pembayaran",
+                    extraData: [
+                        'type' => 'spp_billing',
+                        'pembayaran_id' => $pembayaran->id,
+                    ]
+                );
                 
                 // Add delay between notifications (except for the last one)
                 if ($generated < $siswaList->count() - 1) {

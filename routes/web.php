@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DailyReportController;
+use App\Http\Controllers\DeviceTokenController;
 use App\Http\Controllers\PembayaranSppController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,12 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // FCM Device Token Management
+    Route::post('api/device-tokens', [DeviceTokenController::class, 'store'])
+        ->name('device-tokens.store');
+    Route::delete('api/device-tokens', [DeviceTokenController::class, 'destroy'])
+        ->name('device-tokens.destroy');
+
     // Routes untuk pendaftaran siswa (tanpa middleware check.siswa)
     Route::get('siswa/register', [SiswaController::class, 'create'])
         ->name('siswa.create');

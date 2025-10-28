@@ -109,9 +109,24 @@ class DailyReportController extends Controller
 
         $report = DailyReport::create($validated);
 
-        // Send notification to parent
+        // Send WhatsApp notification to parent
         $notificationService = app(NotificationService::class);
         $notificationService->sendDailyReportToParent($report);
+
+        // Send FCM push notification
+        $siswa = $report->siswa;
+        $fcmService = app(\App\Services\FcmService::class);
+        $fcmService->sendToUser(
+            userId: $siswa->user_id,
+            title: 'Daily Report Baru',
+            body: "Laporan harian {$siswa->nama_lengkap} tersedia",
+            url: "/orangtua/daily-report/{$report->id}",
+            extraData: [
+                'type' => 'daily_report',
+                'siswa_id' => $siswa->id,
+                'report_id' => $report->id,
+            ]
+        );
 
         return redirect()->route('guru.daily-report.index')
             ->with('success', 'Daily report berhasil disimpan!');
