@@ -223,4 +223,35 @@ class MenuMingguanController extends Controller
             return back()->withErrors(['error' => 'Gagal mengupdate status: ' . $e->getMessage()]);
         }
     }
+
+    public function printPdf(MenuMingguan $menuMingguan)
+    {
+        $this->checkAdmin();
+
+        $menuMingguan->load(['menuHarian', 'creator']);
+
+        $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
+        $waktuMakan = ['sarapan', 'makan_siang', 'snack'];
+
+        // Check if download parameter exists
+        if (request()->has('download')) {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.menu-mingguan', [
+                'menuMingguan' => $menuMingguan,
+                'days' => $days,
+                'waktuMakan' => $waktuMakan,
+            ]);
+
+            $pdf->setPaper('a4', 'landscape');
+
+            return $pdf->download('menu-mingguan-' . str_replace(' ', '-', $menuMingguan->nama_menu) . '.pdf');
+        }
+
+        // Show preview
+        return view('pdf.menu-mingguan', [
+            'menuMingguan' => $menuMingguan,
+            'days' => $days,
+            'waktuMakan' => $waktuMakan,
+            'showDownloadButton' => true,
+        ]);
+    }
 }

@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::delete('menu-mingguan/{menuMingguan}', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'destroy'])->name('menu-mingguan.destroy');
     Route::post('menu-mingguan/{menuMingguan}/copy', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'copy'])->name('menu-mingguan.copy');
     Route::post('menu-mingguan/{menuMingguan}/toggle-active', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'toggleActive'])->name('menu-mingguan.toggle-active');
+    Route::get('menu-mingguan/{menuMingguan}/print', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'printPdf'])->name('menu-mingguan.print');
     
     // Kelas Management
     Route::resource('kelas', KelasController::class);

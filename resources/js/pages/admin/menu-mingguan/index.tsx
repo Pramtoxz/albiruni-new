@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Copy, Calendar, CheckCircle2, Circle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Copy, Calendar, CheckCircle2, Circle, Printer } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -135,6 +135,19 @@ export default function MenuMingguanIndex({ menuMingguan }: Props) {
                                             <TableCell>{menu.creator.name}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2">
+                                                    <a
+                                                        href={`/admin/menu-mingguan/${menu.id}/print`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            title="Cetak PDF untuk Koki"
+                                                        >
+                                                            <Printer className="h-4 w-4" />
+                                                        </Button>
+                                                    </a>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -144,7 +157,7 @@ export default function MenuMingguanIndex({ menuMingguan }: Props) {
                                                         <Copy className="h-4 w-4" />
                                                     </Button>
                                                     <Link href={`/admin/menu-mingguan/${menu.id}/edit`}>
-                                                        <Button variant="ghost" size="sm">
+                                                        <Button variant="ghost" size="sm" title="Edit menu">
                                                             <Pencil className="h-4 w-4" />
                                                         </Button>
                                                     </Link>
@@ -154,6 +167,7 @@ export default function MenuMingguanIndex({ menuMingguan }: Props) {
                                                         onClick={() =>
                                                             handleDelete(menu.id, menu.nama_menu)
                                                         }
+                                                        title="Hapus menu"
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
                                                     </Button>
