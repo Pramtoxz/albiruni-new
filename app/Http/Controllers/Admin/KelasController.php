@@ -36,6 +36,7 @@ class KelasController extends Controller
     {
         $validated = $request->validate([
             'nama_kelas' => 'required|string|max:255',
+            'kategori' => 'required|in:anak,bayi',
             'deskripsi' => 'nullable|string',
             'spp' => 'required|numeric|min:0',
         ]);
@@ -63,6 +64,7 @@ class KelasController extends Controller
     {
         $validated = $request->validate([
             'nama_kelas' => 'required|string|max:255',
+            'kategori' => 'required|in:anak,bayi',
             'deskripsi' => 'nullable|string',
             'spp' => 'required|numeric|min:0',
         ]);

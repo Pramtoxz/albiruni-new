@@ -36,12 +36,23 @@ router.on('finish', () => {
 
 function AppWrapper({ App, props }: any) {
     const [isLoading, setIsLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(props.initialPage?.component || '');
 
     // Check if current page is admin page
-    const isAdminPage = props.initialPage?.component?.startsWith('admin/');
+    const isAdminPage = currentPage.startsWith('admin/');
 
     useEffect(() => {
-        return loadingEmitter.subscribe(setIsLoading);
+        // Update current page on navigation
+        const unsubscribeNavigate = router.on('navigate', (event) => {
+            setCurrentPage(event.detail.page.component);
+        });
+
+        const unsubscribeLoading = loadingEmitter.subscribe(setIsLoading);
+
+        return () => {
+            unsubscribeNavigate();
+            unsubscribeLoading();
+        };
     }, []);
 
     return (
@@ -66,7 +77,6 @@ createInertiaApp({
         root.render(<AppWrapper App={App} props={props} />);
     },
     progress: {
-        // Show default progress bar only for admin pages
         delay: 250,
         color: '#4B5563',
         includeCSS: true,

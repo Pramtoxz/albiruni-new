@@ -20,12 +20,18 @@ interface Siswa {
     id: number;
     nama_lengkap: string;
     nama_panggilan: string;
+    kelas_id: number;
+    kelas?: {
+        id: number;
+        nama_kelas: string;
+        kategori_menu: string;
+    };
 }
 
 interface MenuMakanan {
     id: number;
     nama_menu: string;
-    jenis: string;
+    kategori: string;
 }
 
 interface Props {
@@ -35,9 +41,12 @@ interface Props {
         makan_siang?: MenuMakanan[];
         snack?: MenuMakanan[];
     };
+    menuMingguan?: any;
 }
 
-export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
+export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan }: Props) {
+    const [selectedSiswa, setSelectedSiswa] = useState<Siswa | null>(null);
+
     const { data, setData, processing } = useForm({
         siswa_id: '',
         tanggal: new Date().toISOString().split('T')[0],
@@ -65,6 +74,18 @@ export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
 
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const isSubmitting = useRef(false);
+
+    // Filter menu based on selected siswa's kategori
+    const getFilteredMenu = (waktuMakan: 'sarapan' | 'makan_siang' | 'snack') => {
+        if (!selectedSiswa?.kelas?.kategori_menu) {
+            return menuMakanan[waktuMakan] || [];
+        }
+
+        const kategori = selectedSiswa.kelas.kategori_menu;
+        return (menuMakanan[waktuMakan] || []).filter(
+            (menu) => menu.kategori === kategori
+        );
+    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -132,7 +153,14 @@ export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label>Siswa *</Label>
-                                <Select value={data.siswa_id} onValueChange={(value) => setData('siswa_id', value)}>
+                                <Select
+                                    value={data.siswa_id}
+                                    onValueChange={(value) => {
+                                        setData('siswa_id', value);
+                                        const siswa = siswaList.find(s => s.id.toString() === value);
+                                        setSelectedSiswa(siswa || null);
+                                    }}
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih siswa" />
                                     </SelectTrigger>
@@ -198,12 +226,13 @@ export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
                                     <Select
                                         value={data.sarapan_pagi}
                                         onValueChange={(value) => setData('sarapan_pagi', value)}
+                                        disabled={!selectedSiswa}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Pilih menu sarapan" />
+                                            <SelectValue placeholder={selectedSiswa ? "Pilih menu sarapan" : "Pilih siswa terlebih dahulu"} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {menuMakanan.sarapan?.map((menu) => (
+                                            {getFilteredMenu('sarapan').map((menu) => (
                                                 <SelectItem key={menu.id} value={menu.nama_menu}>
                                                     {menu.nama_menu}
                                                 </SelectItem>
@@ -234,12 +263,13 @@ export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
                                     <Select
                                         value={data.makan_siang}
                                         onValueChange={(value) => setData('makan_siang', value)}
+                                        disabled={!selectedSiswa}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Pilih menu makan siang" />
+                                            <SelectValue placeholder={selectedSiswa ? "Pilih menu makan siang" : "Pilih siswa terlebih dahulu"} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {menuMakanan.makan_siang?.map((menu) => (
+                                            {getFilteredMenu('makan_siang').map((menu) => (
                                                 <SelectItem key={menu.id} value={menu.nama_menu}>
                                                     {menu.nama_menu}
                                                 </SelectItem>
@@ -270,12 +300,13 @@ export default function DailyReportCreate({ siswaList, menuMakanan }: Props) {
                                     <Select
                                         value={data.snack_sore}
                                         onValueChange={(value) => setData('snack_sore', value)}
+                                        disabled={!selectedSiswa}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Pilih menu snack" />
+                                            <SelectValue placeholder={selectedSiswa ? "Pilih menu snack" : "Pilih siswa terlebih dahulu"} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {menuMakanan.snack?.map((menu) => (
+                                            {getFilteredMenu('snack').map((menu) => (
                                                 <SelectItem key={menu.id} value={menu.nama_menu}>
                                                     {menu.nama_menu}
                                                 </SelectItem>

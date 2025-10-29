@@ -80,8 +80,8 @@ export function AppSidebar() {
             icon: CreditCard,
         });
         mainNavItems.push({
-            title: 'Menu Makanan',
-            href: '/admin/menu-makanan',
+            title: 'Menu Mingguan',
+            href: '/admin/menu-mingguan',
             icon: UtensilsCrossed,
         });
     }

@@ -23,7 +23,7 @@ import { FormEventHandler } from 'react';
 //     },
 // ];
 
-const breadcrumbs: BreadcrumbItem[]=[
+const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
@@ -31,33 +31,34 @@ const breadcrumbs: BreadcrumbItem[]=[
     {
         title: 'Kelas',
         href: '/kelas',
-        
+
     },
     {
         title: 'Tambah Kelas',
         href: '/admin/kelas/create',
     },
-// ]
-// export default function TambahKelas() {
-//     const { data, setData, post, processing, errors } = useForm({
-//         Kelas: '',
-//         id: '',
-//         spp: '',
-//     });
+    // ]
+    // export default function TambahKelas() {
+    //     const { data, setData, post, processing, errors } = useForm({
+    //         Kelas: '',
+    //         id: '',
+    //         spp: '',
+    //     });
 
-//     const submit: FormEventHandler = (e) => {
-//         e.preventDefault();
-//         post('/kelas');
-//     };
+    //     const submit: FormEventHandler = (e) => {
+    //         e.preventDefault();
+    //         post('/kelas');
+    //     };
 ]
-export default function KelasCreate(){
-    const {data, setData, post, processing,errors}=useForm({
-        nama_kelas:'',
-        deskripsi:'',
-        spp:'',
+export default function KelasCreate() {
+    const { data, setData, post, processing, errors } = useForm({
+        nama_kelas: '',
+        kategori: 'anak',
+        deskripsi: '',
+        spp: '',
     });
-    
-    const submit: FormEventHandler= (e) => {
+
+    const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post('/admin/kelas');
     };
@@ -90,12 +91,34 @@ export default function KelasCreate(){
                                 id="nama_kelas"
                                 value={data.nama_kelas}
                                 onChange={(e) => setData('nama_kelas', e.target.value)}
-                                    placeholder="Contoh: Preschool, Toodler"
+                                placeholder="Contoh: Preschool, Toodler"
                                 required
                             />
                             {errors.nama_kelas && (
                                 <p className="text-sm text-destructive">{errors.nama_kelas}</p>
                             )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="kategori">
+                                Kategori <span className="text-destructive">*</span>
+                            </Label>
+                            <select
+                                id="kategori"
+                                value={data.kategori}
+                                onChange={(e) => setData('kategori', e.target.value as 'anak' | 'bayi')}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                required
+                            >
+                                <option value="anak">Anak</option>
+                                <option value="bayi">Bayi</option>
+                            </select>
+                            {errors.kategori && (
+                                <p className="text-sm text-destructive">{errors.kategori}</p>
+                            )}
+                            <p className="text-xs text-muted-foreground">
+                                Kategori menentukan menu makanan yang tersedia
+                            </p>
                         </div>
 
                         <div className="space-y-2">

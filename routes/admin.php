@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\KelasController;
-use App\Http\Controllers\Admin\MenuMakananController;
 use App\Http\Controllers\Admin\PembayaranSppController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\UserController;
@@ -19,11 +18,15 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::put('siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update');
     Route::post('siswa/{siswa}/approve', [SiswaController::class, 'approve'])->name('siswa.approve');
     
-    // Menu Makanan Management
-    Route::get('menu-makanan', [MenuMakananController::class, 'index'])->name('menu-makanan.index');
-    Route::post('menu-makanan', [MenuMakananController::class, 'store'])->name('menu-makanan.store');
-    Route::put('menu-makanan/{menuMakanan}', [MenuMakananController::class, 'update'])->name('menu-makanan.update');
-    Route::delete('menu-makanan/{menuMakanan}', [MenuMakananController::class, 'destroy'])->name('menu-makanan.destroy');
+    // Menu Mingguan Management
+    Route::get('menu-mingguan', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'index'])->name('menu-mingguan.index');
+    Route::get('menu-mingguan/create', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'create'])->name('menu-mingguan.create');
+    Route::post('menu-mingguan', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'store'])->name('menu-mingguan.store');
+    Route::get('menu-mingguan/{menuMingguan}/edit', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'edit'])->name('menu-mingguan.edit');
+    Route::put('menu-mingguan/{menuMingguan}', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'update'])->name('menu-mingguan.update');
+    Route::delete('menu-mingguan/{menuMingguan}', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'destroy'])->name('menu-mingguan.destroy');
+    Route::post('menu-mingguan/{menuMingguan}/copy', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'copy'])->name('menu-mingguan.copy');
+    Route::post('menu-mingguan/{menuMingguan}/toggle-active', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'toggleActive'])->name('menu-mingguan.toggle-active');
     
     // Kelas Management
     Route::resource('kelas', KelasController::class);

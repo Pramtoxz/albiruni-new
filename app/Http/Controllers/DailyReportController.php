@@ -30,19 +30,73 @@ class DailyReportController extends Controller
 
     public function create(): Response
     {
-        $siswaList = Siswa::select('id', 'nama_lengkap', 'nama_panggilan')
+        $siswaList = Siswa::with('kelas')
+            ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id')
             ->orderBy('nama_lengkap')
-            ->get();
-
-        $menuMakanan = \App\Models\MenuMakanan::where('is_active', true)
-            ->orderBy('jenis')
-            ->orderBy('nama_menu')
             ->get()
-            ->groupBy('jenis');
+            ->map(function ($siswa) {
+                return [
+                    'id' => $siswa->id,
+                    'nama_lengkap' => $siswa->nama_lengkap,
+                    'nama_panggilan' => $siswa->nama_panggilan,
+                    'kelas_id' => $siswa->kelas_id,
+                    'kelas' => $siswa->kelas ? [
+                        'id' => $siswa->kelas->id,
+                        'nama_kelas' => $siswa->kelas->nama_kelas,
+                        'kategori_menu' => $siswa->kelas->kategori_menu,
+                    ] : null,
+                ];
+            });
+
+        // Get active menu mingguan
+        $menuMingguan = \App\Models\MenuMingguan::with('menuHarian')
+            ->where('is_active', true)
+            ->first();
+
+        // Prepare menu options grouped by waktu_makan
+        $menuMakanan = [
+            'sarapan' => [],
+            'makan_siang' => [],
+            'snack' => [],
+        ];
+
+        if ($menuMingguan) {
+            // Get current day of week (senin, selasa, etc)
+            $currentDay = strtolower(\Carbon\Carbon::now()->locale('id')->dayName);
+            
+            // Group menu by waktu_makan for current day
+            $todayMenu = $menuMingguan->menuHarian()
+                ->where('hari', $currentDay)
+                ->get()
+                ->groupBy('waktu_makan');
+
+            foreach ($todayMenu as $waktu => $menus) {
+                $menuMakanan[$waktu] = $menus->map(function ($menu) {
+                    return [
+                        'id' => $menu->id,
+                        'nama_menu' => $menu->nama_menu,
+                        'kategori' => $menu->kategori,
+                    ];
+                })->values();
+                
+                // For snack, duplicate the menu for all categories since it's the same
+                if ($waktu === 'snack' && $menus->count() > 0) {
+                    $snackMenu = $menus->first();
+                    $menuMakanan[$waktu] = collect(['anak', 'bayi', 'staff'])->map(function ($kategori) use ($snackMenu) {
+                        return [
+                            'id' => $snackMenu->id,
+                            'nama_menu' => $snackMenu->nama_menu,
+                            'kategori' => $kategori,
+                        ];
+                    })->values();
+                }
+            }
+        }
 
         return Inertia::render('guru/daily-report-create', [
             'siswaList' => $siswaList,
             'menuMakanan' => $menuMakanan,
+            'menuMingguan' => $menuMingguan,
         ]);
     }
 

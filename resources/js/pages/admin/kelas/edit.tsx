@@ -11,6 +11,7 @@ import { FormEventHandler } from 'react';
 interface Kelas {
     id: number;
     nama_kelas: string;
+    kategori: 'anak' | 'bayi';
     deskripsi: string | null;
     spp: string;
 }
@@ -37,6 +38,7 @@ export default function KelasEdit({ kelas }: Props) {
 
     const { data, setData, put, processing, errors } = useForm({
         nama_kelas: kelas.nama_kelas,
+        kategori: kelas.kategori,
         deskripsi: kelas.deskripsi || '',
         spp: kelas.spp,
     });
@@ -80,6 +82,28 @@ export default function KelasEdit({ kelas }: Props) {
                             {errors.nama_kelas && (
                                 <p className="text-sm text-destructive">{errors.nama_kelas}</p>
                             )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="kategori">
+                                Kategori <span className="text-destructive">*</span>
+                            </Label>
+                            <select
+                                id="kategori"
+                                value={data.kategori}
+                                onChange={(e) => setData('kategori', e.target.value as 'anak' | 'bayi')}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                required
+                            >
+                                <option value="anak">Anak</option>
+                                <option value="bayi">Bayi</option>
+                            </select>
+                            {errors.kategori && (
+                                <p className="text-sm text-destructive">{errors.kategori}</p>
+                            )}
+                            <p className="text-xs text-muted-foreground">
+                                Kategori menentukan menu makanan yang tersedia
+                            </p>
                         </div>
 
                         <div className="space-y-2">

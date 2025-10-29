@@ -10,6 +10,7 @@ class Kelas extends Model
 
     protected $fillable = [
         'nama_kelas',
+        'kategori',
         'deskripsi',
         'spp',
     ];
@@ -17,4 +18,12 @@ class Kelas extends Model
     protected $casts = [
         'spp' => 'decimal:2',
     ];
+
+    /**
+     * Get kategori menu - now directly from database field
+     */
+    public function getKategoriMenuAttribute(): string
+    {
+        return $this->kategori ?? 'anak';
+    }
 }
