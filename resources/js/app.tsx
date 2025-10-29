@@ -37,6 +37,9 @@ router.on('finish', () => {
 function AppWrapper({ App, props }: any) {
     const [isLoading, setIsLoading] = useState(false);
 
+    // Check if current page is admin page
+    const isAdminPage = props.initialPage?.component?.startsWith('admin/');
+
     useEffect(() => {
         return loadingEmitter.subscribe(setIsLoading);
     }, []);
@@ -45,7 +48,8 @@ function AppWrapper({ App, props }: any) {
         <>
             <App {...props} />
             <OfflineIndicator />
-            {isLoading && <LottieLoading />}
+            {/* Only show LottieLoading for non-admin pages */}
+            {isLoading && !isAdminPage && <LottieLoading />}
         </>
     );
 }
@@ -61,7 +65,13 @@ createInertiaApp({
         const root = createRoot(el);
         root.render(<AppWrapper App={App} props={props} />);
     },
-    progress: false,
+    progress: {
+        // Show default progress bar only for admin pages
+        delay: 250,
+        color: '#4B5563',
+        includeCSS: true,
+        showSpinner: false,
+    },
 });
 
 // This will set light / dark mode on load...
@@ -83,7 +93,7 @@ if (isFlutterWebView) {
     const checkAuthAndRequestToken = () => {
         // Check if user is authenticated (Laravel session)
         const isAuthenticated = document.querySelector('meta[name="user-authenticated"]')?.getAttribute('content') === 'true';
-        
+
         if (isAuthenticated) {
             console.log('[FCM] User authenticated, requesting FCM token from Flutter');
             (window as any).FlutterBridge.postMessage('get_fcm_token');
@@ -91,12 +101,12 @@ if (isFlutterWebView) {
     };
 
     // Callback function to receive FCM token from Flutter
-    (window as any).receiveFCMToken = function(token: string) {
+    (window as any).receiveFCMToken = function (token: string) {
         console.log('[FCM] Received token from Flutter:', token.substring(0, 20) + '...');
-        
+
         // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        
+
         if (!csrfToken) {
             console.error('[FCM] CSRF token not found');
             return;
@@ -115,13 +125,13 @@ if (isFlutterWebView) {
                 device_name: navigator.userAgent,
             }),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('[FCM] Token registered successfully:', data);
-        })
-        .catch(error => {
-            console.error('[FCM] Failed to register token:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log('[FCM] Token registered successfully:', data);
+            })
+            .catch(error => {
+                console.error('[FCM] Failed to register token:', error);
+            });
     };
 
     // Request token on page load if authenticated
