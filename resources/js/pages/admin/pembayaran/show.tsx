@@ -69,8 +69,10 @@ export default function PembayaranShow({ pembayaran }: Props) {
             cancelButtonText: 'Batal',
         }).then((result) => {
             if (result.isConfirmed) {
-                setData('status_bayar', status);
-                post(`/admin/pembayaran/${pembayaran.id}/verify`, {
+                router.post(`/admin/pembayaran/${pembayaran.id}/verify`, {
+                    status_bayar: status,
+                    catatan_admin: data.catatan_admin,
+                }, {
                     onSuccess: () => {
                         Swal.fire('Berhasil!', 'Status pembayaran berhasil diperbarui', 'success');
                     },
@@ -162,8 +164,8 @@ export default function PembayaranShow({ pembayaran }: Props) {
                                         pembayaran.status_bayar === 'diterima'
                                             ? 'default'
                                             : pembayaran.status_bayar === 'ditolak'
-                                            ? 'destructive'
-                                            : 'secondary'
+                                                ? 'destructive'
+                                                : 'secondary'
                                     }
                                 >
                                     {pembayaran.status_bayar}
