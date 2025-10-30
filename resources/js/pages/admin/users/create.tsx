@@ -76,7 +76,7 @@ export default function CreateUser() {
 
                     {/* Phone */}
                     <div className="space-y-2">
-                        <Label htmlFor="nohp">Nomor WhatsApp</Label>
+                        <Label htmlFor="nohp">Nomor WhatsApp (Digunakan Untuk Menerima OTP)</Label>
                         <Input
                             id="nohp"
                             type="tel"
@@ -87,7 +87,7 @@ export default function CreateUser() {
                         />
                         <InputError message={errors.nohp} />
                         <p className="text-xs text-muted-foreground">
-                            Format: 628xxx atau 08xxx
+                            Format: 08123xxx
                         </p>
                     </div>
 
@@ -109,16 +109,6 @@ export default function CreateUser() {
                             </SelectContent>
                         </Select>
                         <InputError message={errors.role} />
-                    </div>
-
-                    {/* Password Info */}
-                    <div className="rounded-md bg-muted p-4">
-                        <p className="text-sm text-muted-foreground">
-                            <strong>Password default:</strong> 12345678
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            User dapat mengubah password setelah login pertama kali
-                        </p>
                     </div>
 
                     {/* Submit */}
