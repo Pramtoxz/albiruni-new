@@ -19,7 +19,7 @@ export function ContactSection({ contactRef, contactControls }: ContactSectionPr
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    const adminWhatsApp = '6281166890022'
+    const adminWhatsApp = '6281918285109'
 
     const whatsappMessage = `*PESAN DARI WEBSITE ALBIRUNI*
 
