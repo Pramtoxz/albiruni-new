@@ -68,10 +68,68 @@ class PembayaranSppController extends Controller
             'catatan_admin' => 'nullable|string',
         ]);
 
-        $pembayaran->update($validated);
+        // Jika ditolak, reset status ke pending dan hapus bukti bayar agar bisa upload ulang
+        if ($validated['status_bayar'] === 'ditolak') {
+            // Hapus file bukti bayar jika ada
+            if ($pembayaran->bukti_bayar) {
+                $filePath = public_path('assets/images/bukti_bayar/'.$pembayaran->bukti_bayar);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            $pembayaran->update([
+                'status_bayar' => 'pending',
+                'catatan_admin' => $validated['catatan_admin'],
+                'bukti_bayar' => null,
+                'tanggal_bayar' => null,
+            ]);
+        } else {
+            // Jika diterima, update seperti biasa
+            $pembayaran->update($validated);
+        }
+
+        // Load relasi untuk notifikasi
+        $pembayaran->load(['siswa.user', 'kelas']);
+
+        // Kirim push notifikasi FCM ke orang tua
+        try {
+            $fcmService = app(\App\Services\FcmService::class);
+
+            $title = $validated['status_bayar'] === 'diterima'
+                ? 'Pembayaran SPP Diterima'
+                : 'Pembayaran SPP Ditolak';
+
+            $bulanTahun = \Carbon\Carbon::parse($pembayaran->bulan)->locale('id')->isoFormat('MMMM YYYY');
+
+            $body = $validated['status_bayar'] === 'diterima'
+                ? "Pembayaran SPP {$bulanTahun} untuk {$pembayaran->siswa->nama_lengkap} telah diterima."
+                : "Pembayaran SPP {$bulanTahun} untuk {$pembayaran->siswa->nama_lengkap} ditolak. Silakan upload ulang bukti pembayaran.";
+
+            if (! empty($validated['catatan_admin'])) {
+                $body .= " Catatan: {$validated['catatan_admin']}";
+            }
+
+            $fcmService->sendToUser(
+                userId: $pembayaran->siswa->user_id,
+                title: $title,
+                body: $body,
+                url: '/orangtua/pembayaran',
+                extraData: [
+                    'type' => 'spp_verification',
+                    'pembayaran_id' => $pembayaran->id,
+                    'status' => $validated['status_bayar'],
+                ]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send FCM notification for payment verification', [
+                'pembayaran_id' => $pembayaran->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return redirect()->route('admin.pembayaran.index')
-            ->with('success', 'Status pembayaran berhasil diperbarui.');
+            ->with('success', 'Status pembayaran berhasil diperbarui dan notifikasi telah dikirim.');
     }
 
     public function generate()
