@@ -1,14 +1,15 @@
 import React, { useState } from "react"
 import { Link, usePage } from "@inertiajs/react"
-import { Telescope, Star, User, LogOut, Menu, X } from "lucide-react"
+import { Star, User, LogOut, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { type SharedData } from '@/types'
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
+import AlbiLogo from '@/assets/home/albi.svg'
 
 export function Header() {
   const { auth } = usePage<SharedData>().props
@@ -17,24 +18,21 @@ export function Header() {
   return (
     <header className="relative z-50 px-6 py-4 bg-blue-900 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-3">
           <div className="relative">
-            <div className="bg-blue-600 rounded-full p-3 relative overflow-hidden border-2 border-blue-400">
-              <Telescope className="text-yellow-300 w-8 h-8 relative z-10" />
-              <div className="absolute inset-0 bg-blue-500 opacity-50 animate-pulse"></div>
-            </div>
+            <img src={AlbiLogo} alt="Albiruni Logo" className="w-12 h-12 object-contain" />
             <div className="absolute -top-1 -right-1">
               <Star className="text-yellow-300 w-4 h-4 animate-twinkle" />
             </div>
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white">
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
               <span className="text-blue-300">A</span>
               <span className="text-white">lbiruni</span>
             </h1>
             <p className="text-xs text-blue-200">PRESCHOOL & DAY CARE</p>
           </div>
-        </div>
+        </Link>
 
         <nav className="hidden md:flex gap-8">
           <NavLink href="#home">Home</NavLink>
@@ -48,9 +46,9 @@ export function Header() {
 
         {/* Mobile menu button */}
         <div className="md:hidden">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="text-white"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -83,10 +81,10 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link 
-                    href="/logout" 
-                    method="post" 
-                    as="button" 
+                  <Link
+                    href="/logout"
+                    method="post"
+                    as="button"
                     className="cursor-pointer w-full flex items-center text-red-600 gap-2"
                   >
                     <LogOut className="h-4 w-4" />
@@ -119,11 +117,11 @@ export function Header() {
               <MobileNavLink href="#about" onClick={() => setMobileMenuOpen(false)}>About</MobileNavLink>
               <MobileNavLink href="#contact" onClick={() => setMobileMenuOpen(false)}>Contact</MobileNavLink>
             </nav>
-            
+
             <div className="pt-6">
               {auth.user ? (
                 <div className="flex flex-col gap-4">
-                  <Link 
+                  <Link
                     href="/dashboard"
                     className="flex items-center gap-2 text-blue-200 font-medium"
                     onClick={() => setMobileMenuOpen(false)}
@@ -133,7 +131,7 @@ export function Header() {
                     </span>
                     Dashboard
                   </Link>
-                  <Link 
+                  <Link
                     href="/settings/profile"
                     className="flex items-center gap-2 text-blue-200 font-medium"
                     onClick={() => setMobileMenuOpen(false)}
@@ -143,9 +141,9 @@ export function Header() {
                     </span>
                     Pengaturan Profil
                   </Link>
-                  <Link 
-                    href="/logout" 
-                    method="post" 
+                  <Link
+                    href="/logout"
+                    method="post"
                     as="button"
                     className="flex items-center gap-2 text-red-400 font-medium"
                     onClick={() => setMobileMenuOpen(false)}
@@ -195,8 +193,8 @@ interface MobileNavLinkProps {
 
 function MobileNavLink({ href, children, onClick }: MobileNavLinkProps) {
   return (
-    <Link 
-      href={href} 
+    <Link
+      href={href}
       className="text-white hover:text-yellow-300 transition-colors text-xl font-medium py-2"
       onClick={onClick}
     >
