@@ -72,8 +72,9 @@ class PembayaranSppController extends Controller
             'status_bayar' => 'menunggu_verifikasi',
         ]);
         try {
+                    $namaSiswa= $siswa->nama_lengkap;
                     $nomorTujuan = '6281918285109';
-                    $pesan = "Ada Orang Tua dari " . $siswa ."Yang Baru Saja Upload Bukti Pembayaran Pada " . now()->format('d-m-Y') . "\n Cek Sekarang Juga!!!";
+                    $pesan = "Ada Orang Tua dari " . $namaSiswa ."Yang Baru Saja Upload Bukti Pembayaran Pada " . now()->format('d-m-Y') . "\n Cek Sekarang Juga!!!";
                     $this->whatsApp->sendText($nomorTujuan, $pesan);
 
                 } catch (\Exception $waException) {
