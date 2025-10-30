@@ -6,9 +6,16 @@ use App\Models\PembayaranSpp;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Providers\WhatsAppGateway;
 
 class PembayaranSppController extends Controller
 {
+
+      public function __construct(WhatsAppGateway $whatsApp)
+    {
+        $this->whatsApp = $whatsApp;
+    }
+
     public function index()
     {
         $user = auth()->user();
@@ -38,7 +45,6 @@ class PembayaranSppController extends Controller
             'tanggal_bayar' => 'required|date',
         ]);
 
-        // Check if pembayaran belongs to current user's siswa
         $user = auth()->user();
         $siswa = Siswa::where('user_id', $user->id)->first();
 
@@ -46,9 +52,7 @@ class PembayaranSppController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        // Handle file upload
         if ($request->hasFile('bukti_bayar')) {
-            // Delete old file if exists
             if ($pembayaran->bukti_bayar) {
                 $oldPath = public_path('assets/images/bukti_bayar/' . $pembayaran->bukti_bayar);
                 if (file_exists($oldPath)) {
@@ -67,6 +71,14 @@ class PembayaranSppController extends Controller
             'tanggal_bayar' => $validated['tanggal_bayar'],
             'status_bayar' => 'menunggu_verifikasi',
         ]);
+  try {
+                    $nomorTujuan = '6281918285109';
+                    $pesan = "Ada Orang Tua Yang Baru Saja Upload Bukti Pembayaran!!! Pada " . now()->toDateTimeString() . "\n Cek Sekarang Juga!!!";
+                    $this->whatsApp->sendText($nomorTujuan, $pesan);
+
+                } catch (\Exception $waException) {
+                    Log::error('Gagal mengirim notifikasi WhatsApp: ' . $waException->getMessage());
+                }
 
         return redirect()->route('orangtua.pembayaran.index')
             ->with('success', 'Bukti pembayaran berhasil diupload. Menunggu verifikasi admin.');

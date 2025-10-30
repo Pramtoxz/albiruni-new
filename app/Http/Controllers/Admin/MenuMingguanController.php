@@ -53,7 +53,6 @@ class MenuMingguanController extends Controller
 
         DB::beginTransaction();
         try {
-            // If setting as active, deactivate all other menus
             if ($validated['is_active'] ?? false) {
                 MenuMingguan::query()->update(['is_active' => false]);
             }
@@ -66,7 +65,6 @@ class MenuMingguanController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            // Save menu harian items
             if (!empty($validated['menu_harian'])) {
                 foreach ($validated['menu_harian'] as $item) {
                     if (!empty($item['nama_menu'])) {
@@ -116,7 +114,6 @@ class MenuMingguanController extends Controller
 
         DB::beginTransaction();
         try {
-            // If setting as active, deactivate all other menus
             if ($validated['is_active'] ?? false) {
                 MenuMingguan::where('id', '!=', $menuMingguan->id)->update(['is_active' => false]);
             }
@@ -128,7 +125,6 @@ class MenuMingguanController extends Controller
                 'is_active' => $validated['is_active'] ?? false,
             ]);
 
-            // Delete existing menu harian and recreate
             $menuMingguan->menuHarian()->delete();
 
             if (!empty($validated['menu_harian'])) {
@@ -171,7 +167,6 @@ class MenuMingguanController extends Controller
 
         DB::beginTransaction();
         try {
-            // Create new menu mingguan with dates set to next week
             $newMenuMingguan = MenuMingguan::create([
                 'nama_menu' => $menuMingguan->nama_menu . ' (Copy)',
                 'tanggal_mulai' => $menuMingguan->tanggal_mulai->addWeek(),
@@ -180,7 +175,6 @@ class MenuMingguanController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            // Copy all menu harian items
             foreach ($menuMingguan->menuHarian as $menuHarian) {
                 MenuHarian::create([
                     'menu_mingguan_id' => $newMenuMingguan->id,
@@ -208,7 +202,6 @@ class MenuMingguanController extends Controller
         DB::beginTransaction();
         try {
             if (!$menuMingguan->is_active) {
-                // Deactivate all other menus
                 MenuMingguan::query()->update(['is_active' => false]);
                 $menuMingguan->update(['is_active' => true]);
             } else {
@@ -233,7 +226,6 @@ class MenuMingguanController extends Controller
         $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
         $waktuMakan = ['sarapan', 'makan_siang', 'snack'];
 
-        // Check if download parameter exists
         if (request()->has('download')) {
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.menu-mingguan', [
                 'menuMingguan' => $menuMingguan,
@@ -246,7 +238,6 @@ class MenuMingguanController extends Controller
             return $pdf->download('menu-mingguan-' . str_replace(' ', '-', $menuMingguan->nama_menu) . '.pdf');
         }
 
-        // Show preview
         return view('pdf.menu-mingguan', [
             'menuMingguan' => $menuMingguan,
             'days' => $days,

@@ -61,6 +61,7 @@ class Siswa extends Model
         'lokasi_pendaftaran',
         'tanggal_pendaftaran',
         'status_siswa',
+        'is_active',
         'jenis_pembayaran',
     ];
 

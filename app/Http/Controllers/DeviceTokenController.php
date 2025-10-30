@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Log;
 
 class DeviceTokenController extends Controller
 {
-    /**
-     * Register or update FCM token for authenticated user
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -23,13 +20,11 @@ class DeviceTokenController extends Controller
             $userId = auth()->id();
             $fcmToken = $validated['fcm_token'];
 
-            // Check if token already exists for this user
             $existingToken = DeviceToken::where('user_id', $userId)
                 ->where('fcm_token', $fcmToken)
                 ->first();
 
             if ($existingToken) {
-                // Token already exists, just update last_used_at
                 $existingToken->update([
                     'is_active' => true,
                     'last_used_at' => now(),
@@ -40,7 +35,6 @@ class DeviceTokenController extends Controller
                     'token_id' => $existingToken->id,
                 ]);
             } else {
-                // New token, create it
                 DeviceToken::create([
                     'user_id' => $userId,
                     'fcm_token' => $fcmToken,
@@ -73,9 +67,6 @@ class DeviceTokenController extends Controller
         }
     }
 
-    /**
-     * Deactivate FCM token (on logout)
-     */
     public function destroy(Request $request)
     {
         $validated = $request->validate([

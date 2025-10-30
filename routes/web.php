@@ -18,7 +18,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('api/device-tokens', [DeviceTokenController::class, 'destroy'])
         ->name('device-tokens.destroy');
 
-    // Routes untuk pendaftaran siswa (tanpa middleware check.siswa)
     Route::get('siswa/register', [SiswaController::class, 'create'])
         ->name('siswa.create');
     Route::post('siswa/register', [SiswaController::class, 'store'])

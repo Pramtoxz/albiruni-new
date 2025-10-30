@@ -23,14 +23,12 @@ class PembayaranSppController extends Controller
 
         $query = PembayaranSpp::with(['siswa.user', 'kelas']);
 
-        // Filter by cabang/lokasi
         if ($request->filled('cabang')) {
             $query->whereHas('siswa', function ($q) use ($request) {
                 $q->where('lokasi_pendaftaran', $request->cabang);
             });
         }
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status_bayar', $request->status);
         }
@@ -83,7 +81,6 @@ class PembayaranSppController extends Controller
         $currentMonth = now()->format('Y-m');
         $currentYear = now()->year;
 
-        // Check if already generated for this month
         $alreadyGenerated = PembayaranSpp::where('bulan', $currentMonth)
             ->where('tahun', $currentYear)
             ->exists();
@@ -93,7 +90,6 @@ class PembayaranSppController extends Controller
                 ->with('error', 'Tagihan SPP untuk bulan ini sudah pernah di-generate.');
         }
 
-        // Get all active students with kelas
         $siswaList = Siswa::where('status_siswa', true)
             ->where('is_active', true)
             ->whereNotNull('kelas_id')
@@ -111,7 +107,6 @@ class PembayaranSppController extends Controller
         $delaySeconds = config('app.whatsapp_notification_delay', 2);
 
         foreach ($siswaList as $siswa) {
-            // Create payment record
             $pembayaran = PembayaranSpp::create([
                 'siswa_id' => $siswa->id,
                 'kelas_id' => $siswa->kelas_id,
@@ -121,12 +116,9 @@ class PembayaranSppController extends Controller
                 'status_bayar' => 'pending',
             ]);
 
-            // Send notifications to parent
             try {
-                // WhatsApp notification
                 $notificationService->sendSppNotificationToParent($pembayaran);
 
-                // FCM push notification
                 $fcmService->sendToUser(
                     userId: $siswa->user_id,
                     title: 'Tagihan SPP Baru',
@@ -138,7 +130,6 @@ class PembayaranSppController extends Controller
                     ]
                 );
 
-                // Add delay between notifications (except for the last one)
                 if ($generated < $siswaList->count() - 1) {
                     sleep($delaySeconds);
                 }

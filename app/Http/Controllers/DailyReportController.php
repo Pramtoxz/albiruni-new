@@ -15,7 +15,6 @@ class DailyReportController extends Controller
 {
     public function index(): Response
     {
-        /** @var User $user */
         $user = auth()->user();
 
         $reports = DailyReport::with(['siswa', 'user'])
@@ -48,12 +47,10 @@ class DailyReportController extends Controller
                 ];
             });
 
-        // Get active menu mingguan
         $menuMingguan = \App\Models\MenuMingguan::with('menuHarian')
             ->where('is_active', true)
             ->first();
 
-        // Prepare menu options grouped by waktu_makan
         $menuMakanan = [
             'sarapan' => [],
             'makan_siang' => [],
@@ -61,10 +58,8 @@ class DailyReportController extends Controller
         ];
 
         if ($menuMingguan) {
-            // Get current day of week (senin, selasa, etc)
             $currentDay = strtolower(\Carbon\Carbon::now()->locale('id')->dayName);
             
-            // Group menu by waktu_makan for current day
             $todayMenu = $menuMingguan->menuHarian()
                 ->where('hari', $currentDay)
                 ->get()
@@ -79,7 +74,6 @@ class DailyReportController extends Controller
                     ];
                 })->values();
                 
-                // For snack, duplicate the menu for all categories since it's the same
                 if ($waktu === 'snack' && $menus->count() > 0) {
                     $snackMenu = $menus->first();
                     $menuMakanan[$waktu] = collect(['anak', 'bayi', 'staff'])->map(function ($kategori) use ($snackMenu) {
@@ -120,7 +114,6 @@ class DailyReportController extends Controller
             'mood' => 'nullable|string|max:50',
             'activity' => 'nullable|string',
 
-            // Menu
             'sarapan_pagi' => 'nullable|string|max:255',
             'sarapan_status' => 'nullable|integer|min:0|max:5',
             'makan_siang' => 'nullable|string|max:255',
@@ -128,11 +121,9 @@ class DailyReportController extends Controller
             'snack_sore' => 'nullable|string|max:255',
             'snack_status' => 'nullable|integer|min:0|max:5',
 
-            // Minum
             'minum_air_putih' => 'nullable|string|max:50',
             'minum_susu' => 'nullable|string|max:50',
 
-            // Tidur & Toilet
             'tidur_siang' => 'nullable|boolean',
             'tidur_siang_durasi' => 'nullable|string|max:50',
             'bak' => 'nullable|boolean',
@@ -140,16 +131,13 @@ class DailyReportController extends Controller
             'bab' => 'nullable|boolean',
             'bab_frekuensi' => 'nullable|integer|min:0',
 
-            // Catatan
             'kebutuhan_besok' => 'nullable|string',
             'catatan_khusus' => 'nullable|string',
             'catatan_insiden' => 'nullable|string',
 
-            // Foto
             'foto_kegiatan' => 'nullable|image|max:5120', // 5MB
         ]);
 
-        // Handle foto upload
         if ($request->hasFile('foto_kegiatan')) {
             $file = $request->file('foto_kegiatan');
             $filename = time().'_'.$file->getClientOriginalName();
@@ -157,17 +145,14 @@ class DailyReportController extends Controller
             $validated['foto_kegiatan'] = $filename;
         }
 
-        /** @var User $user */
         $user = auth()->user();
         $validated['user_id'] = $user->id;
 
         $report = DailyReport::create($validated);
 
-        // Send WhatsApp notification to parent
         $notificationService = app(NotificationService::class);
         $notificationService->sendDailyReportToParent($report);
 
-        // Send FCM push notification
         $siswa = $report->siswa;
         $fcmService = app(\App\Services\FcmService::class);
         $fcmService->sendToUser(
@@ -197,7 +182,6 @@ class DailyReportController extends Controller
 
     public function orangtuaIndex(): Response
     {
-        /** @var \App\Models\User $user */
         $user = auth()->user();
         $siswa = Siswa::where('user_id', $user->id)->first();
 
@@ -221,7 +205,6 @@ class DailyReportController extends Controller
 
     public function orangtuaShow(DailyReport $dailyReport): Response
     {
-        /** @var \App\Models\User $user */
         $user = auth()->user();
         $siswa = Siswa::where('user_id', $user->id)->first();
 

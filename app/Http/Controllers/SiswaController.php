@@ -18,7 +18,6 @@ class SiswaController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            // Informasi Umum Siswa
             'nama_lengkap' => 'required|string|max:255',
             'nama_panggilan' => 'nullable|string|max:255',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
@@ -31,7 +30,6 @@ class SiswaController extends Controller
             'bahasa_sehari_hari' => 'nullable|string|max:255',
             'foto_siswa' => 'nullable|image|max:2048',
             
-            // Informasi Kesehatan
             'berat_badan' => 'nullable|numeric|min:0',
             'tinggi_badan' => 'nullable|numeric|min:0',
             'golongan_darah' => 'nullable|string|max:10',
@@ -39,7 +37,6 @@ class SiswaController extends Controller
             'alasan_rawat_inap' => 'nullable|string',
             'riwayat_alergi_makanan' => 'nullable|string',
             
-            // Data Ayah
             'ayah_nama_lengkap' => 'nullable|string|max:255',
             'ayah_tempat_tanggal_lahir' => 'nullable|string|max:255',
             'ayah_pekerjaan' => 'nullable|string|max:255',
@@ -51,7 +48,6 @@ class SiswaController extends Controller
             'ayah_telepon_kantor' => 'nullable|string|max:20',
             'ayah_no_hp' => 'nullable|string|max:20',
             
-            // Data Ibu
             'ibu_nama_lengkap' => 'nullable|string|max:255',
             'ibu_tempat_tanggal_lahir' => 'nullable|string|max:255',
             'ibu_pekerjaan' => 'nullable|string|max:255',
@@ -63,7 +59,6 @@ class SiswaController extends Controller
             'ibu_telepon_kantor' => 'nullable|string|max:20',
             'ibu_no_hp' => 'nullable|string|max:20',
             
-            // Kontak Darurat
             'kontak_darurat_nama_lengkap' => 'nullable|string|max:255',
             'kontak_darurat_hubungan' => 'nullable|string|max:255',
             'kontak_darurat_pekerjaan' => 'nullable|string|max:255',
@@ -74,12 +69,10 @@ class SiswaController extends Controller
             'kontak_darurat_telepon_kantor' => 'nullable|string|max:20',
             'kontak_darurat_no_hp' => 'nullable|string|max:20',
             
-            // Persetujuan
             'lokasi_pendaftaran' => 'nullable|string|max:255',
             'tanggal_pendaftaran' => 'nullable|date',
         ]);
 
-        // Handle foto upload
         if ($request->hasFile('foto_siswa')) {
             $file = $request->file('foto_siswa');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -87,7 +80,6 @@ class SiswaController extends Controller
             $validated['foto_siswa'] = $filename;
         }
 
-        // Create siswa record
         $request->user()->siswa()->create($validated);
 
         return redirect()->route('dashboard')->with('success', 'Data siswa berhasil disimpan!');

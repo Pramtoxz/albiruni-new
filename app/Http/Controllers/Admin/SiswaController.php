@@ -64,8 +64,7 @@ class SiswaController extends Controller
     {
         $this->checkAdmin();
 
-        // Only allow editing approved students
-        if (!$siswa->status_siswa) {
+        if (! $siswa->status_siswa) {
             return redirect()->route('admin.siswa.index')
                 ->with('error', 'Hanya siswa yang sudah disetujui yang dapat diedit.');
         }
@@ -83,14 +82,12 @@ class SiswaController extends Controller
     {
         $this->checkAdmin();
 
-        // Only allow updating approved students
-        if (!$siswa->status_siswa) {
+        if (! $siswa->status_siswa) {
             return redirect()->route('admin.siswa.index')
                 ->with('error', 'Hanya siswa yang sudah disetujui yang dapat diedit.');
         }
 
         $validated = $request->validate([
-            // Informasi Umum Siswa
             'nama_lengkap' => 'required|string|max:255',
             'nama_panggilan' => 'nullable|string|max:255',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
@@ -102,16 +99,14 @@ class SiswaController extends Controller
             'jumlah_saudara_kandung' => 'nullable|integer|min:0',
             'bahasa_sehari_hari' => 'nullable|string|max:255',
             'foto_siswa' => 'nullable|image|max:2048',
-            
-            // Informasi Kesehatan
+
             'berat_badan' => 'nullable|numeric|min:0',
             'tinggi_badan' => 'nullable|numeric|min:0',
             'golongan_darah' => 'nullable|string|max:10',
             'riwayat_penyakit' => 'nullable|string',
             'alasan_rawat_inap' => 'nullable|string',
             'riwayat_alergi_makanan' => 'nullable|string',
-            
-            // Data Ayah
+
             'ayah_nama_lengkap' => 'nullable|string|max:255',
             'ayah_tempat_tanggal_lahir' => 'nullable|string|max:255',
             'ayah_pekerjaan' => 'nullable|string|max:255',
@@ -122,8 +117,7 @@ class SiswaController extends Controller
             'ayah_alamat_kantor' => 'nullable|string',
             'ayah_telepon_kantor' => 'nullable|string|max:20',
             'ayah_no_hp' => 'nullable|string|max:20',
-            
-            // Data Ibu
+
             'ibu_nama_lengkap' => 'nullable|string|max:255',
             'ibu_tempat_tanggal_lahir' => 'nullable|string|max:255',
             'ibu_pekerjaan' => 'nullable|string|max:255',
@@ -134,8 +128,7 @@ class SiswaController extends Controller
             'ibu_alamat_kantor' => 'nullable|string',
             'ibu_telepon_kantor' => 'nullable|string|max:20',
             'ibu_no_hp' => 'nullable|string|max:20',
-            
-            // Kontak Darurat
+
             'kontak_darurat_nama_lengkap' => 'nullable|string|max:255',
             'kontak_darurat_hubungan' => 'nullable|string|max:255',
             'kontak_darurat_pekerjaan' => 'nullable|string|max:255',
@@ -145,8 +138,7 @@ class SiswaController extends Controller
             'kontak_darurat_alamat_kantor' => 'nullable|string',
             'kontak_darurat_telepon_kantor' => 'nullable|string|max:20',
             'kontak_darurat_no_hp' => 'nullable|string|max:20',
-            
-            // Persetujuan
+
             'lokasi_pendaftaran' => 'nullable|string|max:255',
             'tanggal_pendaftaran' => 'nullable|date',
             'kelas_id' => 'required|exists:kelas,id',
@@ -155,14 +147,14 @@ class SiswaController extends Controller
 
         if ($request->hasFile('foto_siswa')) {
             if ($siswa->foto_siswa) {
-                $oldPhotoPath = public_path('assets/images/foto_siswa/' . $siswa->foto_siswa);
+                $oldPhotoPath = public_path('assets/images/foto_siswa/'.$siswa->foto_siswa);
                 if (file_exists($oldPhotoPath)) {
                     unlink($oldPhotoPath);
                 }
             }
 
             $file = $request->file('foto_siswa');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('assets/images/foto_siswa'), $filename);
             $validated['foto_siswa'] = $filename;
         } else {
@@ -186,7 +178,7 @@ class SiswaController extends Controller
 
         $siswa->update([
             'status_siswa' => true,
-            'is_active'=>true,
+            'is_active' => true,
             'kelas_id' => $validated['kelas_id'],
             'jenis_pembayaran' => $validated['jenis_pembayaran'],
         ]);

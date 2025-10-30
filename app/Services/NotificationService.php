@@ -9,12 +9,10 @@ use Illuminate\Support\Facades\Log;
 class NotificationService
 {
     public function __construct(
-        protected WhatsAppGateway $gateway
+        
+    protected WhatsAppGateway $gateway
     ) {}
 
-    /**
-     * Send daily report notification to parent via WhatsApp
-     */
     public function sendDailyReportToParent(DailyReport $report): void
     {
         try {
@@ -46,9 +44,6 @@ class NotificationService
         }
     }
 
-    /**
-     * Build WhatsApp message for daily report
-     */
     protected function buildDailyReportMessage(DailyReport $report, $siswa): string
     {
         $date = \Carbon\Carbon::parse($report->tanggal)->format('d/m/Y');
@@ -111,9 +106,6 @@ class NotificationService
         return $message;
     }
 
-    /**
-     * Send SPP payment notification to parent via WhatsApp
-     */
     public function sendSppNotificationToParent($pembayaran): void
     {
         try {
@@ -145,9 +137,6 @@ class NotificationService
         }
     }
 
-    /**
-     * Build WhatsApp message for SPP notification
-     */
     protected function buildSppNotificationMessage($pembayaran, $siswa): string
     {
         $bulan = $this->formatBulan($pembayaran->bulan);
@@ -178,9 +167,6 @@ class NotificationService
         return $message;
     }
 
-    /**
-     * Format bulan dari YYYY-MM ke nama bulan Indonesia
-     */
     protected function formatBulan(string $bulan): string
     {
         [$year, $month] = explode('-', $bulan);
