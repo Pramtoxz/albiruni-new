@@ -74,8 +74,11 @@ class PembayaranSppController extends Controller
         try {
                     $namaSiswa= $siswa->nama_lengkap;
                     $nomorTujuan = '6281918285109';
-                    $pesan = "Ada Orang Tua dari " . $namaSiswa ."Yang Baru Saja Upload Bukti Pembayaran Pada " . now()->format('d-m-Y') . "\n Cek Sekarang Juga!!!";
-                    $this->whatsApp->sendText($nomorTujuan, $pesan);
+                    $pesan = "🔔 *Notifikasi Pembayaran Baru* 🔔\n\n" . 
+                            "Orang tua dari siswa *{$namaSiswa}* telah mengunggah bukti pembayaran untuk SPP bulan *{$bulanBayar} {$tahunBayar}*.\n\n" .
+                            "Mohon untuk segera melakukan verifikasi.";                 
+                    
+                 $this->whatsApp->sendText($nomorTujuan, $pesan);
 
                 } catch (\Exception $waException) {
                     Log::error('Gagal mengirim notifikasi WhatsApp: ' . $waException->getMessage());
