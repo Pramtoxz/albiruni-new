@@ -18,8 +18,6 @@ export default function CreateUser() {
         name: '',
         email: '',
         nohp: '08',
-        password: '',
-        password_confirmation: '',
         role: 'guru' as 'guru' | 'orangtua',
     });
 
@@ -113,34 +111,14 @@ export default function CreateUser() {
                         <InputError message={errors.role} />
                     </div>
 
-                    {/* Password */}
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
-                            placeholder="Minimal 8 karakter"
-                            required
-                        />
-                        <InputError message={errors.password} />
-                    </div>
-
-                    {/* Password Confirmation */}
-                    <div className="space-y-2">
-                        <Label htmlFor="password_confirmation">Konfirmasi Password</Label>
-                        <Input
-                            id="password_confirmation"
-                            type="password"
-                            value={data.password_confirmation}
-                            onChange={(e) =>
-                                setData('password_confirmation', e.target.value)
-                            }
-                            placeholder="Ulangi password"
-                            required
-                        />
-                        <InputError message={errors.password_confirmation} />
+                    {/* Password Info */}
+                    <div className="rounded-md bg-muted p-4">
+                        <p className="text-sm text-muted-foreground">
+                            <strong>Password default:</strong> 12345678
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            User dapat mengubah password setelah login pertama kali
+                        </p>
                     </div>
 
                     {/* Submit */}

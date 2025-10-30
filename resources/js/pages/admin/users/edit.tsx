@@ -30,8 +30,6 @@ export default function EditUser({ user }: Props) {
         name: user.name,
         email: user.email,
         nohp: user.nohp,
-        password: '',
-        password_confirmation: '',
         role: user.role,
     });
 
@@ -123,43 +121,6 @@ export default function EditUser({ user }: Props) {
                             </SelectContent>
                         </Select>
                         <InputError message={errors.role} />
-                    </div>
-
-                    <div className="border-t pt-6">
-                        <h3 className="font-semibold mb-4">Ubah Password (Opsional)</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Kosongkan jika tidak ingin mengubah password
-                        </p>
-
-                        {/* Password */}
-                        <div className="space-y-2 mb-4">
-                            <Label htmlFor="password">Password Baru</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                value={data.password}
-                                onChange={(e) => setData('password', e.target.value)}
-                                placeholder="Minimal 8 karakter"
-                            />
-                            <InputError message={errors.password} />
-                        </div>
-
-                        {/* Password Confirmation */}
-                        <div className="space-y-2">
-                            <Label htmlFor="password_confirmation">
-                                Konfirmasi Password Baru
-                            </Label>
-                            <Input
-                                id="password_confirmation"
-                                type="password"
-                                value={data.password_confirmation}
-                                onChange={(e) =>
-                                    setData('password_confirmation', e.target.value)
-                                }
-                                placeholder="Ulangi password baru"
-                            />
-                            <InputError message={errors.password_confirmation} />
-                        </div>
                     </div>
 
                     {/* Submit */}

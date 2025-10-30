@@ -36,6 +36,7 @@ class UserController extends Controller
     public function create()
     {
         $this->checkAdmin();
+
         return Inertia::render('admin/users/create');
     }
 
@@ -46,18 +47,17 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'nohp' => ['required', 'string', 'max:20', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(['guru', 'orangtua'])],
         ]);
 
         $validated['nohp'] = $this->normalizePhone($validated['nohp']);
-        $validated['password'] = Hash::make($validated['password']);
+        $validated['password'] = Hash::make('12345678');
         $validated['email_verified_at'] = now();
 
         User::create($validated);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil ditambahkan!');
+            ->with('success', 'User berhasil ditambahkan dengan password default: 12345678');
     }
 
     public function edit(User $user)
@@ -87,17 +87,10 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'nohp' => ['required', 'string', 'max:20', Rule::unique('users')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(['guru', 'orangtua'])],
         ]);
 
         $validated['nohp'] = $this->normalizePhone($validated['nohp']);
-
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
-        }
 
         $user->update($validated);
 
@@ -127,25 +120,18 @@ class UserController extends Controller
 
     private function normalizePhone(string $phone): string
     {
-        // Remove all non-numeric characters
         $phone = preg_replace('/[^0-9]/', '', $phone);
 
-        // Convert 08xx to 628xx
         if (str_starts_with($phone, '08')) {
-            return '62' . substr($phone, 1);
+            return '62'.substr($phone, 1);
         }
-
-        // If already starts with 62, return as is
         if (str_starts_with($phone, '62')) {
             return $phone;
         }
-
-        // If starts with 8 (without 0), add 62
         if (str_starts_with($phone, '8')) {
-            return '62' . $phone;
+            return '62'.$phone;
         }
 
-        // Default: add 62 prefix
-        return '62' . $phone;
+        return '62'.$phone;
     }
 }
