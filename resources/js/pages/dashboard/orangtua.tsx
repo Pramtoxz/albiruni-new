@@ -215,82 +215,65 @@ export default function OrangtuaDashboard() {
                 {/* Colorful Content Section */}
                 <div className="mt-8 space-y-5 px-4 relative z-10">
                     {/* Pengumuman dengan Tema Ceria */}
-                    <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white">
-                        <CardHeader className="pb-3 bg-gradient-to-r from-yellow-100 to-orange-100">
-                            <CardTitle className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                <span className="text-2xl">📢</span>
-                                Pengumuman Terbaru
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3 p-4">
-                            <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-l-4 border-blue-400 hover:shadow-md transition-all">
-                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-400 shadow-md">
-                                    <Bell className="h-6 w-6 text-white" />
+                    <Link href="/orangtua/pengumuman">
+                        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white hover:shadow-2xl transition-all cursor-pointer">
+                            <CardHeader className="pb-3 bg-gradient-to-r from-yellow-100 to-orange-100">
+                                <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-2xl">📢</span>
+                                        Pengumuman Terbaru
+                                    </div>
+                                    <span className="text-sm text-gray-600">Lihat semua →</span>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3 p-4">
+                                <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-l-4 border-blue-400">
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-400 shadow-md">
+                                        <Bell className="h-6 w-6 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-bold text-gray-800">Libur Semester 🎉</p>
+                                        <p className="text-xs text-gray-600 mt-1">
+                                            Libur semester akan dimulai tanggal 20 Desember 2024
+                                        </p>
+                                        <p className="mt-2 text-xs text-blue-600 font-medium">2 hari yang lalu</p>
+                                    </div>
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold text-gray-800">Libur Semester 🎉</p>
-                                    <p className="text-xs text-gray-600 mt-1">
-                                        Libur semester akan dimulai tanggal 20 Desember 2024
-                                    </p>
-                                    <p className="mt-2 text-xs text-blue-600 font-medium">2 hari yang lalu</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-green-50 to-green-100 p-4 border-l-4 border-green-400 hover:shadow-md transition-all">
-                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-400 shadow-md">
-                                    <Calendar className="h-6 w-6 text-white" />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold text-gray-800">Pertemuan Orang Tua 👨‍👩‍👧</p>
-                                    <p className="text-xs text-gray-600 mt-1">
-                                        Pertemuan orang tua akan diadakan hari Sabtu, 25 Nov 2024
-                                    </p>
-                                    <p className="mt-2 text-xs text-green-600 font-medium">5 hari yang lalu</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    </Link>
 
                     {/* Aktivitas Terkini dengan Desain Playful */}
-                    <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white">
-                        <CardHeader className="pb-3 bg-gradient-to-r from-purple-100 to-pink-100">
-                            <CardTitle className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                <span className="text-2xl">⭐</span>
-                                Aktivitas Terkini
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3 p-4">
-                            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-orange-50 to-yellow-50 p-4 border-2 border-orange-200 hover:shadow-md transition-all">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-yellow-400 shadow-md">
-                                        <BookOpen className="h-6 w-6 text-white" />
+                    <Link href="/orangtua/pemberitahuan">
+                        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white hover:shadow-2xl transition-all cursor-pointer">
+                            <CardHeader className="pb-3 bg-gradient-to-r from-purple-100 to-pink-100">
+                                <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-2xl">⭐</span>
+                                        Aktivitas Terkini
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-gray-800">Tugas Menggambar 🎨</p>
-                                        <p className="text-xs text-gray-600">Sudah dikumpulkan</p>
+                                    <span className="text-sm text-gray-600">Lihat semua →</span>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3 p-4">
+                                <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-orange-50 to-yellow-50 p-4 border-2 border-orange-200">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-yellow-400 shadow-md">
+                                            <BookOpen className="h-6 w-6 text-white" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-800">Tugas Menggambar 🎨</p>
+                                            <p className="text-xs text-gray-600">Sudah dikumpulkan</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-2xl">✓</span>
-                                    <span className="text-xs font-bold text-green-600">Selesai</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 p-4 border-2 border-purple-200 hover:shadow-md transition-all">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-blue-400 shadow-md">
-                                        <Calendar className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-gray-800">Hadir Hari Ini 🌟</p>
-                                        <p className="text-xs text-gray-600">Pukul 07:30 WIB</p>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-2xl">✓</span>
+                                        <span className="text-xs font-bold text-green-600">Selesai</span>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-2xl">✓</span>
-                                    <span className="text-xs font-bold text-green-600">Hadir</span>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    </Link>
                 </div>
             </div>
         </>
