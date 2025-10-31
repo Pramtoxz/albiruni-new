@@ -182,7 +182,7 @@ export default function Login({ status, bypassOtp = false }: LoginProps) {
                 <div className="absolute bottom-20 right-20 w-28 h-28 bg-purple-300 rounded-full opacity-20"></div>
 
                 {/* Header */}
-                <div className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 px-6 pb-16 pt-safe-top pt-12 md:pt-16 text-white shadow-lg">
+                <div className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 px-6 pb-16 pt-16 md:pt-20 text-white shadow-lg">
                     {/* Floating Stars Decoration */}
                     <div className="absolute top-4 right-4 animate-bounce hidden md:block">
                         <Phone className="h-6 w-6 text-yellow-300 fill-yellow-300" />
