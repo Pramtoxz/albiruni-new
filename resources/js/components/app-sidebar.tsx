@@ -23,6 +23,7 @@ import {
     UtensilsCrossed,
     School,
     CreditCard,
+    GraduationCap,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -83,6 +84,11 @@ export function AppSidebar() {
             title: 'Menu Mingguan',
             href: '/admin/menu-mingguan',
             icon: UtensilsCrossed,
+        });
+        mainNavItems.push({
+            title: 'Rencana Pembelajaran',
+            href: '/admin/rencana-pembelajaran',
+            icon: GraduationCap,
         });
     }
 

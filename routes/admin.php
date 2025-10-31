@@ -29,6 +29,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('menu-mingguan/{menuMingguan}/toggle-active', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'toggleActive'])->name('menu-mingguan.toggle-active');
     Route::get('menu-mingguan/{menuMingguan}/print', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'printPdf'])->name('menu-mingguan.print');
     
+    // Rencana Pembelajaran Management
+    Route::get('rencana-pembelajaran', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'index'])->name('rencana-pembelajaran.index');
+    Route::get('rencana-pembelajaran/create', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'create'])->name('rencana-pembelajaran.create');
+    Route::post('rencana-pembelajaran', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'store'])->name('rencana-pembelajaran.store');
+    Route::get('rencana-pembelajaran/{rencanaPembelajaran}/edit', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'edit'])->name('rencana-pembelajaran.edit');
+    Route::put('rencana-pembelajaran/{rencanaPembelajaran}', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'update'])->name('rencana-pembelajaran.update');
+    Route::delete('rencana-pembelajaran/{rencanaPembelajaran}', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'destroy'])->name('rencana-pembelajaran.destroy');
+    Route::post('rencana-pembelajaran/{rencanaPembelajaran}/copy', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'copy'])->name('rencana-pembelajaran.copy');
+    Route::post('rencana-pembelajaran/{rencanaPembelajaran}/toggle-active', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'toggleActive'])->name('rencana-pembelajaran.toggle-active');
+    
     // Kelas Management
     Route::resource('kelas', KelasController::class);
     

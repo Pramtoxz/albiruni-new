@@ -23,7 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('siswa/register', [SiswaController::class, 'store'])
         ->name('siswa.store');
 
-    // Routes untuk guru - Daily Report
+    // Routes untuk guru - Daily Report & Rencana Pembelajaran
     Route::prefix('guru')->name('guru.')->group(function () {
         Route::get('daily-report', [DailyReportController::class, 'index'])
             ->name('daily-report.index');
@@ -33,6 +33,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('daily-report.store');
         Route::get('daily-report/{dailyReport}', [DailyReportController::class, 'show'])
             ->name('daily-report.show');
+        
+        // Rencana Pembelajaran (Read Only)
+        Route::get('rencana-pembelajaran', [\App\Http\Controllers\Guru\RencanaPembelajaranController::class, 'index'])
+            ->name('rencana-pembelajaran.index');
+        Route::get('rencana-pembelajaran/{rencanaPembelajaran}', [\App\Http\Controllers\Guru\RencanaPembelajaranController::class, 'show'])
+            ->name('rencana-pembelajaran.show');
     });
 
     // Routes untuk orang tua - Daily Report & Pembayaran
