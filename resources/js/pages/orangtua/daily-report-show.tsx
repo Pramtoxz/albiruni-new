@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { StarRating } from '@/components/star-rating';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Check, X } from 'lucide-react';
+import { ArrowLeft, Check, X, Star, Sparkles } from 'lucide-react';
 
 interface DailyReport {
     id: number;
@@ -73,27 +73,48 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
     return (
         <>
             <Head title={`Daily Report - ${report.siswa.nama_lengkap}`} />
-            <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-background pb-safe pb-6">
-                {/* Header dengan design mirip template */}
-                <div className="bg-gradient-to-r from-yellow-400 to-orange-400 px-4 pb-8 pt-safe-top pt-6 text-white">
-                    <div className="mb-4 flex items-center gap-3">
+            <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 pb-6 relative overflow-hidden">
+                {/* Decorative Background Elements */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full opacity-20 -translate-x-16 -translate-y-16"></div>
+                <div className="absolute top-20 right-0 w-24 h-24 bg-pink-300 rounded-full opacity-20 translate-x-12"></div>
+                <div className="absolute bottom-40 left-10 w-20 h-20 bg-blue-300 rounded-full opacity-20"></div>
+                <div className="absolute top-40 right-10 w-16 h-16 bg-purple-300 rounded-full opacity-20"></div>
+
+                {/* Floating Stars Decoration */}
+                <div className="absolute top-8 right-8 animate-bounce">
+                    <Star className="h-6 w-6 text-yellow-400 fill-yellow-400 opacity-40" />
+                </div>
+                <div className="absolute top-24 left-12 animate-pulse">
+                    <Sparkles className="h-5 w-5 text-pink-400 opacity-40" />
+                </div>
+
+                {/* Content with integrated back button */}
+                <div className="pt-12 pb-4 px-4 space-y-4 relative z-10">
+                    {/* Back Button & Title */}
+                    <div className="flex items-center gap-3 mb-2">
                         <Link href="/orangtua/daily-report">
-                            <button className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/10">
-                                <ArrowLeft className="h-5 w-5" />
+                            <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+                                <ArrowLeft className="h-5 w-5 text-gray-700" />
                             </button>
                         </Link>
                         <div className="flex-1">
-                            <h1 className="text-2xl font-bold">Daily Report</h1>
-                            <p className="text-sm opacity-90">{report.siswa.nama_lengkap}</p>
+                            <h1 className="text-2xl font-bold text-gray-800">Daily Report 📝</h1>
+                            <p className="text-sm text-gray-600">{report.siswa.nama_lengkap}</p>
                         </div>
                     </div>
 
                     {/* Mood & Date Card */}
-                    <Card className="border-0 bg-white/95 shadow-lg">
-                        <CardContent className="p-4">
+                    <Card className="border-0 bg-white shadow-xl rounded-3xl overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-300 to-purple-300 rounded-bl-full opacity-50"></div>
+                        <CardContent className="p-4 relative z-10">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-5xl">
-                                    {getMoodEmoji(report.mood)}
+                                <div className="relative">
+                                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-200 to-orange-300 text-5xl shadow-lg">
+                                        {getMoodEmoji(report.mood)}
+                                    </div>
+                                    <div className="absolute -bottom-1 -right-1 bg-pink-400 rounded-full p-1.5 border-2 border-white shadow-md">
+                                        <Star className="h-4 w-4 text-white fill-white" />
+                                    </div>
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-lg font-bold text-gray-800">
@@ -104,15 +125,12 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                             </div>
                         </CardContent>
                     </Card>
-                </div>
-
-                <div className="-mt-4 space-y-4 px-4">
                     {/* Activity */}
                     {report.activity && (
-                        <Card className="border-2 border-yellow-200">
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-yellow-50 to-orange-50">
                             <CardContent className="p-4">
                                 <div className="mb-2 flex items-center gap-2">
-                                    <div className="h-8 w-1 rounded-full bg-yellow-400"></div>
+                                    <div className="h-8 w-1 rounded-full bg-gradient-to-b from-yellow-400 to-orange-400"></div>
                                     <h3 className="font-bold text-gray-800">🎯 Aktivitas Hari Ini</h3>
                                 </div>
                                 <p className="text-sm text-gray-700">{report.activity}</p>
@@ -121,10 +139,10 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                     )}
 
                     {/* Makanan & Minuman */}
-                    <Card className="border-2 border-orange-200">
+                    <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-white">
                         <CardContent className="p-4">
                             <div className="mb-3 flex items-center gap-2">
-                                <div className="h-8 w-1 rounded-full bg-orange-400"></div>
+                                <div className="h-8 w-1 rounded-full bg-gradient-to-b from-orange-400 to-red-400"></div>
                                 <h3 className="font-bold text-gray-800">🍽️ Makanan & Minuman</h3>
                             </div>
                             <div className="space-y-3">
@@ -169,10 +187,10 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                     </Card>
 
                     {/* Tidur & Toilet */}
-                    <Card className="border-2 border-purple-200">
+                    <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-white">
                         <CardContent className="p-4">
                             <div className="mb-3 flex items-center gap-2">
-                                <div className="h-8 w-1 rounded-full bg-purple-400"></div>
+                                <div className="h-8 w-1 rounded-full bg-gradient-to-b from-purple-400 to-pink-400"></div>
                                 <h3 className="font-bold text-gray-800">😴 Tidur & Toilet</h3>
                             </div>
                             <div className="space-y-3">
@@ -224,10 +242,10 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
 
                     {/* Kebutuhan Besok */}
                     {report.kebutuhan_besok && (
-                        <Card className="border-2 border-blue-200">
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-blue-50 to-cyan-50">
                             <CardContent className="p-4">
                                 <div className="mb-2 flex items-center gap-2">
-                                    <div className="h-8 w-1 rounded-full bg-blue-400"></div>
+                                    <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-400 to-cyan-400"></div>
                                     <h3 className="font-bold text-gray-800">📦 Kebutuhan Besok</h3>
                                 </div>
                                 <p className="text-sm text-gray-700">{report.kebutuhan_besok}</p>
@@ -237,10 +255,10 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
 
                     {/* Catatan Khusus */}
                     {report.catatan_khusus && (
-                        <Card className="border-2 border-green-200">
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50">
                             <CardContent className="p-4">
                                 <div className="mb-2 flex items-center gap-2">
-                                    <div className="h-8 w-1 rounded-full bg-green-400"></div>
+                                    <div className="h-8 w-1 rounded-full bg-gradient-to-b from-green-400 to-emerald-400"></div>
                                     <h3 className="font-bold text-gray-800">📝 Catatan Khusus</h3>
                                 </div>
                                 <p className="text-sm text-gray-700">{report.catatan_khusus}</p>
@@ -250,10 +268,10 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
 
                     {/* Catatan Insiden */}
                     {report.catatan_insiden && (
-                        <Card className="border-2 border-red-300 bg-red-50">
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-red-50 to-pink-50">
                             <CardContent className="p-4">
                                 <div className="mb-2 flex items-center gap-2">
-                                    <div className="h-8 w-1 rounded-full bg-red-500"></div>
+                                    <div className="h-8 w-1 rounded-full bg-gradient-to-b from-red-500 to-pink-500"></div>
                                     <h3 className="font-bold text-red-700">⚠️ Catatan Insiden</h3>
                                 </div>
                                 <p className="text-sm text-red-700">{report.catatan_insiden}</p>
@@ -263,16 +281,16 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
 
                     {/* Foto Kegiatan */}
                     {report.foto_kegiatan && (
-                        <Card className="border-2 border-pink-200">
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-white">
                             <CardContent className="p-4">
                                 <div className="mb-3 flex items-center gap-2">
-                                    <div className="h-8 w-1 rounded-full bg-pink-400"></div>
+                                    <div className="h-8 w-1 rounded-full bg-gradient-to-b from-pink-400 to-rose-400"></div>
                                     <h3 className="font-bold text-gray-800">📸 Foto Kegiatan</h3>
                                 </div>
                                 <img
                                     src={`/assets/images/daily_reports/${report.foto_kegiatan}`}
                                     alt="Foto Kegiatan"
-                                    className="w-full rounded-lg object-cover shadow-md"
+                                    className="w-full rounded-2xl object-cover shadow-md"
                                     onError={(e) => {
                                         e.currentTarget.src = '/assets/images/placeholder.jpg';
                                     }}
@@ -282,7 +300,7 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                     )}
 
                     {/* Guru */}
-                    <Card className="border-2 border-gray-200 bg-gray-50">
+                    <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-gray-50 to-slate-50">
                         <CardContent className="p-4 text-center">
                             <p className="text-xs text-gray-600">Dilaporkan oleh:</p>
                             <p className="font-medium text-gray-800">Aunty {report.user.name}</p>

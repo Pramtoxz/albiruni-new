@@ -106,7 +106,7 @@ export default function GuruDashboard() {
                 <div className="absolute bottom-20 right-20 w-28 h-28 bg-yellow-300 rounded-full opacity-20"></div>
                 
                 {/* Header with Playful Design */}
-                <div className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-4 pb-12 pt-6 text-white shadow-lg">
+                <div className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-4 pb-12 pt-12 text-white shadow-lg">
                     {/* Floating Stars Decoration */}
                     <div className="absolute top-4 right-4 animate-bounce">
                         <Award className="h-6 w-6 text-yellow-300 fill-yellow-300" />

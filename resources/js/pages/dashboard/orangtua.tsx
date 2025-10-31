@@ -80,8 +80,8 @@ export default function OrangtuaDashboard() {
                 <div className="absolute bottom-40 left-10 w-20 h-20 bg-blue-300 rounded-full opacity-20"></div>
                 <div className="absolute bottom-20 right-20 w-28 h-28 bg-purple-300 rounded-full opacity-20"></div>
 
-                {/* Header with Playful Design */}
-                <div className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 px-4 pb-12 pt-6 text-white shadow-lg">
+                {/* Header with Playful Design - Keep for Dashboard */}
+                <div className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 px-4 pb-12 pt-12 text-white shadow-lg">
                     {/* Floating Stars Decoration */}
                     <div className="absolute top-4 right-4 animate-bounce">
                         <Star className="h-6 w-6 text-yellow-300 fill-yellow-300" />
