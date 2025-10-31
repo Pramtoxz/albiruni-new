@@ -1,10 +1,10 @@
 import React from "react"
-import { motion, AnimationControls } from "framer-motion"
+import { motion, useAnimation } from "framer-motion"
 import { Telescope, Rocket, Star } from "lucide-react"
 
 interface FeaturesSectionProps {
   featuresRef: React.RefObject<HTMLElement | null>
-  featuresControls: AnimationControls
+  featuresControls: ReturnType<typeof useAnimation>
 }
 
 export function FeaturesSection({ featuresRef, featuresControls }: FeaturesSectionProps) {

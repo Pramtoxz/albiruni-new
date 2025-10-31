@@ -1,9 +1,9 @@
 import React from "react"
-import { motion, AnimationControls } from "framer-motion"
+import { motion, useAnimation } from "framer-motion"
 import { Star, Rocket, Moon, Telescope } from "lucide-react"
 import Kepsek from "@/assets/guru/kepala.png"
 interface FacilitiesSectionProps {
-  activitiesControls: AnimationControls
+  activitiesControls: ReturnType<typeof useAnimation>
 }
 
 export function FacilitiesSection({ activitiesControls }: FacilitiesSectionProps) {

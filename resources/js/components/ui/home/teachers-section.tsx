@@ -1,5 +1,5 @@
 import React from "react"
-import { motion, AnimationControls } from "framer-motion"
+import { motion, useAnimation } from "framer-motion"
 import Suci from "@/assets/guru/suci.webp"
 import Aurora from "@/assets/guru/aurora.webp"
 import Ayu from "@/assets/guru/ayu.webp"
@@ -12,7 +12,7 @@ import Yossi from "@/assets/guru/yossi.webp"
 
 interface TeachersSectionProps {
   teachersRef: React.RefObject<HTMLElement | null>
-  teachersControls: AnimationControls
+  teachersControls: ReturnType<typeof useAnimation>
 }
 
 export function TeachersSection({ teachersRef, teachersControls }: TeachersSectionProps) {

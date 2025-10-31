@@ -1,5 +1,5 @@
 import React from "react"
-import { motion, AnimationControls } from "framer-motion"
+import { motion, useAnimation } from "framer-motion"
 import Satu from "@/assets/kegiatan/1.webp"
 import Dua from "@/assets/kegiatan/2.webp"
 import Tiga from "@/assets/kegiatan/3.webp"
@@ -9,7 +9,7 @@ import Enam from "@/assets/kegiatan/6.webp"
 
 interface ActivitiesSectionProps {
   activitiesRef: React.RefObject<HTMLElement | null>
-  activitiesControls: AnimationControls
+  activitiesControls: ReturnType<typeof useAnimation>
 }
 
 export function ActivitiesSection({ activitiesRef, activitiesControls }: ActivitiesSectionProps) {

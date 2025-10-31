@@ -8,10 +8,12 @@ import {
     Calendar,
     CreditCard,
     FileText,
-    Home,
     LogOut,
-    MessageSquare,
     Users,
+    Sparkles,
+    Star,
+    Heart,
+    Smile,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -59,54 +61,68 @@ export default function OrangtuaDashboard() {
         });
     };
 
-    const menuItems = [
-        { icon: Home, label: 'Beranda', active: true, href: '/dashboard' },
-        { icon: FileText, label: 'Daily Report', active: false, href: '/orangtua/daily-report' },
-        { icon: CreditCard, label: 'Pembayaran', active: false, href: '/orangtua/pembayaran' },
-        { icon: Calendar, label: 'Jadwal', active: false, href: '/orangtua/jadwal' },
-        { icon: MessageSquare, label: 'Pesan', active: false, href: '/orangtua/pesan' },
-    ];
-
     const quickActions = [
-        { icon: FileText, label: 'Daily Report', color: 'bg-blue-500', href: '/orangtua/daily-report' },
-        { icon: CreditCard, label: 'Pembayaran SPP', color: 'bg-orange-500', href: '/orangtua/pembayaran' },
-        { icon: BookOpen, label: 'Rapor', color: 'bg-green-500', href: '/orangtua/rapor' },
-        { icon: Calendar, label: 'Absensi', color: 'bg-purple-500', href: '/orangtua/absensi' },
+        { icon: FileText, label: 'Daily Report', color: 'from-blue-400 to-blue-600', emoji: '📝', href: '/orangtua/daily-report' },
+        { icon: CreditCard, label: 'Pembayaran', color: 'from-orange-400 to-orange-600', emoji: '💰', href: '/orangtua/pembayaran' },
+        { icon: BookOpen, label: 'Rapor', color: 'from-green-400 to-green-600', emoji: '📚', href: '/orangtua/rapor' },
+        { icon: Calendar, label: 'Absensi', color: 'from-purple-400 to-purple-600', emoji: '✅', href: '/orangtua/absensi' },
     ];
 
     return (
         <>
             <Head title="Dashboard Orang Tua" />
-            
-            {/* Mobile-First Layout */}
-            <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background pb-20">
-                {/* Header */}
-                <div className="bg-primary px-4 pb-8 pt-6 text-primary-foreground">
-                    <div className="mb-6 flex items-center justify-between">
+
+            {/* Kindergarten Theme Layout */}
+            <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 pb-8 relative overflow-hidden">
+                {/* Decorative Background Elements */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full opacity-20 -translate-x-16 -translate-y-16"></div>
+                <div className="absolute top-20 right-0 w-24 h-24 bg-pink-300 rounded-full opacity-20 translate-x-12"></div>
+                <div className="absolute bottom-40 left-10 w-20 h-20 bg-blue-300 rounded-full opacity-20"></div>
+                <div className="absolute bottom-20 right-20 w-28 h-28 bg-purple-300 rounded-full opacity-20"></div>
+
+                {/* Header with Playful Design */}
+                <div className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 px-4 pb-12 pt-6 text-white shadow-lg">
+                    {/* Floating Stars Decoration */}
+                    <div className="absolute top-4 right-4 animate-bounce">
+                        <Star className="h-6 w-6 text-yellow-300 fill-yellow-300" />
+                    </div>
+                    <div className="absolute top-12 left-8 animate-pulse">
+                        <Sparkles className="h-5 w-5 text-yellow-200" />
+                    </div>
+
+                    <div className="mb-6 flex items-center justify-between relative z-10">
                         <div className="flex items-center gap-3">
-                            <Avatar className="h-12 w-12 border-2 border-primary-foreground/20">
-                                <AvatarImage src="" />
-                                <AvatarFallback className="bg-primary-foreground/10 text-primary-foreground">
-                                    {auth.user.name.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
+                            <div className="relative">
+                                <Avatar className="h-14 w-14 border-4 border-white shadow-lg ring-4 ring-yellow-300/50">
+                                    <AvatarImage src="" />
+                                    <AvatarFallback className="bg-gradient-to-br from-yellow-300 to-orange-400 text-white text-xl font-bold">
+                                        {auth.user.name.charAt(0).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="absolute -bottom-1 -right-1 bg-green-400 rounded-full p-1 border-2 border-white">
+                                    <Smile className="h-3 w-3 text-white" />
+                                </div>
+                            </div>
                             <div>
-                                <p className="text-sm opacity-90">Selamat Datang</p>
-                                <h1 className="text-lg font-semibold">{auth.user.name}</h1>
+                                <p className="text-sm font-medium opacity-90 flex items-center gap-1">
+                                    Halo, Ayah/Bunda 👋
+                                </p>
+                                <h1 className="text-xl font-bold drop-shadow-md">{auth.user.name}</h1>
                             </div>
                         </div>
                         <div className="flex gap-2">
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-primary-foreground hover:bg-primary-foreground/10"
+                                className="text-white hover:bg-white/20 rounded-full h-10 w-10 relative"
                             >
                                 <Bell className="h-5 w-5" />
+                                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
                             </Button>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-primary-foreground hover:bg-primary-foreground/10"
+                                className="text-white hover:bg-white/20 rounded-full h-10 w-10"
                                 onClick={handleLogout}
                                 title="Logout"
                             >
@@ -115,40 +131,59 @@ export default function OrangtuaDashboard() {
                         </div>
                     </div>
 
-                    {/* Info Card Siswa */}
+                    {/* Cute Student Info Card */}
                     {siswa ? (
-                        <Card className="border-0 bg-primary-foreground/10 backdrop-blur">
-                            <CardContent className="p-4">
-                                <div className="flex items-center gap-3">
+                        <Card className="border-0 bg-white/95 backdrop-blur shadow-xl rounded-3xl overflow-hidden relative">
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-300 to-purple-300 rounded-bl-full opacity-50"></div>
+                            <CardContent className="p-5 relative z-10">
+                                <div className="flex items-center gap-4">
                                     {siswa.foto_siswa ? (
-                                        <Avatar className="h-12 w-12 border-2 border-primary-foreground/20">
-                                            <AvatarImage src={`/assets/images/foto_siswa/${siswa.foto_siswa}`} />
-                                            <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground">
-                                                {siswa.nama_panggilan.charAt(0).toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
+                                        <div className="relative">
+                                            <Avatar className="h-16 w-16 border-4 border-white shadow-lg ring-4 ring-pink-200">
+                                                <AvatarImage src={`/assets/images/foto_siswa/${siswa.foto_siswa}`} />
+                                                <AvatarFallback className="bg-gradient-to-br from-pink-300 to-purple-400 text-white text-2xl font-bold">
+                                                    {siswa.nama_panggilan.charAt(0).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 border-2 border-white shadow-md">
+                                                <Star className="h-4 w-4 text-white fill-white" />
+                                            </div>
+                                        </div>
                                     ) : (
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-foreground/20">
-                                            <Users className="h-6 w-6 text-primary-foreground" />
+                                        <div className="relative">
+                                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-300 to-purple-400 border-4 border-white shadow-lg ring-4 ring-pink-200">
+                                                <Users className="h-8 w-8 text-white" />
+                                            </div>
+                                            <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 border-2 border-white shadow-md">
+                                                <Star className="h-4 w-4 text-white fill-white" />
+                                            </div>
                                         </div>
                                     )}
-                                    <div className="flex-1 text-primary-foreground">
-                                        <p className="text-sm opacity-90">Anak Anda</p>
-                                        <p className="font-semibold">{siswa.nama_panggilan}</p>
-                                        <p className="text-xs opacity-75">
-                                            {siswa.kelas ? `Kelas: ${siswa.kelas}` : 'Belum ada kelas'}
+                                    <div className="flex-1">
+                                        <p className="text-xs font-semibold text-purple-600 flex items-center gap-1">
+                                            <Heart className="h-3 w-3 fill-pink-400 text-pink-400" />
+                                            Buah Hati Anda
                                         </p>
+                                        <p className="text-xl font-bold text-gray-800 mt-0.5">{siswa.nama_panggilan}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-xs bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full font-medium shadow-sm">
+                                                {siswa.kelas ? siswa.kelas : 'Belum ada kelas'}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
                     ) : (
-                        <Card className="border-0 bg-primary-foreground/10 backdrop-blur">
-                            <CardContent className="p-4">
-                                <div className="text-center text-primary-foreground">
-                                    <p className="text-sm opacity-90">Belum ada data siswa</p>
-                                    <Link href="/siswa/register" className="mt-2 inline-block text-xs underline">
-                                        Daftar Siswa
+                        <Card className="border-0 bg-white/95 backdrop-blur shadow-xl rounded-3xl">
+                            <CardContent className="p-6">
+                                <div className="text-center">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full mb-3">
+                                        <Users className="h-8 w-8 text-gray-500" />
+                                    </div>
+                                    <p className="text-sm text-gray-600 mb-2">Belum ada data siswa</p>
+                                    <Link href="/siswa/register" className="inline-block text-sm text-white bg-gradient-to-r from-pink-500 to-purple-500 px-4 py-2 rounded-full font-medium hover:shadow-lg transition-all">
+                                        Daftar Siswa Sekarang
                                     </Link>
                                 </div>
                             </CardContent>
@@ -156,113 +191,150 @@ export default function OrangtuaDashboard() {
                     )}
                 </div>
 
-                {/* Quick Actions */}
-                <div className="-mt-4 px-4">
+                {/* Playful Quick Actions */}
+                <div className="-mt-8 px-4 relative z-20">
                     <div className="grid grid-cols-4 gap-3">
                         {quickActions.map((action, index) => (
                             <Link
                                 key={index}
                                 href={action.href}
-                                className="flex flex-col items-center gap-2 rounded-xl bg-card p-3 shadow-sm transition-all active:scale-95"
+                                className="group flex flex-col items-center gap-2 transition-all hover:scale-110 active:scale-95"
                             >
-                                <div
-                                    className={`flex h-12 w-12 items-center justify-center rounded-full ${action.color} text-white`}
-                                >
-                                    <action.icon className="h-6 w-6" />
+                                <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${action.color} text-white shadow-lg group-hover:shadow-xl transition-all transform group-hover:-translate-y-1`}>
+                                    <span className="text-2xl">{action.emoji}</span>
+                                    <div className="absolute -top-1 -right-1 bg-yellow-300 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Sparkles className="h-3 w-3 text-yellow-600" />
+                                    </div>
                                 </div>
-                                <span className="text-xs font-medium text-foreground">{action.label}</span>
+                                <span className="text-xs font-bold text-gray-700 text-center leading-tight">{action.label}</span>
                             </Link>
                         ))}
                     </div>
                 </div>
 
-                {/* Content Section */}
-                <div className="mt-6 space-y-4 px-4">
-                    {/* Pengumuman */}
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-base">Pengumuman Terbaru</CardTitle>
+                {/* Colorful Content Section */}
+                <div className="mt-8 space-y-5 px-4 relative z-10">
+                    {/* Pengumuman dengan Tema Ceria */}
+                    <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white">
+                        <CardHeader className="pb-3 bg-gradient-to-r from-yellow-100 to-orange-100">
+                            <CardTitle className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                <span className="text-2xl">📢</span>
+                                Pengumuman Terbaru
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                            <div className="flex gap-3 rounded-lg border p-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
-                                    <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <CardContent className="space-y-3 p-4">
+                            <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-l-4 border-blue-400 hover:shadow-md transition-all">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-400 shadow-md">
+                                    <Bell className="h-6 w-6 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium">Libur Semester</p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-sm font-bold text-gray-800">Libur Semester 🎉</p>
+                                    <p className="text-xs text-gray-600 mt-1">
                                         Libur semester akan dimulai tanggal 20 Desember 2024
                                     </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">2 hari yang lalu</p>
+                                    <p className="mt-2 text-xs text-blue-600 font-medium">2 hari yang lalu</p>
                                 </div>
                             </div>
-                            <div className="flex gap-3 rounded-lg border p-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                                    <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
+                            <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-green-50 to-green-100 p-4 border-l-4 border-green-400 hover:shadow-md transition-all">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-400 shadow-md">
+                                    <Calendar className="h-6 w-6 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium">Pertemuan Orang Tua</p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-sm font-bold text-gray-800">Pertemuan Orang Tua 👨‍👩‍👧</p>
+                                    <p className="text-xs text-gray-600 mt-1">
                                         Pertemuan orang tua akan diadakan hari Sabtu, 25 Nov 2024
                                     </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">5 hari yang lalu</p>
+                                    <p className="mt-2 text-xs text-green-600 font-medium">5 hari yang lalu</p>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Aktivitas Terkini */}
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-base">Aktivitas Terkini</CardTitle>
+                    {/* Aktivitas Terkini dengan Desain Playful */}
+                    <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white">
+                        <CardHeader className="pb-3 bg-gradient-to-r from-purple-100 to-pink-100">
+                            <CardTitle className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                <span className="text-2xl">⭐</span>
+                                Aktivitas Terkini
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                            <div className="flex items-center justify-between rounded-lg border p-3">
+                        <CardContent className="space-y-3 p-4">
+                            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-orange-50 to-yellow-50 p-4 border-2 border-orange-200 hover:shadow-md transition-all">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/20">
-                                        <BookOpen className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-yellow-400 shadow-md">
+                                        <BookOpen className="h-6 w-6 text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium">Tugas Menggambar</p>
-                                        <p className="text-xs text-muted-foreground">Sudah dikumpulkan</p>
+                                        <p className="text-sm font-bold text-gray-800">Tugas Menggambar 🎨</p>
+                                        <p className="text-xs text-gray-600">Sudah dikumpulkan</p>
                                     </div>
                                 </div>
-                                <span className="text-xs text-green-600 dark:text-green-400">✓ Selesai</span>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-2xl">✓</span>
+                                    <span className="text-xs font-bold text-green-600">Selesai</span>
+                                </div>
                             </div>
-                            <div className="flex items-center justify-between rounded-lg border p-3">
+                            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 p-4 border-2 border-purple-200 hover:shadow-md transition-all">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/20">
-                                        <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-blue-400 shadow-md">
+                                        <Calendar className="h-6 w-6 text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium">Hadir Hari Ini</p>
-                                        <p className="text-xs text-muted-foreground">Pukul 07:30 WIB</p>
+                                        <p className="text-sm font-bold text-gray-800">Hadir Hari Ini 🌟</p>
+                                        <p className="text-xs text-gray-600">Pukul 07:30 WIB</p>
                                     </div>
                                 </div>
-                                <span className="text-xs text-green-600 dark:text-green-400">✓ Hadir</span>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-2xl">✓</span>
+                                    <span className="text-xs font-bold text-green-600">Hadir</span>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
-                </div>
 
-                {/* Bottom Navigation */}
-                <div className="fixed bottom-0 left-0 right-0 border-t bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-                    <div className="bottom-nav-safe flex items-center justify-around px-4 pt-3">
-                        {menuItems.map((item, index) => (
-                            <Link
-                                key={index}
-                                href={item.href}
-                                className={`flex flex-col items-center gap-1 transition-colors ${
-                                    item.active
-                                        ? 'text-primary'
-                                        : 'text-muted-foreground hover:text-foreground'
-                                }`}
-                            >
-                                <item.icon className="h-5 w-5" />
-                                <span className="text-xs font-medium">{item.label}</span>
-                            </Link>
-                        ))}
-                    </div>
+                    {/* Menu Navigasi dalam Card */}
+                    <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 p-1">
+                        <div className="bg-white rounded-3xl p-4">
+                            <p className="text-sm font-bold text-gray-700 mb-3 text-center">Menu Utama</p>
+                            <div className="grid grid-cols-5 gap-2">
+                                <Link
+                                    href="/dashboard"
+                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all bg-gradient-to-br from-pink-400 to-purple-400 text-white shadow-lg scale-105"
+                                >
+                                    <Users className="h-5 w-5" />
+                                    <span className="text-[10px] font-medium text-center leading-tight">Beranda</span>
+                                </Link>
+                                <Link
+                                    href="/orangtua/daily-report"
+                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all text-gray-600 hover:bg-gray-100"
+                                >
+                                    <FileText className="h-5 w-5" />
+                                    <span className="text-[10px] font-medium text-center leading-tight">Daily Report</span>
+                                </Link>
+                                <Link
+                                    href="/orangtua/pembayaran"
+                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all text-gray-600 hover:bg-gray-100"
+                                >
+                                    <CreditCard className="h-5 w-5" />
+                                    <span className="text-[10px] font-medium text-center leading-tight">Pembayaran</span>
+                                </Link>
+                                <Link
+                                    href="/orangtua/jadwal"
+                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all text-gray-600 hover:bg-gray-100"
+                                >
+                                    <Calendar className="h-5 w-5" />
+                                    <span className="text-[10px] font-medium text-center leading-tight">Jadwal</span>
+                                </Link>
+                                <Link
+                                    href="/orangtua/rapor"
+                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all text-gray-600 hover:bg-gray-100"
+                                >
+                                    <BookOpen className="h-5 w-5" />
+                                    <span className="text-[10px] font-medium text-center leading-tight">Rapor</span>
+                                </Link>
+                            </div>
+                        </div>
+                    </Card>
                 </div>
             </div>
         </>

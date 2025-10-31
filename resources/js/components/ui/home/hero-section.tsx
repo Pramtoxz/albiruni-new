@@ -1,11 +1,11 @@
 import React from "react"
-import { motion, animationControls } from "framer-motion"
+import { motion, useAnimation } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import Logo from '@/assets/home/logoalbiruni.webp'
 
 interface HeroSectionProps {
   heroRef: React.RefObject<HTMLElement | null>
-  heroControls: ReturnType<typeof animationControls> 
+  heroControls: ReturnType<typeof useAnimation> 
 }
 
 export function HeroSection({ heroRef, heroControls }: HeroSectionProps) {

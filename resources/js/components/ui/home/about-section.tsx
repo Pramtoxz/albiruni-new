@@ -1,12 +1,12 @@
 import React from "react"
-import { motion, AnimationControls } from "framer-motion"
+import { motion, useAnimation } from "framer-motion"
 import { Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Kami from "@/assets/home/kami.jpg"
 
 interface AboutSectionProps {
   aboutRef: React.RefObject<HTMLElement | null>
-  aboutControls: AnimationControls
+  aboutControls: ReturnType<typeof useAnimation>
 }
 
 export function AboutSection({ aboutRef, aboutControls }: AboutSectionProps) {
