@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Spatie\Sitemap\SitemapGenerator;
+use Spatie\Sitemap\Sitemap;
+use Spatie\Sitemap\Tags\Url;
+use Carbon\Carbon;
 
 class GenerateSitemap extends Command
 {
@@ -26,9 +28,27 @@ class GenerateSitemap extends Command
      */
     public function handle()
     {
-        SitemapGenerator::create(config('app.url'))
+        Sitemap::create()
+
+            // 1. Tambahkan Halaman Utama (Home)
+            ->add(
+                Url::create(route('home'))
+                    ->setLastModificationDate(Carbon::today())
+                    ->setPriority(1.0)
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+            )
+
+            // 2. Tambahkan Halaman Login
+            ->add(
+                Url::create(route('login'))
+                    ->setLastModificationDate(Carbon::yesterday())
+                    ->setPriority(0.5)
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+            )
+
+            // Simpan ke file
             ->writeToFile(public_path('sitemap.xml'));
-            
+
         $this->info('Sitemap generated successfully.');
     }
 }
