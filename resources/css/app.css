@@ -431,6 +431,17 @@
     }
 }
 
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
 /* Utility classes untuk animasi */
 .animate-float {
     animation: float 4s ease-in-out infinite;
@@ -450,6 +461,10 @@
 
 .animate-fade-in-up {
     animation: fadeInUp 1s ease;
+}
+
+.animate-twinkle {
+    animation: twinkle 2s ease-in-out infinite;
 }
 
 /* Backdrop blur untuk efek modern */

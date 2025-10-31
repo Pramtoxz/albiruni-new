@@ -57,10 +57,16 @@ class OtpController extends Controller
             'nohp' => $this->otpService->normalizePhone($request->string('nohp')->toString()),
         ]);
 
+        // Bypass OTP hanya jika environment local DAN bypass_otp_in_dev = true
+        $bypassOtp = config('app.env') === 'local' && config('app.bypass_otp_in_dev') === true;
+
         $validated = $request->validate([
             'nohp' => ['required', 'string', 'max:20'],
-            'otp_code' => ['nullable', 'string', 'size:6'],
+            'otp_code' => [$bypassOtp ? 'nullable' : 'required', 'string', 'size:6'],
             'remember' => ['nullable', 'boolean'],
+        ], [
+            'otp_code.required' => 'Kode OTP wajib diisi.',
+            'otp_code.size' => 'Kode OTP harus 6 digit.',
         ]);
 
         $user = User::where('nohp', $validated['nohp'])->first();
@@ -71,8 +77,9 @@ class OtpController extends Controller
             ]);
         }
 
-        // Only validate OTP if code is provided (in production or when bypass is disabled)
-        if (!empty($validated['otp_code'])) {
+        // Jika bypass diaktifkan DAN otp_code kosong, skip validasi
+        // Jika bypass tidak aktif ATAU otp_code diisi, validasi OTP
+        if (!$bypassOtp || !empty($validated['otp_code'])) {
             $this->otpService->validate(
                 $validated['nohp'],
                 $validated['otp_code'],

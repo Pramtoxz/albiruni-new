@@ -221,7 +221,7 @@ export default function Login({ status, bypassOtp = false }: LoginProps) {
                                         <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                                         <Input
                                             id="nohp"
-                                            type="tel"
+                                            type="number"
                                             autoFocus
                                             autoComplete="tel-national"
                                             inputMode="numeric"

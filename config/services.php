@@ -39,4 +39,10 @@ return [
         'ttl' => env('OTP_TTL', 5),
     ],
 
+    'whatsapp' => [
+        'gateway_url' => env('WA_GATEWAY_URL'),
+        'gateway_secret' => env('WA_GATEWAY_SECRET'),
+        'session_name' => env('WA_SESSION_NAME'),
+    ],
+
 ];

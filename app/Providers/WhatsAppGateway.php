@@ -3,9 +3,7 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-
-class WhatsAppGateway extends ServiceProvider
+class WhatsAppGateway
 {
     private const SUCCESS_STATUSES = [
         'PENDING',
@@ -23,9 +21,9 @@ class WhatsAppGateway extends ServiceProvider
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(env('WA_GATEWAY_URL'), '/');
-        $this->token   = env('WA_GATEWAY_SECRET');
-        $this->session = env('WA_SESSION_NAME');
+        $this->baseUrl = rtrim(config('services.whatsapp.gateway_url', env('WA_GATEWAY_URL')), '/');
+        $this->token   = config('services.whatsapp.gateway_secret', env('WA_GATEWAY_SECRET'));
+        $this->session = config('services.whatsapp.session_name', env('WA_SESSION_NAME'));
 
         if (!$this->baseUrl || !$this->token || !$this->session) {
             throw new \RuntimeException('Konfigurasi WhatsApp gateway belum lengkap.');
