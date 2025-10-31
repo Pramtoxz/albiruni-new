@@ -129,26 +129,31 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
     return (
         <>
             <Head title="Buat Daily Report" />
-            <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background pb-6">
-                {/* Mobile Header */}
-                <div className="sticky top-0 z-10 bg-primary px-4 py-4 text-primary-foreground shadow-md">
-                    <div className="flex items-center gap-3">
+            <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 pb-8 relative overflow-hidden">
+                {/* Decorative Background Elements */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full opacity-20 -translate-x-16 -translate-y-16"></div>
+                <div className="absolute top-20 right-0 w-24 h-24 bg-pink-300 rounded-full opacity-20 translate-x-12"></div>
+                <div className="absolute bottom-40 left-10 w-20 h-20 bg-blue-300 rounded-full opacity-20"></div>
+
+                {/* Content with integrated back button */}
+                <div className="pt-12 pb-4 px-4 relative z-10">
+                    {/* Back Button & Title */}
+                    <div className="flex items-center gap-3 mb-4">
                         <button
                             onClick={() => window.history.back()}
-                            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-primary-foreground/10"
+                            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
                         >
-                            <ArrowLeft className="h-5 w-5" />
+                            <ArrowLeft className="h-5 w-5 text-gray-700" />
                         </button>
-                        <div>
-                            <h1 className="text-xl font-bold">Daily Report</h1>
-                            <p className="text-sm opacity-90">Buat laporan kegiatan harian</p>
+                        <div className="flex-1">
+                            <h1 className="text-2xl font-bold text-gray-800">Daily Report 📝</h1>
+                            <p className="text-sm text-gray-600">Buat laporan kegiatan harian</p>
                         </div>
                     </div>
-                </div>
 
-                <form onSubmit={submit} className="mx-auto max-w-4xl space-y-4 p-4 pb-20">
-                    {/* Siswa & Tanggal */}
-                    <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+                    <form onSubmit={submit} className="mx-auto max-w-4xl space-y-4 pb-20">
+                        {/* Siswa & Tanggal */}
+                        <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
                         <h2 className="text-lg font-semibold">Siswa & Tanggal</h2>
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
@@ -185,8 +190,8 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                         </div>
                     </div>
 
-                    {/* Mood & Activity */}
-                    <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+                        {/* Mood & Activity */}
+                        <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
                         <h2 className="text-lg font-semibold">😊 Mood & Aktivitas</h2>
                         <div className="space-y-4">
                             <div className="space-y-2">
@@ -216,8 +221,8 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                         </div>
                     </div>
 
-                    {/* Makanan */}
-                    <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+                        {/* Makanan */}
+                        <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
                         <h2 className="text-lg font-semibold">🍽️ Makanan & Minuman</h2>
                         <div className="space-y-4">
                             <div className="space-y-4">
@@ -352,8 +357,8 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                         </div>
                     </div>
 
-                    {/* Tidur & Toilet */}
-                    <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+                        {/* Tidur & Toilet */}
+                        <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
                         <h2 className="text-lg font-semibold">😴 Tidur & Toilet</h2>
                         <div className="space-y-4">
                             <div className="flex items-center space-x-3">
@@ -420,8 +425,8 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                         </div>
                     </div>
 
-                    {/* Catatan */}
-                    <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+                        {/* Catatan */}
+                        <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
                         <h2 className="text-lg font-semibold">📝 Catatan</h2>
                         <div className="space-y-4">
                             <div className="space-y-2">
@@ -460,8 +465,8 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                         </div>
                     </div>
 
-                    {/* Foto */}
-                    <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+                        {/* Foto */}
+                        <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
                         <h2 className="text-lg font-semibold">📸 Foto Kegiatan</h2>
                         <Input
                             type="file"
@@ -503,22 +508,23 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                         )}
                     </div>
 
-                    {/* Submit Button */}
-                    <Button
-                        type="submit"
-                        className="h-12 w-full text-base"
-                        disabled={processing || isSubmitting.current || !data.siswa_id || !data.tanggal}
-                    >
-                        <Save className="mr-2 h-5 w-5" />
-                        {(processing || isSubmitting.current) ? 'Menyimpan...' : 'Simpan Daily Report'}
-                    </Button>
+                        {/* Submit Button */}
+                        <Button
+                            type="submit"
+                            className="h-12 w-full text-base bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg"
+                            disabled={processing || isSubmitting.current || !data.siswa_id || !data.tanggal}
+                        >
+                            <Save className="mr-2 h-5 w-5" />
+                            {(processing || isSubmitting.current) ? 'Menyimpan...' : 'Simpan Daily Report'}
+                        </Button>
 
-                    {(processing || isSubmitting.current) && (
-                        <p className="text-center text-sm text-muted-foreground">
-                            Mohon tunggu, sedang menyimpan data...
-                        </p>
-                    )}
-                </form>
+                        {(processing || isSubmitting.current) && (
+                            <p className="text-center text-sm text-gray-600">
+                                Mohon tunggu, sedang menyimpan data...
+                            </p>
+                        )}
+                    </form>
+                </div>
             </div>
         </>
     );

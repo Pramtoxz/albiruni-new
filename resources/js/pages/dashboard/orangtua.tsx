@@ -291,50 +291,6 @@ export default function OrangtuaDashboard() {
                             </div>
                         </CardContent>
                     </Card>
-
-                    {/* Menu Navigasi dalam Card */}
-                    <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 p-1">
-                        <div className="bg-white rounded-3xl p-4">
-                            <p className="text-sm font-bold text-gray-700 mb-3 text-center">Menu Utama</p>
-                            <div className="grid grid-cols-5 gap-2">
-                                <Link
-                                    href="/dashboard"
-                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all bg-gradient-to-br from-pink-400 to-purple-400 text-white shadow-lg scale-105"
-                                >
-                                    <Users className="h-5 w-5" />
-                                    <span className="text-[10px] font-medium text-center leading-tight">Beranda</span>
-                                </Link>
-                                <Link
-                                    href="/orangtua/daily-report"
-                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all text-gray-600 hover:bg-gray-100"
-                                >
-                                    <FileText className="h-5 w-5" />
-                                    <span className="text-[10px] font-medium text-center leading-tight">Daily Report</span>
-                                </Link>
-                                <Link
-                                    href="/orangtua/pembayaran"
-                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all text-gray-600 hover:bg-gray-100"
-                                >
-                                    <CreditCard className="h-5 w-5" />
-                                    <span className="text-[10px] font-medium text-center leading-tight">Pembayaran</span>
-                                </Link>
-                                <Link
-                                    href="/orangtua/jadwal"
-                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all text-gray-600 hover:bg-gray-100"
-                                >
-                                    <Calendar className="h-5 w-5" />
-                                    <span className="text-[10px] font-medium text-center leading-tight">Jadwal</span>
-                                </Link>
-                                <Link
-                                    href="/orangtua/rapor"
-                                    className="flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all text-gray-600 hover:bg-gray-100"
-                                >
-                                    <BookOpen className="h-5 w-5" />
-                                    <span className="text-[10px] font-medium text-center leading-tight">Rapor</span>
-                                </Link>
-                            </div>
-                        </div>
-                    </Card>
                 </div>
             </div>
         </>

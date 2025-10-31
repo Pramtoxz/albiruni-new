@@ -74,43 +74,52 @@ export default function DailyReportShow({ report }: Props) {
     return (
         <>
             <Head title={`Daily Report - ${report.siswa.nama_lengkap}`} />
-            <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background pb-safe pb-6">
-                {/* Header */}
-                <div className="bg-primary px-4 pb-8 pt-4 text-primary-foreground">
-                    <div className="mb-4 flex items-center gap-3">
+            <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 pb-6 relative overflow-hidden">
+                {/* Decorative Background Elements */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full opacity-20 -translate-x-16 -translate-y-16"></div>
+                <div className="absolute top-20 right-0 w-24 h-24 bg-pink-300 rounded-full opacity-20 translate-x-12"></div>
+                <div className="absolute bottom-40 left-10 w-20 h-20 bg-blue-300 rounded-full opacity-20"></div>
+
+                {/* Content with integrated back button */}
+                <div className="pt-12 pb-4 px-4 space-y-4 relative z-10">
+                    {/* Back Button & Title */}
+                    <div className="flex items-center gap-3 mb-2">
                         <Link href="/guru/daily-report">
-                            <button className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-primary-foreground/10">
-                                <ArrowLeft className="h-5 w-5" />
+                            <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+                                <ArrowLeft className="h-5 w-5 text-gray-700" />
                             </button>
                         </Link>
-                        <div>
-                            <h1 className="text-xl font-bold">Daily Report</h1>
-                            <p className="text-sm opacity-90">{report.siswa.nama_lengkap}</p>
+                        <div className="flex-1">
+                            <h1 className="text-2xl font-bold text-gray-800">Daily Report 📝</h1>
+                            <p className="text-sm text-gray-600">{report.siswa.nama_lengkap}</p>
                         </div>
                     </div>
 
-                    <Card className="border-0 bg-primary-foreground/10 backdrop-blur">
-                        <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-foreground/20 text-4xl">
-                                    {getMoodEmoji(report.mood)}
+                    {/* Mood & Date Card */}
+                    <Card className="border-0 bg-white shadow-xl rounded-3xl overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-300 to-purple-300 rounded-bl-full opacity-50"></div>
+                        <CardContent className="p-4 relative z-10">
+                            <div className="flex items-center gap-4">
+                                <div className="relative">
+                                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-200 to-orange-300 text-5xl shadow-lg">
+                                        {getMoodEmoji(report.mood)}
+                                    </div>
                                 </div>
-                                <div className="flex-1 text-primary-foreground">
-                                    <p className="text-sm opacity-90">Mood: {report.mood}</p>
-                                    <div className="mt-1 flex items-center gap-2 text-xs opacity-75">
-                                        <Calendar className="h-3 w-3" />
+                                <div className="flex-1">
+                                    <p className="text-lg font-bold text-gray-800">
+                                        Mood: {report.mood}
+                                    </p>
+                                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
+                                        <Calendar className="h-4 w-4" />
                                         {formatDate(report.tanggal)}
                                     </div>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-                </div>
-
-                <div className="-mt-4 space-y-4 px-4">
                     {/* Activity */}
                     {report.activity && (
-                        <Card>
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-yellow-50 to-orange-50">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-base">🎯 Aktivitas Hari Ini</CardTitle>
                             </CardHeader>
@@ -121,7 +130,7 @@ export default function DailyReportShow({ report }: Props) {
                     )}
 
                     {/* Makanan & Minuman */}
-                    <Card>
+                    <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-white">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-base">🍽️ Makanan & Minuman</CardTitle>
                         </CardHeader>
@@ -164,7 +173,7 @@ export default function DailyReportShow({ report }: Props) {
                     </Card>
 
                     {/* Tidur & Toilet */}
-                    <Card>
+                    <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-white">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-base">😴 Tidur & Toilet</CardTitle>
                         </CardHeader>
@@ -212,7 +221,7 @@ export default function DailyReportShow({ report }: Props) {
 
                     {/* Kebutuhan Besok */}
                     {report.kebutuhan_besok && (
-                        <Card>
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-blue-50 to-cyan-50">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-base">📦 Kebutuhan Besok</CardTitle>
                             </CardHeader>
@@ -224,7 +233,7 @@ export default function DailyReportShow({ report }: Props) {
 
                     {/* Catatan Khusus */}
                     {report.catatan_khusus && (
-                        <Card>
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-base">📝 Catatan Khusus</CardTitle>
                             </CardHeader>
@@ -236,14 +245,14 @@ export default function DailyReportShow({ report }: Props) {
 
                     {/* Catatan Insiden */}
                     {report.catatan_insiden && (
-                        <Card className="border-orange-200 bg-orange-50 dark:border-orange-900/20 dark:bg-orange-900/10">
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-red-50 to-pink-50">
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-base text-orange-700 dark:text-orange-400">
+                                <CardTitle className="text-base text-red-700">
                                     ⚠️ Catatan Insiden
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-sm text-orange-700 dark:text-orange-400">
+                                <p className="text-sm text-red-700">
                                     {report.catatan_insiden}
                                 </p>
                             </CardContent>
@@ -252,7 +261,7 @@ export default function DailyReportShow({ report }: Props) {
 
                     {/* Foto Kegiatan */}
                     {report.foto_kegiatan && (
-                        <Card>
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-white">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-base">📸 Foto Kegiatan</CardTitle>
                             </CardHeader>
@@ -260,14 +269,14 @@ export default function DailyReportShow({ report }: Props) {
                                 <img
                                     src={`/storage/${report.foto_kegiatan}`}
                                     alt="Foto Kegiatan"
-                                    className="w-full rounded-lg"
+                                    className="w-full rounded-2xl"
                                 />
                             </CardContent>
                         </Card>
                     )}
 
                     {/* Guru */}
-                    <Card>
+                    <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-gray-50 to-slate-50">
                         <CardContent className="p-4">
                             <p className="text-xs text-muted-foreground">Dilaporkan oleh:</p>
                             <p className="text-sm font-medium">{report.user.name}</p>
@@ -277,11 +286,11 @@ export default function DailyReportShow({ report }: Props) {
                     {/* Action Buttons */}
                     <div className="grid grid-cols-2 gap-3 pb-4">
                         <Link href={`/guru/daily-report/${report.id}/edit`}>
-                            <Button variant="outline" className="w-full">
+                            <Button variant="outline" className="w-full border-2 shadow-md">
                                 Edit
                             </Button>
                         </Link>
-                        <Button variant="default" className="w-full">
+                        <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-md">
                             Bagikan ke Orang Tua
                         </Button>
                     </div>
