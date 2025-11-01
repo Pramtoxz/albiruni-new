@@ -16,6 +16,12 @@ import {
     Smile,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import LogoAlbiruni from "@/assets/home/logo.webp"
+import IconDaily from "@/assets/menu/daily.webp"
+import IconSpp from "@/assets/menu/spp.webp"
+import IconKegiatan from "@/assets/menu/kegiatan.webp"
+import IconGaleri from "@/assets/menu/galeri.webp"
+import IconPemberitahuan from "@/assets/menu/pemberitahuan.webp"
 
 interface Siswa {
     id: number;
@@ -62,10 +68,10 @@ export default function OrangtuaDashboard() {
     };
 
     const quickActions = [
-        { icon: FileText, label: 'Daily Report', color: 'from-blue-400 to-blue-600', emoji: '📝', href: '/orangtua/daily-report' },
-        { icon: CreditCard, label: 'Pembayaran', color: 'from-orange-400 to-orange-600', emoji: '💰', href: '/orangtua/pembayaran' },
-        { icon: BookOpen, label: 'Rapor', color: 'from-green-400 to-green-600', emoji: '📚', href: '/orangtua/rapor' },
-        { icon: Calendar, label: 'Absensi', color: 'from-purple-400 to-purple-600', emoji: '✅', href: '/orangtua/absensi' },
+        { icon: FileText, label: 'Daily Report', color: 'from-blue-400 to-blue-600', imageSrc:IconDaily, href: '/orangtua/daily-report' },
+        { icon: CreditCard, label: 'Pembayaran', color: 'from-orange-400 to-orange-600', imageSrc:IconSpp, href: '/orangtua/pembayaran' },
+        { icon: BookOpen, label: 'Kegiatan', color: 'from-green-400 to-green-600', imageSrc:IconKegiatan, href: '/orangtua/rapor' },
+        { icon: Calendar, label: 'Absensi', color: 'from-purple-400 to-purple-600', imageSrc:IconGaleri, href: '/orangtua/absensi' },
     ];
 
     return (
@@ -93,19 +99,23 @@ export default function OrangtuaDashboard() {
                     <div className="mb-6 flex items-center justify-between relative z-10">
                         <div className="flex items-center gap-3">
                             <div className="relative">
-                                <Avatar className="h-14 w-14 border-4 border-white shadow-lg ring-4 ring-yellow-300/50">
-                                    <AvatarImage src="" />
-                                    <AvatarFallback className="bg-gradient-to-br from-yellow-300 to-orange-400 text-white text-xl font-bold">
-                                        {auth.user.name.charAt(0).toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
+                               <Avatar className="h-14 w-14 border-2 border-white shadow-lg ring-4 ring-yellow-300/50">
+                                <AvatarImage 
+                                    src={LogoAlbiruni} 
+                                    alt="Logo Albiruni" 
+                                   className="object-cover scale-125"
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-yellow-300 to-orange-400 text-white text-xl font-bold">
+                                </AvatarFallback>
+                                A
+                              </Avatar>
                                 <div className="absolute -bottom-1 -right-1 bg-green-400 rounded-full p-1 border-2 border-white">
                                     <Smile className="h-3 w-3 text-white" />
                                 </div>
                             </div>
                             <div>
                                 <p className="text-sm font-medium opacity-90 flex items-center gap-1">
-                                    Halo, Ayah/Bunda 👋
+                                    Halo, Ayah/Bunda
                                 </p>
                                 <h1 className="text-xl font-bold drop-shadow-md">{auth.user.name}</h1>
                             </div>
@@ -201,7 +211,15 @@ export default function OrangtuaDashboard() {
                                 className="group flex flex-col items-center gap-2 transition-all hover:scale-110 active:scale-95"
                             >
                                 <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${action.color} text-white shadow-lg group-hover:shadow-xl transition-all transform group-hover:-translate-y-1`}>
-                                    <span className="text-2xl">{action.emoji}</span>
+                                    {action.imageSrc ? (
+                    <img 
+                        src={action.imageSrc} 
+                        alt={action.label} 
+                        className="w-14 h-14 object-contain" 
+                    />
+                ) : (
+                    <span className="text-2xl">{action.imageSrc}</span>
+                )}
                                     <div className="absolute -top-1 -right-1 bg-yellow-300 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
                                         <Sparkles className="h-3 w-3 text-yellow-600" />
                                     </div>
@@ -218,9 +236,13 @@ export default function OrangtuaDashboard() {
                     <Link href="/orangtua/pengumuman">
                         <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white hover:shadow-2xl transition-all cursor-pointer">
                             <CardHeader className="pb-3 bg-gradient-to-r from-yellow-100 to-orange-100">
-                                <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
+                              <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-2xl">📢</span>
+                                        <img 
+                                            src={IconPemberitahuan} 
+                                            alt="Logo" 
+                                            className="w-14 h-14 object-contain"
+                                        />
                                         Pengumuman Terbaru
                                     </div>
                                     <span className="text-sm text-gray-600">Lihat semua →</span>
