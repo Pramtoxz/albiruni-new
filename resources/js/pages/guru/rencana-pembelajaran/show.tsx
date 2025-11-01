@@ -41,6 +41,7 @@ interface RencanaPembelajaran {
 
 interface Props {
     rencanaPembelajaran: RencanaPembelajaran;
+    appEnv: string;
 }
 
 const HARI_LABELS: Record<string, string> = {
@@ -75,22 +76,25 @@ const getYouTubeEmbedUrl = (url: string) => {
     return null;
 };
 
-export default function GuruRencanaPembelajaranShow({ rencanaPembelajaran }: Props) {
+export default function GuruRencanaPembelajaranShow({ rencanaPembelajaran, appEnv }: Props) {
     // Get current date and day
     const today = new Date();
 
-    // Check for test_day parameter in URL for development/testing
-    const urlParams = new URLSearchParams(window.location.search);
-    const testDay = urlParams.get('test_day');
+    // Check if in development mode (local environment)
+    const isDevelopment = appEnv === 'local';
 
-    // Use test day if provided, otherwise use actual current day
+    // Check for test_day parameter in URL for development/testing (only in development)
+    const urlParams = new URLSearchParams(window.location.search);
+    const testDay = isDevelopment ? urlParams.get('test_day') : null;
+
+    // Use test day if provided (and in development), otherwise use actual current day
     const currentDayName = testDay || today.toLocaleDateString('id-ID', { weekday: 'long' }).toLowerCase();
     const todayDateString = today.toISOString().split('T')[0];
 
     // Filter kegiatan for today only
     const todayKegiatan = rencanaPembelajaran.kegiatan_harian.filter((kegiatan) => {
         const kegiatanDate = new Date(kegiatan.tanggal).toISOString().split('T')[0];
-        // If test_day is provided, only match by day name, ignore date
+        // If test_day is provided (development only), only match by day name, ignore date
         if (testDay) {
             return kegiatan.hari === currentDayName;
         }
@@ -141,7 +145,7 @@ export default function GuruRencanaPembelajaranShow({ rencanaPembelajaran }: Pro
                                         Aktif
                                     </Badge>
                                 )}
-                                {testDay && (
+                                {isDevelopment && testDay && (
                                     <Badge className="bg-orange-500 text-white text-[10px] px-2 py-0">
                                         Test Mode
                                     </Badge>
@@ -153,8 +157,8 @@ export default function GuruRencanaPembelajaranShow({ rencanaPembelajaran }: Pro
                         </div>
                     </div>
 
-                    {/* Test Day Selector - Only show on weekends or when test_day is active */}
-                    {(testDay || today.getDay() === 0 || today.getDay() === 6) && (
+                    {/* Test Day Selector - Only show in development mode on weekends or when test_day is active */}
+                    {isDevelopment && (testDay || today.getDay() === 0 || today.getDay() === 6) && (
                         <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-r from-orange-100 to-yellow-100 mb-3">
                             <CardContent className="p-3">
                                 <p className="text-xs font-bold text-orange-800 mb-2">🧪 Mode Testing - Pilih Hari:</p>
@@ -164,8 +168,8 @@ export default function GuruRencanaPembelajaranShow({ rencanaPembelajaran }: Pro
                                             key={day}
                                             href={`?test_day=${day}`}
                                             className={`text-center py-2 px-1 rounded-xl text-xs font-bold transition-all ${currentDayName === day
-                                                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
-                                                    : 'bg-white text-gray-700 hover:bg-orange-200'
+                                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
+                                                : 'bg-white text-gray-700 hover:bg-orange-200'
                                                 }`}
                                         >
                                             {day.charAt(0).toUpperCase() + day.slice(1, 3)}
