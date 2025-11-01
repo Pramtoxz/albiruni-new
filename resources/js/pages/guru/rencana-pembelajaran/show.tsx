@@ -1,7 +1,6 @@
-import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, BookOpen, Download, Video } from 'lucide-react';
+import { ArrowLeft, Calendar, BookOpen, Download, Video, Star, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -77,183 +76,301 @@ const getYouTubeEmbedUrl = (url: string) => {
 };
 
 export default function GuruRencanaPembelajaranShow({ rencanaPembelajaran }: Props) {
-    const sortedKegiatan = [...rencanaPembelajaran.kegiatan_harian].sort((a, b) => {
+    // Get current date and day
+    const today = new Date();
+
+    // Check for test_day parameter in URL for development/testing
+    const urlParams = new URLSearchParams(window.location.search);
+    const testDay = urlParams.get('test_day');
+
+    // Use test day if provided, otherwise use actual current day
+    const currentDayName = testDay || today.toLocaleDateString('id-ID', { weekday: 'long' }).toLowerCase();
+    const todayDateString = today.toISOString().split('T')[0];
+
+    // Filter kegiatan for today only
+    const todayKegiatan = rencanaPembelajaran.kegiatan_harian.filter((kegiatan) => {
+        const kegiatanDate = new Date(kegiatan.tanggal).toISOString().split('T')[0];
+        // If test_day is provided, only match by day name, ignore date
+        if (testDay) {
+            return kegiatan.hari === currentDayName;
+        }
+        // Normal mode: match both day and date
+        return kegiatan.hari === currentDayName && kegiatanDate === todayDateString;
+    });
+
+    const sortedKegiatan = [...todayKegiatan].sort((a, b) => {
         const hariOrder = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
         return hariOrder.indexOf(a.hari) - hariOrder.indexOf(b.hari);
     });
 
     return (
-        <AppLayout>
+        <>
             <Head title={`Detail - ${rencanaPembelajaran.nama_rencana}`} />
 
-            <div className="space-y-6">
-                {/* Header */}
-                <div className="flex items-center gap-4">
-                    <Link href="/guru/rencana-pembelajaran">
-                        <Button variant="ghost" size="sm">
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Kembali
-                        </Button>
-                    </Link>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-bold">{rencanaPembelajaran.nama_rencana}</h1>
-                            {rencanaPembelajaran.is_active && (
-                                <Badge variant="default">Aktif</Badge>
-                            )}
-                        </div>
-                        <p className="text-muted-foreground mt-1">
-                            Rencana pembelajaran untuk {rencanaPembelajaran.kelas.nama_kelas}
-                        </p>
-                    </div>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pb-8 relative overflow-hidden">
+                {/* Decorative Background Elements */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-blue-300 rounded-full opacity-20 -translate-x-16 -translate-y-16"></div>
+                <div className="absolute top-20 right-0 w-24 h-24 bg-purple-300 rounded-full opacity-20 translate-x-12"></div>
+                <div className="absolute bottom-40 left-10 w-20 h-20 bg-pink-300 rounded-full opacity-20"></div>
+                <div className="absolute bottom-20 right-20 w-28 h-28 bg-yellow-300 rounded-full opacity-20"></div>
+
+                {/* Floating Stars Decoration */}
+                <div className="absolute top-8 right-8 animate-bounce">
+                    <Star className="h-6 w-6 text-yellow-400 fill-yellow-400 opacity-40" />
+                </div>
+                <div className="absolute top-20 left-12 animate-pulse">
+                    <Sparkles className="h-5 w-5 text-purple-400 opacity-40" />
                 </div>
 
-                {/* Info Rencana */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Informasi Rencana</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Tema</p>
-                                <p className="font-medium flex items-center gap-2">
-                                    <BookOpen className="h-4 w-4" />
-                                    {rencanaPembelajaran.tema}
-                                </p>
+                {/* Content */}
+                <div className="pt-12 pb-4 px-4 space-y-4 relative z-10">
+                    {/* Back Button & Title */}
+                    <div className="flex items-center gap-3 mb-2">
+                        <Link href="/guru/rencana-pembelajaran">
+                            <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+                                <ArrowLeft className="h-5 w-5 text-gray-700" />
+                            </button>
+                        </Link>
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-xl font-bold text-gray-800">
+                                    {rencanaPembelajaran.nama_rencana}
+                                </h1>
+                                {rencanaPembelajaran.is_active && (
+                                    <Badge className="bg-green-500 text-white text-[10px] px-2 py-0">
+                                        Aktif
+                                    </Badge>
+                                )}
+                                {testDay && (
+                                    <Badge className="bg-orange-500 text-white text-[10px] px-2 py-0">
+                                        Test Mode
+                                    </Badge>
+                                )}
                             </div>
-                            {rencanaPembelajaran.sub_tema && (
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Sub Tema</p>
-                                    <p className="font-medium">{rencanaPembelajaran.sub_tema}</p>
-                                </div>
-                            )}
-                        </div>
-                        <div>
-                            <p className="text-sm text-muted-foreground">Periode</p>
-                            <p className="font-medium flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
-                                {format(new Date(rencanaPembelajaran.tanggal_mulai), 'dd MMMM yyyy', { locale: id })}
-                                {' - '}
-                                {format(new Date(rencanaPembelajaran.tanggal_selesai), 'dd MMMM yyyy', { locale: id })}
+                            <p className="text-sm text-gray-600">
+                                {rencanaPembelajaran.kelas.nama_kelas}
                             </p>
                         </div>
-                        <div>
-                            <p className="text-sm text-muted-foreground">Dibuat oleh</p>
-                            <p className="font-medium">{rencanaPembelajaran.creator.name}</p>
-                        </div>
-                    </CardContent>
-                </Card>
+                    </div>
 
-                {/* Kegiatan Harian */}
-                <div className="space-y-4">
-                    <h2 className="text-2xl font-bold">Kegiatan Harian</h2>
-
-                    {sortedKegiatan.length === 0 ? (
-                        <Card>
-                            <CardContent className="p-6">
-                                <p className="text-center text-muted-foreground">
-                                    Belum ada kegiatan yang direncanakan
-                                </p>
+                    {/* Test Day Selector - Only show on weekends or when test_day is active */}
+                    {(testDay || today.getDay() === 0 || today.getDay() === 6) && (
+                        <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-r from-orange-100 to-yellow-100 mb-3">
+                            <CardContent className="p-3">
+                                <p className="text-xs font-bold text-orange-800 mb-2">🧪 Mode Testing - Pilih Hari:</p>
+                                <div className="grid grid-cols-5 gap-2">
+                                    {['senin', 'selasa', 'rabu', 'kamis', 'jumat'].map((day) => (
+                                        <Link
+                                            key={day}
+                                            href={`?test_day=${day}`}
+                                            className={`text-center py-2 px-1 rounded-xl text-xs font-bold transition-all ${currentDayName === day
+                                                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
+                                                    : 'bg-white text-gray-700 hover:bg-orange-200'
+                                                }`}
+                                        >
+                                            {day.charAt(0).toUpperCase() + day.slice(1, 3)}
+                                        </Link>
+                                    ))}
+                                </div>
+                                {testDay && (
+                                    <Link href={window.location.pathname} className="block mt-2">
+                                        <Button size="sm" variant="outline" className="w-full text-xs h-7">
+                                            Reset ke Hari Ini
+                                        </Button>
+                                    </Link>
+                                )}
                             </CardContent>
                         </Card>
-                    ) : (
-                        sortedKegiatan.map((kegiatan) => (
-                            <Card key={kegiatan.id}>
-                                <CardHeader>
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle className="flex items-center gap-2">
-                                            {HARI_LABELS[kegiatan.hari]}
-                                            <span className="text-sm font-normal text-muted-foreground">
-                                                - {format(new Date(kegiatan.tanggal), 'dd MMMM yyyy', { locale: id })}
-                                            </span>
-                                        </CardTitle>
-                                    </div>
-                                    <p className="text-lg font-semibold text-primary mt-2">
-                                        {kegiatan.nama_aktivitas}
+                    )}
+
+                    {/* Info Rencana */}
+                    <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white">
+                        <CardHeader className="pb-3 bg-gradient-to-r from-blue-100 to-purple-100">
+                            <CardTitle className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                <BookOpen className="h-5 w-5" />
+                                Informasi Rencana
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-3">
+                            <div>
+                                <p className="text-xs text-gray-500 mb-1">Tema</p>
+                                <p className="font-bold text-purple-600 text-lg">
+                                    {rencanaPembelajaran.tema}
+                                </p>
+                                {rencanaPembelajaran.sub_tema && (
+                                    <p className="text-sm text-gray-600 mt-1">
+                                        {rencanaPembelajaran.sub_tema}
                                     </p>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {/* Foto Kegiatan */}
-                                    {kegiatan.foto_kegiatan && (
-                                        <div>
-                                            <img
-                                                src={`/assets/images/kegiatan/${kegiatan.foto_kegiatan}`}
-                                                alt={kegiatan.nama_aktivitas}
-                                                className="w-full max-w-md rounded-lg shadow-md"
-                                            />
-                                        </div>
-                                    )}
+                                )}
+                            </div>
+                            <div className="border-t pt-3">
+                                <p className="text-xs text-gray-500 mb-1">Periode</p>
+                                <div className="flex items-center gap-2 text-sm text-gray-700">
+                                    <Calendar className="h-4 w-4 text-blue-500" />
+                                    <span className="font-medium">
+                                        {format(new Date(rencanaPembelajaran.tanggal_mulai), 'dd MMMM yyyy', { locale: id })}
+                                        {' - '}
+                                        {format(new Date(rencanaPembelajaran.tanggal_selesai), 'dd MMMM yyyy', { locale: id })}
+                                    </span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Deskripsi</h4>
-                                        <p className="text-muted-foreground whitespace-pre-wrap">
-                                            {kegiatan.deskripsi}
-                                        </p>
+                    {/* Kegiatan Hari Ini */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-bold text-gray-800">📅 Kegiatan Hari Ini</h2>
+                            <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
+                                {format(today, 'EEEE, dd MMM', { locale: id })}
+                            </Badge>
+                        </div>
+
+                        {sortedKegiatan.length === 0 ? (
+                            <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white">
+                                <CardContent className="py-12 text-center">
+                                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full mb-4 shadow-lg">
+                                        <Calendar className="h-10 w-10 text-gray-500" />
                                     </div>
-
-                                    <div>
-                                        <h4 className="font-semibold mb-2">🎯 Target Perkembangan</h4>
-                                        <p className="text-muted-foreground whitespace-pre-wrap">
-                                            {kegiatan.target_perkembangan}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="font-semibold mb-2">🛠️ Alat dan Bahan</h4>
-                                        <p className="text-muted-foreground whitespace-pre-wrap">
-                                            {kegiatan.alat_bahan}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="font-semibold mb-2">📋 Instruksi</h4>
-                                        <p className="text-muted-foreground whitespace-pre-wrap">
-                                            {kegiatan.instruksi}
-                                        </p>
-                                    </div>
-
-                                    {/* Video YouTube */}
-                                    {kegiatan.video_url && getYouTubeEmbedUrl(kegiatan.video_url) && (
-                                        <div className="border-t pt-4">
-                                            <h4 className="font-semibold mb-3 flex items-center gap-2">
-                                                <Video className="h-5 w-5" />
-                                                Video Pembelajaran
-                                            </h4>
-                                            <div className="aspect-video w-full max-w-2xl">
-                                                <iframe
-                                                    src={getYouTubeEmbedUrl(kegiatan.video_url) || ''}
-                                                    title="Video Pembelajaran"
-                                                    className="w-full h-full rounded-lg"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                    allowFullScreen
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* File Materi */}
-                                    {kegiatan.file_materi && (
-                                        <div className="border-t pt-4">
-                                            <a
-                                                href={`/assets/documents/kegiatan/${kegiatan.file_materi}`}
-                                                download
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <Button variant="outline" className="gap-2">
-                                                    <Download className="h-4 w-4" />
-                                                    Download Materi
-                                                </Button>
-                                            </a>
-                                        </div>
-                                    )}
+                                    <p className="text-sm text-gray-600 font-medium">
+                                        Tidak ada kegiatan untuk hari ini
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Nikmati hari libur Anda! 🎉
+                                    </p>
                                 </CardContent>
                             </Card>
-                        ))
-                    )}
+                        ) : (
+                            sortedKegiatan.map((kegiatan) => (
+                                <Card key={kegiatan.id} className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white">
+                                    <CardHeader className="pb-3 bg-gradient-to-r from-green-100 to-teal-100">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-base font-bold text-gray-800">
+                                                {HARI_LABELS[kegiatan.hari]}
+                                            </CardTitle>
+                                            <span className="text-xs text-gray-600">
+                                                {format(new Date(kegiatan.tanggal), 'dd MMMM yyyy', { locale: id })}
+                                            </span>
+                                        </div>
+                                        {kegiatan.nama_aktivitas && (
+                                            <p className="text-lg font-bold text-purple-600 mt-2">
+                                                {kegiatan.nama_aktivitas}
+                                            </p>
+                                        )}
+                                    </CardHeader>
+                                    <CardContent className="p-4 space-y-4">
+                                        {/* Foto Kegiatan - Only show if exists */}
+                                        {kegiatan.foto_kegiatan && (
+                                            <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                                        <ImageIcon className="h-4 w-4 text-pink-500" />
+                                                        Foto Kegiatan
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-3">
+                                                    <img
+                                                        src={`/assets/images/kegiatan/${kegiatan.foto_kegiatan}`}
+                                                        alt={kegiatan.nama_aktivitas}
+                                                        className="w-full rounded-xl shadow-md"
+                                                    />
+                                                </CardContent>
+                                            </Card>
+                                        )}
+
+                                        {kegiatan.deskripsi && (
+                                            <div className="bg-blue-50 rounded-2xl p-3">
+                                                <h4 className="font-bold text-sm text-gray-800 mb-2">📝 Deskripsi</h4>
+                                                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                                                    {kegiatan.deskripsi}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {kegiatan.target_perkembangan && (
+                                            <div className="bg-green-50 rounded-2xl p-3">
+                                                <h4 className="font-bold text-sm text-gray-800 mb-2">🎯 Target Perkembangan</h4>
+                                                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                                                    {kegiatan.target_perkembangan}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {kegiatan.alat_bahan && (
+                                            <div className="bg-orange-50 rounded-2xl p-3">
+                                                <h4 className="font-bold text-sm text-gray-800 mb-2">🛠️ Alat dan Bahan</h4>
+                                                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                                                    {kegiatan.alat_bahan}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {kegiatan.instruksi && (
+                                            <div className="bg-purple-50 rounded-2xl p-3">
+                                                <h4 className="font-bold text-sm text-gray-800 mb-2">📋 Instruksi</h4>
+                                                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                                                    {kegiatan.instruksi}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Video YouTube - Only show if exists */}
+                                        {kegiatan.video_url && getYouTubeEmbedUrl(kegiatan.video_url) && (
+                                            <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-red-50 to-pink-50">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                                        <Video className="h-4 w-4 text-red-500" />
+                                                        Video Pembelajaran
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-3">
+                                                    <div className="aspect-video w-full rounded-xl overflow-hidden shadow-md">
+                                                        <iframe
+                                                            src={getYouTubeEmbedUrl(kegiatan.video_url) || ''}
+                                                            title="Video Pembelajaran"
+                                                            className="w-full h-full"
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                            allowFullScreen
+                                                        />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+
+                                        {/* File Materi - Only show if exists */}
+                                        {kegiatan.file_materi && (
+                                            <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                                        <Download className="h-4 w-4 text-blue-500" />
+                                                        File Materi
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-3">
+                                                    <a
+                                                        href={`/assets/documents/kegiatan/${kegiatan.file_materi}`}
+                                                        download
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        <Button className="w-full gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-md">
+                                                            <Download className="h-4 w-4" />
+                                                            Download Materi
+                                                        </Button>
+                                                    </a>
+                                                    <p className="text-xs text-gray-500 mt-2 text-center">
+                                                        {kegiatan.file_materi}
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }

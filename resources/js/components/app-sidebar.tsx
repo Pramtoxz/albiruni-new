@@ -24,6 +24,7 @@ import {
     School,
     CreditCard,
     GraduationCap,
+    UserCog,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -74,6 +75,11 @@ export function AppSidebar() {
             title: 'Kelas',
             href: '/admin/kelas',
             icon: School,
+        });
+        mainNavItems.push({
+            title: 'Data Guru',
+            href: '/admin/guru',
+            icon: UserCog,
         });
         mainNavItems.push({
             title: 'Pembayaran SPP',

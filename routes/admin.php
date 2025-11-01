@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('siswa/{siswa}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
     Route::put('siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update');
     Route::post('siswa/{siswa}/approve', [SiswaController::class, 'approve'])->name('siswa.approve');
-    
+
     // Menu Mingguan Management
     Route::get('menu-mingguan', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'index'])->name('menu-mingguan.index');
     Route::get('menu-mingguan/create', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'create'])->name('menu-mingguan.create');
@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('menu-mingguan/{menuMingguan}/copy', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'copy'])->name('menu-mingguan.copy');
     Route::post('menu-mingguan/{menuMingguan}/toggle-active', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'toggleActive'])->name('menu-mingguan.toggle-active');
     Route::get('menu-mingguan/{menuMingguan}/print', [\App\Http\Controllers\Admin\MenuMingguanController::class, 'printPdf'])->name('menu-mingguan.print');
-    
+
     // Rencana Pembelajaran Management
     Route::get('rencana-pembelajaran', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'index'])->name('rencana-pembelajaran.index');
     Route::get('rencana-pembelajaran/create', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'create'])->name('rencana-pembelajaran.create');
@@ -38,13 +38,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::delete('rencana-pembelajaran/{rencanaPembelajaran}', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'destroy'])->name('rencana-pembelajaran.destroy');
     Route::post('rencana-pembelajaran/{rencanaPembelajaran}/copy', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'copy'])->name('rencana-pembelajaran.copy');
     Route::post('rencana-pembelajaran/{rencanaPembelajaran}/toggle-active', [\App\Http\Controllers\Admin\RencanaPembelajaranController::class, 'toggleActive'])->name('rencana-pembelajaran.toggle-active');
-    
+
     // Kelas Management
     Route::resource('kelas', KelasController::class);
-    
+
     // Pembayaran SPP Management
     Route::get('pembayaran', [PembayaranSppController::class, 'index'])->name('pembayaran.index');
     Route::get('pembayaran/{pembayaran}', [PembayaranSppController::class, 'show'])->name('pembayaran.show');
     Route::post('pembayaran/{pembayaran}/verify', [PembayaranSppController::class, 'verify'])->name('pembayaran.verify');
     Route::post('pembayaran/generate', [PembayaranSppController::class, 'generate'])->name('pembayaran.generate');
+
+    // Guru Management
+    Route::resource('guru', \App\Http\Controllers\Admin\GuruController::class);
 });

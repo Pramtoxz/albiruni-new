@@ -24,7 +24,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
                                 <img 
                                     src={stat.imageSrc} 
                                     alt={stat.label} 
-                                    className="w-10 h-10 object-contain" 
+                                    className="w-16 h-16 object-contain" 
                                 />
                             </div>
                         ) : (

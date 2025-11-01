@@ -21,18 +21,10 @@ class RencanaPembelajaranController extends Controller
     {
         $this->checkGuru();
 
-        $guru = auth()->user()->guru;
-        
-        if (!$guru || !$guru->kelas_id) {
-            return Inertia::render('guru/rencana-pembelajaran/index', [
-                'rencanaPembelajaran' => ['data' => []],
-                'message' => 'Anda belum ditugaskan ke kelas manapun.',
-            ]);
-        }
-
+        // Get all active rencana pembelajaran for guru to view
         $rencanaPembelajaran = RencanaPembelajaran::query()
-            ->where('kelas_id', $guru->kelas_id)
             ->with(['creator:id,name', 'kelas:id,nama_kelas'])
+            ->orderBy('is_active', 'desc')
             ->orderBy('tanggal_mulai', 'desc')
             ->paginate(10);
 
@@ -47,8 +39,8 @@ class RencanaPembelajaranController extends Controller
 
         $guru = auth()->user()->guru;
         
-        // Check if guru can access this rencana (must be from their class)
-        if ($guru->kelas_id !== $rencanaPembelajaran->kelas_id) {
+        // Check if guru has been assigned and can access this rencana (must be from their class)
+        if ($guru && $guru->kelas_id && $guru->kelas_id !== $rencanaPembelajaran->kelas_id) {
             abort(403, 'Unauthorized - You can only view learning plans for your class');
         }
 

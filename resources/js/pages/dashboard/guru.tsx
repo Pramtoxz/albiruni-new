@@ -68,7 +68,8 @@ export default function GuruDashboard() {
 
     const quickActions = [
         { icon: PenTool, label: 'Daily Report', color: 'from-green-400 to-green-600', imageSrc: IconDaily, href: '/guru/daily-report' },
-        { icon: BookOpen, label: 'Materi', color: 'from-orange-400 to-orange-600', imageSrc: IconMateri, href: '/guru/materi/create' },
+        { icon: BookOpen, label: 'Materi', color: 'from-orange-400 to-orange-600', imageSrc: IconMateri, href: '/guru/rencana-pembelajaran' },
+        // { icon: BookOpen, label: 'Materi', color: 'from-orange-400 to-orange-600', imageSrc: IconMateri, href: '/guru/rencana-pembelajaran/1?test_day=jumat' },
         { icon: CheckSquare, label: 'Absensi', color: 'from-blue-400 to-blue-600', imageSrc: IconAbsen, href: '/guru/absensi' },
         { icon: Calendar, label: 'Jadwal', color: 'from-purple-400 to-purple-600', imageSrc: IconGaleri, href: '/guru/jadwal' },
     ];

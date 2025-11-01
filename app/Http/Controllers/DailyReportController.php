@@ -16,9 +16,19 @@ class DailyReportController extends Controller
     public function index(): Response
     {
         $user = auth()->user();
+        $guru = $user->guru;
 
-        $reports = DailyReport::with(['siswa', 'user'])
-            ->where('user_id', $user->id)
+        $reportsQuery = DailyReport::with(['siswa.kelas', 'user'])
+            ->where('user_id', $user->id);
+
+        // If guru exists, filter reports by their assigned students
+        if ($guru) {
+            $reportsQuery->whereHas('siswa', function ($query) use ($guru) {
+                $query->where('guru_id', $guru->id);
+            });
+        }
+
+        $reports = $reportsQuery
             ->orderBy('tanggal', 'desc')
             ->paginate(10);
 
@@ -29,8 +39,19 @@ class DailyReportController extends Controller
 
     public function create(): Response
     {
-        $siswaList = Siswa::with('kelas')
-            ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id')
+        $user = auth()->user();
+        $guru = $user->guru;
+
+        // Filter siswa based on guru_id directly
+        $siswaQuery = Siswa::with('kelas')
+            ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id');
+
+        // If guru exists, only show their assigned students
+        if ($guru) {
+            $siswaQuery->where('guru_id', $guru->id);
+        }
+
+        $siswaList = $siswaQuery
             ->orderBy('nama_lengkap')
             ->get()
             ->map(function ($siswa) {

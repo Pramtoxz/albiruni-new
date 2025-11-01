@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
 import { Siswa } from '@/types';
 import { FormEventHandler } from 'react';
 
@@ -24,15 +25,30 @@ interface Kelas {
     spp: string;
 }
 
-interface Props {
-    siswa: Siswa & { kelas?: Kelas; kelas_id?: number };
-    kelasList: Kelas[];
+interface Guru {
+    id: number;
+    nama_lengkap: string;
+    user: {
+        name: string;
+        email: string;
+    };
+    kelas: {
+        nama_kelas: string;
+    } | null;
 }
 
-export default function SiswaEdit({ siswa, kelasList }: Props) {
+interface Props {
+    siswa: Siswa & { kelas?: Kelas };
+    kelasList: Kelas[];
+    guruList: Guru[];
+}
+
+export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         kelas_id: siswa.kelas_id?.toString() || '',
+        guru_id: siswa.guru_id?.toString() || '',
+        is_active: siswa.is_active ?? true,
         nama_lengkap: siswa.nama_lengkap || '',
         nama_panggilan: siswa.nama_panggilan || '',
         jenis_kelamin: siswa.jenis_kelamin || '',
@@ -549,6 +565,32 @@ export default function SiswaEdit({ siswa, kelasList }: Props) {
                             </div>
 
                             <div className="space-y-2">
+                                <Label>Guru</Label>
+                                <Select
+                                    value={data.guru_id || "none"}
+                                    onValueChange={(value) => setData('guru_id', value === "none" ? '' : value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih guru (opsional)" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Tidak ada guru</SelectItem>
+                                        {guruList.map((guru) => (
+                                            <SelectItem key={guru.id} value={guru.id.toString()}>
+                                                {guru.nama_lengkap} {guru.kelas ? `- ${guru.kelas.nama_kelas}` : ''}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.guru_id && (
+                                    <p className="text-sm text-destructive">{errors.guru_id}</p>
+                                )}
+                                <p className="text-xs text-muted-foreground">
+                                    Opsional - Assign guru untuk siswa ini
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
                                 <Label>Jenis Pembayaran *</Label>
                                 <RadioGroup
                                     value={data.jenis_pembayaran}
@@ -571,6 +613,25 @@ export default function SiswaEdit({ siswa, kelasList }: Props) {
                                 </RadioGroup>
                                 {errors.jenis_pembayaran && (
                                     <p className="text-sm text-destructive">{errors.jenis_pembayaran}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <Label htmlFor="is_active">Status Aktif</Label>
+                                        <p className="text-xs text-muted-foreground">
+                                            Nonaktifkan jika siswa sudah tidak bersekolah
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        id="is_active"
+                                        checked={data.is_active}
+                                        onCheckedChange={(checked) => setData('is_active', checked)}
+                                    />
+                                </div>
+                                {errors.is_active && (
+                                    <p className="text-sm text-destructive">{errors.is_active}</p>
                                 )}
                             </div>
                         </CardContent>

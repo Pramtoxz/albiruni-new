@@ -36,12 +36,14 @@ class SiswaController extends Controller
     {
         $this->checkAdmin();
 
-        $siswa->load(['user', 'kelas']);
+        $siswa->load(['user', 'kelas', 'guru']);
         $kelasList = \App\Models\Kelas::orderBy('nama_kelas')->get();
+        $guruList = \App\Models\Guru::with('user')->get();
 
         return Inertia::render('admin/siswa/show', [
             'siswa' => $siswa,
             'kelasList' => $kelasList,
+            'guruList' => $guruList,
         ]);
     }
 
@@ -69,12 +71,14 @@ class SiswaController extends Controller
                 ->with('error', 'Hanya siswa yang sudah disetujui yang dapat diedit.');
         }
 
-        $siswa->load(['user', 'kelas']);
+        $siswa->load(['user', 'kelas', 'guru']);
         $kelasList = \App\Models\Kelas::orderBy('nama_kelas')->get();
+        $guruList = \App\Models\Guru::with('user')->get();
 
         return Inertia::render('admin/siswa/edit', [
             'siswa' => $siswa,
             'kelasList' => $kelasList,
+            'guruList' => $guruList,
         ]);
     }
 
@@ -142,6 +146,8 @@ class SiswaController extends Controller
             'lokasi_pendaftaran' => 'nullable|string|max:255',
             'tanggal_pendaftaran' => 'nullable|date',
             'kelas_id' => 'required|exists:kelas,id',
+            'guru_id' => 'nullable|exists:gurus,id',
+            'is_active' => 'nullable|boolean',
             'jenis_pembayaran' => ['required', Rule::in(['transfer', 'cash'])],
         ]);
 
@@ -173,6 +179,7 @@ class SiswaController extends Controller
 
         $validated = $request->validate([
             'kelas_id' => 'required|exists:kelas,id',
+            'guru_id' => 'nullable|exists:gurus,id',
             'jenis_pembayaran' => ['required', Rule::in(['transfer', 'cash'])],
         ]);
 
@@ -180,6 +187,7 @@ class SiswaController extends Controller
             'status_siswa' => true,
             'is_active' => true,
             'kelas_id' => $validated['kelas_id'],
+            'guru_id' => $validated['guru_id'] ?? null,
             'jenis_pembayaran' => $validated['jenis_pembayaran'],
         ]);
 

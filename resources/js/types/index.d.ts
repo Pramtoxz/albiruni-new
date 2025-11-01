@@ -46,6 +46,7 @@ export interface Siswa {
     id: number;
     user_id: number;
     kelas_id?: number;
+    guru_id?: number;
     nama_lengkap: string;
     nama_panggilan?: string;
     jenis_kelamin: 'Laki-laki' | 'Perempuan';
@@ -95,6 +96,7 @@ export interface Siswa {
     lokasi_pendaftaran?: string;
     tanggal_pendaftaran?: string;
     status_siswa: boolean;
+    is_active: boolean;
     jenis_pembayaran?: 'transfer' | 'cash';
     user?: User;
     kelas?: {
@@ -102,6 +104,11 @@ export interface Siswa {
         nama_kelas: string;
         deskripsi?: string;
         spp: string;
+    };
+    guru?: {
+        id: number;
+        nama_lengkap: string;
+        user?: User;
     };
     created_at: string;
     updated_at: string;

@@ -22,14 +22,28 @@ interface Kelas {
     spp: string;
 }
 
+interface Guru {
+    id: number;
+    nama_lengkap: string;
+    user: {
+        name: string;
+        email: string;
+    };
+    kelas: {
+        nama_kelas: string;
+    } | null;
+}
+
 interface Props {
     siswa: Siswa;
     kelasList: Kelas[];
+    guruList: Guru[];
 }
 
-export default function SiswaShow({ siswa, kelasList }: Props) {
+export default function SiswaShow({ siswa, kelasList, guruList }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         kelas_id: '',
+        guru_id: '',
         jenis_pembayaran: '' as 'transfer' | 'cash' | '',
     });
 
@@ -200,13 +214,21 @@ export default function SiswaShow({ siswa, kelasList }: Props) {
                                         value="Diterima"
                                     />
                                     <InfoRow
+                                        label="Kelas"
+                                        value={siswa.kelas?.nama_kelas}
+                                    />
+                                    <InfoRow
+                                        label="Guru"
+                                        value={siswa.guru?.nama_lengkap || 'Belum ada guru'}
+                                    />
+                                    <InfoRow
                                         label="Jenis Pembayaran"
                                         value={
                                             siswa.jenis_pembayaran === 'transfer'
                                                 ? 'Transfer Bank'
                                                 : siswa.jenis_pembayaran === 'cash'
-                                                  ? 'Cash / Tunai'
-                                                  : '-'
+                                                    ? 'Cash / Tunai'
+                                                    : '-'
                                         }
                                     />
                                     <InfoRow
@@ -247,6 +269,32 @@ export default function SiswaShow({ siswa, kelasList }: Props) {
                                     {errors.kelas_id && (
                                         <p className="text-sm text-destructive">{errors.kelas_id}</p>
                                     )}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label>Pilih Guru</Label>
+                                    <Select
+                                        value={data.guru_id || "none"}
+                                        onValueChange={(value) => setData('guru_id', value === "none" ? '' : value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih guru (opsional)" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">Tidak ada guru</SelectItem>
+                                            {guruList.map((guru) => (
+                                                <SelectItem key={guru.id} value={guru.id.toString()}>
+                                                    {guru.nama_lengkap} {guru.kelas ? `- ${guru.kelas.nama_kelas}` : ''}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.guru_id && (
+                                        <p className="text-sm text-destructive">{errors.guru_id}</p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">
+                                        Opsional - Guru dapat diatur nanti
+                                    </p>
                                 </div>
 
                                 <div className="space-y-3">
