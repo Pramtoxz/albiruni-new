@@ -5,7 +5,8 @@ interface Stat {
     value: string;
     total: string;
     color: string;
-    emoji: string;
+    imageSrc?: string;
+    emoji?: string;
 }
 
 interface StatsCardsProps {
@@ -18,7 +19,17 @@ export default function StatsCards({ stats }: StatsCardsProps) {
             {stats.map((stat, index) => (
                 <Card key={index} className="border-0 bg-white/95 backdrop-blur shadow-lg rounded-2xl overflow-hidden hover:scale-105 transition-transform">
                     <CardContent className="p-3 text-center">
-                        <div className="text-3xl mb-1">{stat.emoji}</div>
+                        {stat.imageSrc ? (
+                            <div className="flex justify-center mb-1">
+                                <img 
+                                    src={stat.imageSrc} 
+                                    alt={stat.label} 
+                                    className="w-10 h-10 object-contain" 
+                                />
+                            </div>
+                        ) : (
+                            <div className="text-3xl mb-1">{stat.emoji}</div>
+                        )}
                         <p className={`text-2xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
                             {stat.value}
                             <span className="text-sm text-gray-400">/{stat.total}</span>

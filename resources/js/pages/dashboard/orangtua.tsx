@@ -17,10 +17,10 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import LogoAlbiruni from "@/assets/home/logo.webp"
-import IconDaily from "@/assets/menu/daily.webp"
-import IconSpp from "@/assets/menu/spp.webp"
-import IconKegiatan from "@/assets/menu/kegiatan.webp"
-import IconGaleri from "@/assets/menu/galeri.webp"
+import IconDaily from "@/assets/menu/orangtua/daily.webp"
+import IconSpp from "@/assets/menu/orangtua/spp.webp"
+import IconKegiatan from "@/assets/menu/orangtua/kegiatan.webp"
+import IconGaleri from "@/assets/menu/orangtua/galeri.webp"
 import IconPemberitahuan from "@/assets/menu/pemberitahuan.webp"
 
 interface Siswa {

@@ -5,7 +5,8 @@ interface QuickAction {
     icon: LucideIcon;
     label: string;
     color: string;
-    emoji: string;
+    imageSrc?: string;
+    emoji?: string;
     href: string;
 }
 
@@ -24,7 +25,17 @@ export default function QuickActions({ actions }: QuickActionsProps) {
                         className="group flex flex-col items-center gap-2 transition-all hover:scale-110 active:scale-95"
                     >
                         <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${action.color} text-white shadow-lg group-hover:shadow-xl transition-all transform group-hover:-translate-y-1`}>
-                            <span className="text-2xl">{action.emoji}</span>
+                            {action.imageSrc ? (
+                                <img
+                                    src={action.imageSrc}
+                                    alt={action.label}
+                                    className="w-14 h-14 object-contain"
+                                />
+                            ) : action.emoji ? (
+                                <span className="text-2xl">{action.emoji}</span>
+                            ) : (
+                                <action.icon className="h-8 w-8" />
+                            )}
                             <div className="absolute -top-1 -right-1 bg-yellow-300 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Sparkles className="h-3 w-3 text-yellow-600" />
                             </div>

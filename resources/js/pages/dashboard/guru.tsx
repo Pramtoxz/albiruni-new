@@ -15,6 +15,13 @@ import Swal from 'sweetalert2';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import QuickActions from '@/components/dashboard/QuickActions';
 import StatsCards from '@/components/dashboard/StatsCards';
+import IconDaily from "@/assets/menu/guru/daily.webp"
+import IconMateri from "@/assets/menu/guru/materi.webp"
+import IconAbsen from "@/assets/menu/guru/absen.webp"
+import IconGaleri from "@/assets/menu/guru/galeri.webp"
+import IconSiswa from "@/assets/menu/siswa.webp"
+import IconReport from "@/assets/menu/report.webp"
+import IconPMateri from "@/assets/menu/materi.webp"
 
 interface PageProps {
     auth: {
@@ -60,16 +67,16 @@ export default function GuruDashboard() {
     ];
 
     const quickActions = [
-        { icon: PenTool, label: 'Daily Report', color: 'from-blue-400 to-blue-600', emoji: '📝', href: '/guru/daily-report' },
-        { icon: BookOpen, label: 'Upload Materi', color: 'from-green-400 to-green-600', emoji: '📚', href: '/guru/materi/create' },
-        { icon: CheckSquare, label: 'Absensi', color: 'from-orange-400 to-orange-600', emoji: '✅', href: '/guru/absensi' },
-        { icon: Calendar, label: 'Jadwal', color: 'from-purple-400 to-purple-600', emoji: '📅', href: '/guru/jadwal' },
+        { icon: PenTool, label: 'Daily Report', color: 'from-green-400 to-green-600', imageSrc: IconDaily, href: '/guru/daily-report' },
+        { icon: BookOpen, label: 'Materi', color: 'from-orange-400 to-orange-600', imageSrc: IconMateri, href: '/guru/materi/create' },
+        { icon: CheckSquare, label: 'Absensi', color: 'from-blue-400 to-blue-600', imageSrc: IconAbsen, href: '/guru/absensi' },
+        { icon: Calendar, label: 'Jadwal', color: 'from-purple-400 to-purple-600', imageSrc: IconGaleri, href: '/guru/jadwal' },
     ];
 
     const todayStats = [
-        { label: 'Siswa Hadir', value: '24', total: '25', color: 'from-green-400 to-green-600', emoji: '👦' },
-        { label: 'Daily Report', value: '3', total: '5', color: 'from-blue-400 to-blue-600', emoji: '📝' },
-        { label: 'Materi Hari Ini', value: '2', total: '3', color: 'from-purple-400 to-purple-600', emoji: '📖' },
+        { label: 'Siswa Hadir', value: '24', total: '25', color: 'from-green-400 to-green-600', imageSrc: IconSiswa },
+        { label: 'Daily Report', value: '3', total: '5', color: 'from-blue-400 to-blue-600', imageSrc: IconReport },
+        { label: 'Materi Hari Ini', value: '2', total: '3', color: 'from-purple-400 to-purple-600', imageSrc: IconPMateri },
     ];
 
     const recentReports = [
@@ -102,7 +109,7 @@ export default function GuruDashboard() {
                 <div className="absolute bottom-20 right-20 w-28 h-28 bg-yellow-300 rounded-full opacity-20"></div>
 
                 {/* Header with Playful Design */}
-                <DashboardHeader 
+                <DashboardHeader
                     userName={auth.user.name}
                     userRole="guru"
                     onLogout={handleLogout}
@@ -253,8 +260,8 @@ export default function GuruDashboard() {
                                         key={index}
                                         href={item.href}
                                         className={`flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all ${item.active
-                                                ? 'bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-lg scale-105'
-                                                : 'text-gray-600 hover:bg-gray-100'
+                                            ? 'bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-lg scale-105'
+                                            : 'text-gray-600 hover:bg-gray-100'
                                             }`}
                                     >
                                         <item.icon className="h-5 w-5" />
