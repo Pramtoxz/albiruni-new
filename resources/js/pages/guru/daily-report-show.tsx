@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StarRating } from '@/components/star-rating';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Check, X } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Calendar, Check, X, Send } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface DailyReport {
     id: number;
@@ -34,6 +35,7 @@ interface DailyReport {
     catatan_khusus: string;
     catatan_insiden: string;
     foto_kegiatan: string;
+    is_final: boolean;
 }
 
 interface Props {
@@ -71,6 +73,45 @@ export default function DailyReportShow({ report }: Props) {
         return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
     };
 
+    const handleFinalize = () => {
+        Swal.fire({
+            title: 'Kirim Notifikasi?',
+            text: `Daily report untuk ${report.siswa.nama_lengkap} akan dikirim ke orang tua dan tidak bisa diedit lagi.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Kirim!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(
+                    `/guru/daily-report/${report.id}/finalize`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Daily report berhasil dikirim ke orang tua',
+                                confirmButtonColor: '#3085d6',
+                            });
+                        },
+                        onError: () => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan saat mengirim notifikasi',
+                                confirmButtonColor: '#d33',
+                            });
+                        },
+                    }
+                );
+            }
+        });
+    };
+
     return (
         <>
             <Head title={`Daily Report - ${report.siswa.nama_lengkap}`} />
@@ -106,9 +147,20 @@ export default function DailyReportShow({ report }: Props) {
                                     </div>
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-lg font-bold text-gray-800">
-                                        Mood: {report.mood}
-                                    </p>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <p className="text-lg font-bold text-gray-800">
+                                            Mood: {report.mood}
+                                        </p>
+                                        {report.is_final ? (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Final
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                Draft
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
                                         <Calendar className="h-4 w-4" />
                                         {formatDate(report.tanggal)}
@@ -267,7 +319,7 @@ export default function DailyReportShow({ report }: Props) {
                             </CardHeader>
                             <CardContent>
                                 <img
-                                    src={`/storage/${report.foto_kegiatan}`}
+                                    src={`/assets/images/daily_reports/${report.foto_kegiatan}`}
                                     alt="Foto Kegiatan"
                                     className="w-full rounded-2xl"
                                 />
@@ -284,16 +336,35 @@ export default function DailyReportShow({ report }: Props) {
                     </Card>
 
                     {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-3 pb-4">
-                        <Link href={`/guru/daily-report/${report.id}/edit`}>
-                            <Button variant="outline" className="w-full border-2 shadow-md">
-                                Edit
+                    {!report.is_final && (
+                        <div className="grid grid-cols-2 gap-3 pb-4">
+                            <Link href={`/guru/daily-report/${report.id}/edit`}>
+                                <Button variant="outline" className="w-full border-2 shadow-md">
+                                    Edit
+                                </Button>
+                            </Link>
+                            <Button
+                                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-md"
+                                onClick={handleFinalize}
+                            >
+                                <Send className="mr-2 h-4 w-4" />
+                                Kirim Notifikasi
                             </Button>
-                        </Link>
-                        <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-md">
-                            Bagikan ke Orang Tua
-                        </Button>
-                    </div>
+                        </div>
+                    )}
+
+                    {report.is_final && (
+                        <div className="pb-4">
+                            <div className="rounded-2xl bg-green-50 border border-green-200 p-4 text-center">
+                                <p className="text-sm font-medium text-green-800">
+                                    ✓ Daily report sudah dikirim ke orang tua
+                                </p>
+                                <p className="text-xs text-green-600 mt-1">
+                                    Report tidak bisa diedit lagi
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </>

@@ -1,7 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { StarRating } from '@/components/star-rating';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Check, X, Star, Sparkles } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Check, X, Star, Sparkles, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface DailyReport {
     id: number;
@@ -40,6 +41,30 @@ interface Props {
 }
 
 export default function OrangtuaDailyReportShow({ report }: Props) {
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [lastUpdate, setLastUpdate] = useState(new Date());
+
+    // Auto-refresh every 30 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload({ only: ['report'] });
+            setLastUpdate(new Date());
+        }, 30000); // 30 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleManualRefresh = () => {
+        setIsRefreshing(true);
+        router.reload({
+            only: ['report'],
+            onFinish: () => {
+                setIsRefreshing(false);
+                setLastUpdate(new Date());
+            },
+        });
+    };
+
     const getMoodEmoji = (mood: string) => {
         const moods: { [key: string]: string } = {
             Happy: '😊',
@@ -101,6 +126,20 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                             <h1 className="text-2xl font-bold text-gray-800">Daily Report 📝</h1>
                             <p className="text-sm text-gray-600">{report.siswa.nama_lengkap}</p>
                         </div>
+                        <button
+                            onClick={handleManualRefresh}
+                            disabled={isRefreshing}
+                            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                        >
+                            <RefreshCw className={`h-5 w-5 text-gray-700 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        </button>
+                    </div>
+
+                    {/* Auto-refresh indicator */}
+                    <div className="text-center">
+                        <p className="text-xs text-gray-500">
+                            Update otomatis setiap 30 detik • Terakhir update: {lastUpdate.toLocaleTimeString('id-ID')}
+                        </p>
                     </div>
 
                     {/* Mood & Date Card */}

@@ -34,6 +34,12 @@ interface MenuMakanan {
     kategori: string;
 }
 
+interface KegiatanHarian {
+    id: number;
+    nama_aktivitas: string;
+    deskripsi?: string;
+}
+
 interface Props {
     siswaList: Siswa[];
     menuMakanan: {
@@ -42,9 +48,10 @@ interface Props {
         snack?: MenuMakanan[];
     };
     menuMingguan?: any;
+    kegiatanHarian: KegiatanHarian[];
 }
 
-export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan }: Props) {
+export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan, kegiatanHarian }: Props) {
     const [selectedSiswa, setSelectedSiswa] = useState<Siswa | null>(null);
 
     const { data, setData, processing } = useForm({
@@ -75,16 +82,60 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const isSubmitting = useRef(false);
 
-    // Filter menu based on selected siswa's kategori
-    const getFilteredMenu = (waktuMakan: 'sarapan' | 'makan_siang' | 'snack') => {
-        if (!selectedSiswa?.kelas?.kategori_menu) {
-            return menuMakanan[waktuMakan] || [];
+    // Auto-fill menu when siswa is selected
+    const handleSiswaChange = (siswaId: string) => {
+        console.log('handleSiswaChange called with siswaId:', siswaId);
+
+        const siswa = siswaList.find(s => s.id.toString() === siswaId);
+        console.log('Found siswa:', siswa);
+        setSelectedSiswa(siswa || null);
+
+        // Prepare data to update
+        const updates: any = {
+            siswa_id: siswaId,
+        };
+
+        if (siswa?.kelas?.kategori_menu) {
+            const kategori = siswa.kelas.kategori_menu;
+            console.log('Kategori menu:', kategori);
+
+            // Auto-fill sarapan
+            const sarapan = menuMakanan.sarapan?.find(m => m.kategori === kategori);
+            console.log('Sarapan found:', sarapan);
+            if (sarapan) {
+                updates.sarapan_pagi = sarapan.nama_menu;
+            }
+
+            // Auto-fill makan siang
+            const makanSiang = menuMakanan.makan_siang?.find(m => m.kategori === kategori);
+            console.log('Makan siang found:', makanSiang);
+            if (makanSiang) {
+                updates.makan_siang = makanSiang.nama_menu;
+            }
+
+            // Auto-fill snack
+            const snack = menuMakanan.snack?.find(m => m.kategori === kategori);
+            console.log('Snack found:', snack);
+            if (snack) {
+                updates.snack_sore = snack.nama_menu;
+            }
         }
 
-        const kategori = selectedSiswa.kelas.kategori_menu;
-        return (menuMakanan[waktuMakan] || []).filter(
-            (menu) => menu.kategori === kategori
-        );
+        // Auto-fill activity from kegiatan harian
+        console.log('Checking kegiatanHarian:', kegiatanHarian);
+        if (kegiatanHarian && kegiatanHarian.length > 0) {
+            const activities = kegiatanHarian.map(k => k.nama_aktivitas).join(', ');
+            console.log('Activities string:', activities);
+            updates.activity = activities;
+        }
+
+        console.log('Final updates:', updates);
+
+        // Update all fields at once
+        setData(prev => ({
+            ...prev,
+            ...updates
+        }));
     };
 
     const submit: FormEventHandler = (e) => {
@@ -154,359 +205,342 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                     <form onSubmit={submit} className="mx-auto max-w-4xl space-y-4 pb-20">
                         {/* Siswa & Tanggal */}
                         <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
-                        <h2 className="text-lg font-semibold">Siswa & Tanggal</h2>
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div className="space-y-2">
-                                <Label>Siswa *</Label>
-                                <Select
-                                    value={data.siswa_id}
-                                    onValueChange={(value) => {
-                                        setData('siswa_id', value);
-                                        const siswa = siswaList.find(s => s.id.toString() === value);
-                                        setSelectedSiswa(siswa || null);
-                                    }}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih siswa" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {siswaList.map((siswa) => (
-                                            <SelectItem key={siswa.id} value={siswa.id.toString()}>
-                                                {siswa.nama_lengkap}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Tanggal *</Label>
-                                <Input
-                                    type="date"
-                                    value={data.tanggal}
-                                    onChange={(e) => setData('tanggal', e.target.value)}
-                                    required
-                                />
+                            <h2 className="text-lg font-semibold">Siswa & Tanggal</h2>
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label>Siswa *</Label>
+                                    <Select
+                                        value={data.siswa_id}
+                                        onValueChange={handleSiswaChange}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih siswa" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {siswaList.map((siswa) => (
+                                                <SelectItem key={siswa.id} value={siswa.id.toString()}>
+                                                    {siswa.nama_lengkap}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Tanggal *</Label>
+                                    <Input
+                                        type="date"
+                                        value={data.tanggal}
+                                        onChange={(e) => setData('tanggal', e.target.value)}
+                                        required
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
                         {/* Mood & Activity */}
                         <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
-                        <h2 className="text-lg font-semibold">😊 Mood & Aktivitas</h2>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Mood</Label>
-                                <Select value={data.mood} onValueChange={(value) => setData('mood', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih mood" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Happy">😊 Happy</SelectItem>
-                                        <SelectItem value="Neutral">😐 Neutral</SelectItem>
-                                        <SelectItem value="Sad">😢 Sad</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Aktivitas Hari Ini</Label>
-                                <Textarea
-                                    value={data.activity}
-                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                                        setData('activity', e.target.value)
-                                    }
-                                    placeholder="Jelaskan aktivitas hari ini..."
-                                    rows={3}
-                                />
+                            <h2 className="text-lg font-semibold">😊 Mood & Aktivitas</h2>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Mood</Label>
+                                    <Select value={data.mood} onValueChange={(value) => setData('mood', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih mood" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Happy">😊 Happy</SelectItem>
+                                            <SelectItem value="Neutral">😐 Neutral</SelectItem>
+                                            <SelectItem value="Sad">😢 Sad</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Aktivitas Hari Ini</Label>
+                                    <Textarea
+                                        value={data.activity}
+                                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                                            setData('activity', e.target.value)
+                                        }
+                                        placeholder="Aktivitas akan terisi otomatis setelah memilih siswa..."
+                                        rows={3}
+                                    />
+                                    {kegiatanHarian && kegiatanHarian.length > 0 && (
+                                        <p className="text-xs text-muted-foreground">
+                                            ✓ Aktivitas dari jadwal: {kegiatanHarian.map(k => k.nama_aktivitas).join(', ')}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
                         {/* Makanan */}
                         <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
-                        <h2 className="text-lg font-semibold">🍽️ Makanan & Minuman</h2>
-                        <div className="space-y-4">
+                            <h2 className="text-lg font-semibold">🍽️ Makanan & Minuman</h2>
                             <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Sarapan Pagi</Label>
-                                    <Select
-                                        value={data.sarapan_pagi}
-                                        onValueChange={(value) => setData('sarapan_pagi', value)}
-                                        disabled={!selectedSiswa}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={selectedSiswa ? "Pilih menu sarapan" : "Pilih siswa terlebih dahulu"} />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {getFilteredMenu('sarapan').map((menu) => (
-                                                <SelectItem key={menu.id} value={menu.nama_menu}>
-                                                    {menu.nama_menu}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Sarapan Pagi</Label>
+                                        <Input
+                                            value={data.sarapan_pagi}
+                                            readOnly
+                                            disabled
+                                            placeholder="Pilih siswa untuk melihat menu"
+                                            className="bg-gray-50"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Menu otomatis berdasarkan kelas siswa
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Rating Sarapan *</Label>
+                                        <StarRating
+                                            value={data.sarapan_status}
+                                            onChange={(value) => setData('sarapan_status', value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            {data.sarapan_status === 0 && 'Belum dinilai'}
+                                            {data.sarapan_status === 1 && '⭐ Tidak dimakan'}
+                                            {data.sarapan_status === 2 && '⭐⭐ Sedikit'}
+                                            {data.sarapan_status === 3 && '⭐⭐⭐ Cukup'}
+                                            {data.sarapan_status === 4 && '⭐⭐⭐⭐ Banyak'}
+                                            {data.sarapan_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Rating Sarapan</Label>
-                                    <StarRating
-                                        value={data.sarapan_status}
-                                        onChange={(value) => setData('sarapan_status', value)}
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                        {data.sarapan_status === 0 && 'Belum dinilai'}
-                                        {data.sarapan_status === 1 && '⭐ Tidak dimakan'}
-                                        {data.sarapan_status === 2 && '⭐⭐ Sedikit'}
-                                        {data.sarapan_status === 3 && '⭐⭐⭐ Cukup'}
-                                        {data.sarapan_status === 4 && '⭐⭐⭐⭐ Banyak'}
-                                        {data.sarapan_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
-                                    </p>
-                                </div>
-                            </div>
 
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Makan Siang</Label>
-                                    <Select
-                                        value={data.makan_siang}
-                                        onValueChange={(value) => setData('makan_siang', value)}
-                                        disabled={!selectedSiswa}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={selectedSiswa ? "Pilih menu makan siang" : "Pilih siswa terlebih dahulu"} />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {getFilteredMenu('makan_siang').map((menu) => (
-                                                <SelectItem key={menu.id} value={menu.nama_menu}>
-                                                    {menu.nama_menu}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Makan Siang</Label>
+                                        <Input
+                                            value={data.makan_siang}
+                                            readOnly
+                                            disabled
+                                            placeholder="Pilih siswa untuk melihat menu"
+                                            className="bg-gray-50"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Menu otomatis berdasarkan kelas siswa
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Rating Makan Siang *</Label>
+                                        <StarRating
+                                            value={data.makan_siang_status}
+                                            onChange={(value) => setData('makan_siang_status', value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            {data.makan_siang_status === 0 && 'Belum dinilai'}
+                                            {data.makan_siang_status === 1 && '⭐ Tidak dimakan'}
+                                            {data.makan_siang_status === 2 && '⭐⭐ Sedikit'}
+                                            {data.makan_siang_status === 3 && '⭐⭐⭐ Cukup'}
+                                            {data.makan_siang_status === 4 && '⭐⭐⭐⭐ Banyak'}
+                                            {data.makan_siang_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Rating Makan Siang</Label>
-                                    <StarRating
-                                        value={data.makan_siang_status}
-                                        onChange={(value) => setData('makan_siang_status', value)}
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                        {data.makan_siang_status === 0 && 'Belum dinilai'}
-                                        {data.makan_siang_status === 1 && '⭐ Tidak dimakan'}
-                                        {data.makan_siang_status === 2 && '⭐⭐ Sedikit'}
-                                        {data.makan_siang_status === 3 && '⭐⭐⭐ Cukup'}
-                                        {data.makan_siang_status === 4 && '⭐⭐⭐⭐ Banyak'}
-                                        {data.makan_siang_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
-                                    </p>
-                                </div>
-                            </div>
 
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Snack Sore</Label>
-                                    <Select
-                                        value={data.snack_sore}
-                                        onValueChange={(value) => setData('snack_sore', value)}
-                                        disabled={!selectedSiswa}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={selectedSiswa ? "Pilih menu snack" : "Pilih siswa terlebih dahulu"} />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {getFilteredMenu('snack').map((menu) => (
-                                                <SelectItem key={menu.id} value={menu.nama_menu}>
-                                                    {menu.nama_menu}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Snack Sore</Label>
+                                        <Input
+                                            value={data.snack_sore}
+                                            readOnly
+                                            disabled
+                                            placeholder="Pilih siswa untuk melihat menu"
+                                            className="bg-gray-50"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Menu otomatis berdasarkan kelas siswa
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Rating Snack *</Label>
+                                        <StarRating
+                                            value={data.snack_status}
+                                            onChange={(value) => setData('snack_status', value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            {data.snack_status === 0 && 'Belum dinilai'}
+                                            {data.snack_status === 1 && '⭐ Tidak dimakan'}
+                                            {data.snack_status === 2 && '⭐⭐ Sedikit'}
+                                            {data.snack_status === 3 && '⭐⭐⭐ Cukup'}
+                                            {data.snack_status === 4 && '⭐⭐⭐⭐ Banyak'}
+                                            {data.snack_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Rating Snack</Label>
-                                    <StarRating
-                                        value={data.snack_status}
-                                        onChange={(value) => setData('snack_status', value)}
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                        {data.snack_status === 0 && 'Belum dinilai'}
-                                        {data.snack_status === 1 && '⭐ Tidak dimakan'}
-                                        {data.snack_status === 2 && '⭐⭐ Sedikit'}
-                                        {data.snack_status === 3 && '⭐⭐⭐ Cukup'}
-                                        {data.snack_status === 4 && '⭐⭐⭐⭐ Banyak'}
-                                        {data.snack_status === 5 && '⭐⭐⭐⭐⭐ Habis'}
-                                    </p>
-                                </div>
-                            </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label>Minum Air Putih</Label>
-                                    <Input
-                                        value={data.minum_air_putih}
-                                        onChange={(e) => setData('minum_air_putih', e.target.value)}
-                                        placeholder="3 gelas"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Minum Susu</Label>
-                                    <Input
-                                        value={data.minum_susu}
-                                        onChange={(e) => setData('minum_susu', e.target.value)}
-                                        placeholder="1 kotak"
-                                    />
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label>Minum Air Putih</Label>
+                                        <Input
+                                            value={data.minum_air_putih}
+                                            onChange={(e) => setData('minum_air_putih', e.target.value)}
+                                            placeholder="3 gelas"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Minum Susu</Label>
+                                        <Input
+                                            value={data.minum_susu}
+                                            onChange={(e) => setData('minum_susu', e.target.value)}
+                                            placeholder="1 kotak"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
                         {/* Tidur & Toilet */}
                         <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
-                        <h2 className="text-lg font-semibold">😴 Tidur & Toilet</h2>
-                        <div className="space-y-4">
-                            <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    id="tidur_siang"
-                                    checked={data.tidur_siang}
-                                    onCheckedChange={(checked) => setData('tidur_siang', Boolean(checked))}
-                                />
-                                <Label htmlFor="tidur_siang">Tidur Siang</Label>
-                            </div>
-                            {data.tidur_siang && (
-                                <div className="space-y-2">
-                                    <Label>Durasi Tidur</Label>
-                                    <Input
-                                        value={data.tidur_siang_durasi}
-                                        onChange={(e) => setData('tidur_siang_durasi', e.target.value)}
-                                        placeholder="1 jam"
+                            <h2 className="text-lg font-semibold">😴 Tidur & Toilet</h2>
+                            <div className="space-y-4">
+                                <div className="flex items-center space-x-3">
+                                    <Checkbox
+                                        id="tidur_siang"
+                                        checked={data.tidur_siang}
+                                        onCheckedChange={(checked) => setData('tidur_siang', Boolean(checked))}
                                     />
+                                    <Label htmlFor="tidur_siang">Tidur Siang</Label>
                                 </div>
-                            )}
+                                {data.tidur_siang && (
+                                    <div className="space-y-2">
+                                        <Label>Durasi Tidur</Label>
+                                        <Input
+                                            value={data.tidur_siang_durasi}
+                                            onChange={(e) => setData('tidur_siang_durasi', e.target.value)}
+                                            placeholder="1 jam"
+                                        />
+                                    </div>
+                                )}
 
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <div className="flex items-center space-x-3">
-                                        <Checkbox
-                                            id="bak"
-                                            checked={data.bak}
-                                            onCheckedChange={(checked) => setData('bak', Boolean(checked))}
-                                        />
-                                        <Label htmlFor="bak">BAK</Label>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <div className="flex items-center space-x-3">
+                                            <Checkbox
+                                                id="bak"
+                                                checked={data.bak}
+                                                onCheckedChange={(checked) => setData('bak', Boolean(checked))}
+                                            />
+                                            <Label htmlFor="bak">BAK</Label>
+                                        </div>
+                                        {data.bak && (
+                                            <Input
+                                                type="number"
+                                                inputMode="numeric"
+                                                value={data.bak_frekuensi}
+                                                onChange={(e) => setData('bak_frekuensi', e.target.value)}
+                                                placeholder="Frekuensi (contoh: 3)"
+                                                min="0"
+                                            />
+                                        )}
                                     </div>
-                                    {data.bak && (
-                                        <Input
-                                            type="number"
-                                            inputMode="numeric"
-                                            value={data.bak_frekuensi}
-                                            onChange={(e) => setData('bak_frekuensi', e.target.value)}
-                                            placeholder="Frekuensi (contoh: 3)"
-                                            min="0"
-                                        />
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex items-center space-x-3">
-                                        <Checkbox
-                                            id="bab"
-                                            checked={data.bab}
-                                            onCheckedChange={(checked) => setData('bab', Boolean(checked))}
-                                        />
-                                        <Label htmlFor="bab">BAB</Label>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center space-x-3">
+                                            <Checkbox
+                                                id="bab"
+                                                checked={data.bab}
+                                                onCheckedChange={(checked) => setData('bab', Boolean(checked))}
+                                            />
+                                            <Label htmlFor="bab">BAB</Label>
+                                        </div>
+                                        {data.bab && (
+                                            <Input
+                                                type="number"
+                                                inputMode="numeric"
+                                                value={data.bab_frekuensi}
+                                                onChange={(e) => setData('bab_frekuensi', e.target.value)}
+                                                placeholder="Frekuensi (contoh: 1)"
+                                                min="0"
+                                            />
+                                        )}
                                     </div>
-                                    {data.bab && (
-                                        <Input
-                                            type="number"
-                                            inputMode="numeric"
-                                            value={data.bab_frekuensi}
-                                            onChange={(e) => setData('bab_frekuensi', e.target.value)}
-                                            placeholder="Frekuensi (contoh: 1)"
-                                            min="0"
-                                        />
-                                    )}
                                 </div>
                             </div>
                         </div>
-                    </div>
 
                         {/* Catatan */}
                         <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
-                        <h2 className="text-lg font-semibold">📝 Catatan</h2>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Kebutuhan Besok</Label>
-                                <Textarea
-                                    value={data.kebutuhan_besok}
-                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                                        setData('kebutuhan_besok', e.target.value)
-                                    }
-                                    placeholder="Bawa baju ganti, dll"
-                                    rows={2}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Catatan Khusus</Label>
-                                <Textarea
-                                    value={data.catatan_khusus}
-                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                                        setData('catatan_khusus', e.target.value)
-                                    }
-                                    placeholder="Catatan penting..."
-                                    rows={2}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Catatan Insiden</Label>
-                                <Textarea
-                                    value={data.catatan_insiden}
-                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                                        setData('catatan_insiden', e.target.value)
-                                    }
-                                    placeholder="Jika ada insiden..."
-                                    rows={2}
-                                />
+                            <h2 className="text-lg font-semibold">📝 Catatan</h2>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Kebutuhan Besok</Label>
+                                    <Textarea
+                                        value={data.kebutuhan_besok}
+                                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                                            setData('kebutuhan_besok', e.target.value)
+                                        }
+                                        placeholder="Bawa baju ganti, dll"
+                                        rows={2}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Catatan Khusus</Label>
+                                    <Textarea
+                                        value={data.catatan_khusus}
+                                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                                            setData('catatan_khusus', e.target.value)
+                                        }
+                                        placeholder="Catatan penting..."
+                                        rows={2}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Catatan Insiden</Label>
+                                    <Textarea
+                                        value={data.catatan_insiden}
+                                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                                            setData('catatan_insiden', e.target.value)
+                                        }
+                                        placeholder="Jika ada insiden..."
+                                        rows={2}
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
                         {/* Foto */}
                         <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
-                        <h2 className="text-lg font-semibold">📸 Foto Kegiatan</h2>
-                        <Input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                setData('foto_kegiatan', file);
+                            <h2 className="text-lg font-semibold">📸 Foto Kegiatan</h2>
+                            <Input
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0] || null;
+                                    setData('foto_kegiatan', file);
 
-                                if (file) {
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                        setPreviewUrl(reader.result as string);
-                                    };
-                                    reader.readAsDataURL(file);
-                                } else {
-                                    setPreviewUrl(null);
-                                }
-                            }}
-                        />
-                        {previewUrl && (
-                            <div className="relative">
-                                <img
-                                    src={previewUrl}
-                                    alt="Preview"
-                                    className="w-full rounded-lg shadow-md"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setData('foto_kegiatan', null);
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => {
+                                            setPreviewUrl(reader.result as string);
+                                        };
+                                        reader.readAsDataURL(file);
+                                    } else {
                                         setPreviewUrl(null);
-                                    }}
-                                    className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                                    }
+                                }}
+                            />
+                            {previewUrl && (
+                                <div className="relative">
+                                    <img
+                                        src={previewUrl}
+                                        alt="Preview"
+                                        className="w-full rounded-lg shadow-md"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setData('foto_kegiatan', null);
+                                            setPreviewUrl(null);
+                                        }}
+                                        className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            )}
+                        </div>
 
                         {/* Submit Button */}
                         <Button

@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Log;
 class NotificationService
 {
     public function __construct(
-        
-    protected WhatsAppGateway $gateway
+
+        protected WhatsAppGateway $gateway
     ) {}
 
     public function sendDailyReportToParent(DailyReport $report): void
@@ -61,20 +61,29 @@ class NotificationService
         };
 
         $message = "*📋 DAILY REPORT - {$siswa->nama_lengkap}*\n";
-        $message .= "━━━━━━━━━\n\n";
-        $message .= "� {{$date}\n";
-        $message .= "� Mood: {$report->mood}\n\n";
+        $message .= "━━━━━━━━━\n";
+        $message .= "\n";
+        $message .= "📅 {$date}\n";
+        $message .= "😊 Mood: {$report->mood}\n";
+        $message .= "\n";
+
+        // Activity
+        if ($report->activity) {
+            $message .= "🎯 *Aktivitas Hari Ini:*\n";
+            $message .= "{$report->activity}\n";
+            $message .= "\n";
+        }
 
         // Ringkasan makanan
         $message .= "🍽️ *Makanan:*\n";
         if ($report->sarapan_pagi) {
-            $message .= "• Sarapan: {$ratingText($report->sarapan_status)}\n";
+            $message .= "• Sarapan: {$report->sarapan_pagi} {$ratingText($report->sarapan_status)}\n";
         }
         if ($report->makan_siang) {
-            $message .= "• Makan Siang: {$ratingText($report->makan_siang_status)}\n";
+            $message .= "• Makan Siang: {$report->makan_siang} {$ratingText($report->makan_siang_status)}\n";
         }
         if ($report->snack_sore) {
-            $message .= "• Snack: {$ratingText($report->snack_status)}\n";
+            $message .= "• Snack: {$report->snack_sore} {$ratingText($report->snack_status)}\n";
         }
         $message .= "\n";
 
@@ -82,25 +91,32 @@ class NotificationService
         $message .= "😴 *Tidur & Toilet:*\n";
         $message .= '• Tidur Siang: '.($report->tidur_siang ? '✅' : '❌')."\n";
         $message .= '• BAK: '.($report->bak ? "✅ {$report->bak_frekuensi}x" : '❌')."\n";
-        $message .= '• BAB: '.($report->bab ? "✅ {$report->bab_frekuensi}x" : '❌')."\n\n";
+        $message .= '• BAB: '.($report->bab ? "✅ {$report->bab_frekuensi}x" : '❌')."\n";
+        $message .= "\n";
 
         // Highlight catatan penting
         if ($report->catatan_insiden) {
-            $message .= "⚠️ *Ada Catatan Insiden*\n\n";
+            $message .= "⚠️ *Ada Catatan Insiden*\n";
+            $message .= "\n";
         } elseif ($report->catatan_khusus) {
-            $message .= "📝 *Ada Catatan Khusus*\n\n";
+            $message .= "� **Ada Catatan Khusus*\n";
+            $message .= "\n";
         }
 
         if ($report->kebutuhan_besok) {
-            $message .= "📦 *Kebutuhan Besok:*\n{$report->kebutuhan_besok}\n\n";
+            $message .= "📦 *Kebutuhan Besok:*\n";
+            $message .= "{$report->kebutuhan_besok}\n";
+            $message .= "\n";
         }
 
-        $message .= "━━━━━━━━━\n\n";
+        $message .= "━━━━━━━━━\n";
+        $message .= "\n";
 
         // Call to action - buka aplikasi
-        $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP*\n\n";
-
-        $message .= "Lihat foto kegiatan, detail makanan, dan catatan lengkap dari Aunty {$guruName}\n\n";
+        $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP*\n";
+        $message .= "\n";
+        $message .= "Lihat foto kegiatan, detail makanan, dan catatan lengkap dari Aunty {$guruName}\n";
+        $message .= "\n";
         $message .= '_Terima kasih atas kepercayaan Anda_ 🙏';
 
         return $message;

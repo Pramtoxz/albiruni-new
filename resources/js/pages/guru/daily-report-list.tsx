@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Plus, User } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Calendar, Plus, User, Edit, Send } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface DailyReport {
     id: number;
@@ -12,6 +13,7 @@ interface DailyReport {
         nama_panggilan: string;
     };
     activity: string;
+    is_final: boolean;
 }
 
 interface Props {
@@ -51,6 +53,48 @@ export default function DailyReportList({ reports }: Props) {
         ];
 
         return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    };
+
+    const handleFinalize = (e: React.MouseEvent, reportId: number, siswaName: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        Swal.fire({
+            title: 'Kirim Notifikasi?',
+            text: `Daily report untuk ${siswaName} akan dikirim ke orang tua dan tidak bisa diedit lagi.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Kirim!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(
+                    `/guru/daily-report/${reportId}/finalize`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Daily report berhasil dikirim ke orang tua',
+                                confirmButtonColor: '#3085d6',
+                            });
+                        },
+                        onError: () => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan saat mengirim notifikasi',
+                                confirmButtonColor: '#d33',
+                            });
+                        },
+                    }
+                );
+            }
+        });
     };
 
     return (
@@ -110,11 +154,11 @@ export default function DailyReportList({ reports }: Props) {
                         </Card>
                     ) : (
                         reports.data.map((report) => (
-                            <Link key={report.id} href={`/guru/daily-report/${report.id}`}>
-                                <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-white hover:shadow-xl transition-all hover:scale-[1.02] relative">
-                                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-300 to-purple-300 rounded-bl-full opacity-30"></div>
-                                    <CardContent className="p-4 relative z-10">
-                                        <div className="flex gap-3">
+                            <Card key={report.id} className="border-0 shadow-lg rounded-3xl overflow-hidden bg-white hover:shadow-xl transition-all relative">
+                                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-300 to-purple-300 rounded-bl-full opacity-30"></div>
+                                <CardContent className="p-4 relative z-10">
+                                    <Link href={`/guru/daily-report/${report.id}`}>
+                                        <div className="flex gap-3 mb-3">
                                             <div className="relative">
                                                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-200 to-orange-300 text-3xl shadow-md">
                                                     {getMoodEmoji(report.mood)}
@@ -126,6 +170,16 @@ export default function DailyReportList({ reports }: Props) {
                                                     <h3 className="font-bold text-gray-800">
                                                         {report.siswa.nama_lengkap}
                                                     </h3>
+                                                    {report.is_final && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            Final
+                                                        </span>
+                                                    )}
+                                                    {!report.is_final && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            Draft
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div className="mb-2 flex items-center gap-2 text-xs text-gray-600">
                                                     <Calendar className="h-3 w-3" />
@@ -138,9 +192,33 @@ export default function DailyReportList({ reports }: Props) {
                                                 )}
                                             </div>
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            </Link>
+                                    </Link>
+                                    
+                                    {!report.is_final && (
+                                        <div className="flex gap-2 pt-3 border-t">
+                                            <Link href={`/guru/daily-report/${report.id}/edit`} className="flex-1">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="w-full"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <Edit className="h-4 w-4 mr-1" />
+                                                    Edit
+                                                </Button>
+                                            </Link>
+                                            <Button
+                                                size="sm"
+                                                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                                                onClick={(e) => handleFinalize(e, report.id, report.siswa.nama_lengkap)}
+                                            >
+                                                <Send className="h-4 w-4 mr-1" />
+                                                Kirim Notifikasi
+                                            </Button>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
                         ))
                     )}
                 </div>

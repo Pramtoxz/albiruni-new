@@ -31,6 +31,7 @@ class DailyReport extends Model
         'catatan_khusus',
         'catatan_insiden',
         'foto_kegiatan',
+        'is_final',
     ];
 
     protected $casts = [
@@ -38,6 +39,7 @@ class DailyReport extends Model
         'tidur_siang' => 'boolean',
         'bak' => 'boolean',
         'bab' => 'boolean',
+        'is_final' => 'boolean',
     ];
 
     public function user(): BelongsTo
