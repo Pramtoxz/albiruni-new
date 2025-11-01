@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Guru;
-use App\Models\User;
 use App\Models\Kelas;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class GuruController extends Controller
@@ -29,7 +28,7 @@ class GuruController extends Controller
         $availableUsers = User::where('role', 'guru')
             ->whereDoesntHave('guru')
             ->get(['id', 'name', 'email']);
-            
+
         $kelas = Kelas::all();
 
         return Inertia::render('admin/guru/create', [
@@ -63,7 +62,7 @@ class GuruController extends Controller
         $fotoPath = null;
         if ($request->hasFile('foto_guru')) {
             $file = $request->file('foto_guru');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('assets/images/foto_guru'), $filename);
             $fotoPath = $filename;
         }
@@ -100,7 +99,7 @@ class GuruController extends Controller
     public function update(Request $request, Guru $guru)
     {
         $validated = $request->validate([
-            'nip' => 'nullable|unique:gurus,nip,' . $guru->id,
+            'nip' => 'nullable|unique:gurus,nip,'.$guru->id,
             'nama_lengkap' => 'required|string|max:255',
             'kelas_id' => 'nullable|exists:kelas,id',
             'tempat_lahir' => 'nullable|string|max:255',
@@ -119,12 +118,12 @@ class GuruController extends Controller
         // Handle foto upload
         if ($request->hasFile('foto_guru')) {
             // Delete old photo
-            if ($guru->foto_guru && file_exists(public_path('assets/images/foto_guru/' . $guru->foto_guru))) {
-                unlink(public_path('assets/images/foto_guru/' . $guru->foto_guru));
+            if ($guru->foto_guru && file_exists(public_path('assets/images/foto_guru/'.$guru->foto_guru))) {
+                unlink(public_path('assets/images/foto_guru/'.$guru->foto_guru));
             }
 
             $file = $request->file('foto_guru');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('assets/images/foto_guru'), $filename);
             $validated['foto_guru'] = $filename;
         } else {
@@ -151,8 +150,8 @@ class GuruController extends Controller
     public function destroy(Guru $guru)
     {
         // Delete photo if exists
-        if ($guru->foto_guru && file_exists(public_path('assets/images/foto_guru/' . $guru->foto_guru))) {
-            unlink(public_path('assets/images/foto_guru/' . $guru->foto_guru));
+        if ($guru->foto_guru && file_exists(public_path('assets/images/foto_guru/'.$guru->foto_guru))) {
+            unlink(public_path('assets/images/foto_guru/'.$guru->foto_guru));
         }
 
         // Delete guru (will cascade delete user)
