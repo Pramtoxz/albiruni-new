@@ -16,6 +16,8 @@ import {
     Smile,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { NotifikasiModal } from '@/components/notifikasi-modal';
+import { useState } from 'react';
 import LogoAlbiruni from "@/assets/home/logo.webp"
 import IconDaily from "@/assets/menu/orangtua/daily.webp"
 import IconSpp from "@/assets/menu/orangtua/spp.webp"
@@ -41,6 +43,15 @@ interface KegiatanHarian {
     tanggal: string;
 }
 
+interface Notifikasi {
+    id: number;
+    type: string;
+    title: string;
+    message: string;
+    updated_at: string;
+    url: string;
+}
+
 interface PageProps {
     auth: {
         user: {
@@ -51,11 +62,16 @@ interface PageProps {
     };
     siswa: Siswa | null;
     kegiatanHariIni: KegiatanHarian[];
+    notifikasi: Notifikasi[];
     [key: string]: any;
 }
 
 export default function OrangtuaDashboard() {
-    const { auth, siswa, kegiatanHariIni } = usePage<PageProps>().props;
+    const { auth, siswa, kegiatanHariIni, notifikasi } = usePage<PageProps>().props;
+    const [showNotifikasi, setShowNotifikasi] = useState(false);
+
+    // Debug notifikasi
+    console.log('Notifikasi:', notifikasi);
 
     const handleLogout = () => {
         Swal.fire({
@@ -132,9 +148,12 @@ export default function OrangtuaDashboard() {
                                 variant="ghost"
                                 size="icon"
                                 className="text-white hover:bg-white/20 rounded-full h-10 w-10 relative"
+                                onClick={() => setShowNotifikasi(true)}
                             >
                                 <Bell className="h-5 w-5" />
-                                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
+                                {notifikasi && notifikasi.length > 0 && (
+                                    <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
+                                )}
                             </Button>
                             <Button
                                 variant="ghost"
@@ -339,6 +358,13 @@ export default function OrangtuaDashboard() {
                     </div>
                 )}
             </div>
+
+            {/* Notifikasi Modal */}
+            <NotifikasiModal
+                open={showNotifikasi}
+                onClose={() => setShowNotifikasi(false)}
+                notifikasi={notifikasi || []}
+            />
         </>
     );
 }
