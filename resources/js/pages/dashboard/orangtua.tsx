@@ -29,6 +29,16 @@ interface Siswa {
     nama_panggilan: string;
     kelas?: string;
     foto_siswa?: string;
+    is_active: boolean;
+}
+
+interface KegiatanHarian {
+    id: number;
+    nama_aktivitas: string;
+    deskripsi: string;
+    target_perkembangan: string;
+    foto_kegiatan?: string;
+    tanggal: string;
 }
 
 interface PageProps {
@@ -40,11 +50,12 @@ interface PageProps {
         };
     };
     siswa: Siswa | null;
+    kegiatanHariIni: KegiatanHarian[];
     [key: string]: any;
 }
 
 export default function OrangtuaDashboard() {
-    const { auth, siswa } = usePage<PageProps>().props;
+    const { auth, siswa, kegiatanHariIni } = usePage<PageProps>().props;
 
     const handleLogout = () => {
         Swal.fire({
@@ -68,27 +79,23 @@ export default function OrangtuaDashboard() {
     };
 
     const quickActions = [
-        { icon: FileText, label: 'Daily Report', color: 'from-blue-400 to-blue-600', imageSrc:IconDaily, href: '/orangtua/daily-report' },
-        { icon: CreditCard, label: 'Pembayaran', color: 'from-orange-400 to-orange-600', imageSrc:IconSpp, href: '/orangtua/pembayaran' },
-        { icon: BookOpen, label: 'Kegiatan', color: 'from-green-400 to-green-600', imageSrc:IconKegiatan, href: '/orangtua/rapor' },
-        { icon: Calendar, label: 'Absensi', color: 'from-purple-400 to-purple-600', imageSrc:IconGaleri, href: '/orangtua/absensi' },
+        { icon: FileText, label: 'Daily Report', color: 'from-blue-400 to-blue-600', imageSrc: IconDaily, href: '/orangtua/daily-report' },
+        { icon: CreditCard, label: 'Pembayaran', color: 'from-orange-400 to-orange-600', imageSrc: IconSpp, href: '/orangtua/pembayaran' },
+        { icon: BookOpen, label: 'Kegiatan', color: 'from-green-400 to-green-600', imageSrc: IconKegiatan, href: '/orangtua/kegiatan-harian' },
+        { icon: Calendar, label: 'Absensi', color: 'from-purple-400 to-purple-600', imageSrc: IconGaleri, href: '/orangtua/absensi' },
     ];
 
     return (
         <>
             <Head title="Dashboard Orang Tua" />
 
-            {/* Kindergarten Theme Layout */}
             <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 pb-8 relative overflow-hidden">
-                {/* Decorative Background Elements */}
                 <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full opacity-20 -translate-x-16 -translate-y-16"></div>
                 <div className="absolute top-20 right-0 w-24 h-24 bg-pink-300 rounded-full opacity-20 translate-x-12"></div>
                 <div className="absolute bottom-40 left-10 w-20 h-20 bg-blue-300 rounded-full opacity-20"></div>
                 <div className="absolute bottom-20 right-20 w-28 h-28 bg-purple-300 rounded-full opacity-20"></div>
 
-                {/* Header with Playful Design - Keep for Dashboard */}
                 <div className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 px-4 pb-12 pt-12 text-white shadow-lg">
-                    {/* Floating Stars Decoration */}
                     <div className="absolute top-4 right-4 animate-bounce">
                         <Star className="h-6 w-6 text-yellow-300 fill-yellow-300" />
                     </div>
@@ -99,16 +106,16 @@ export default function OrangtuaDashboard() {
                     <div className="mb-6 flex items-center justify-between relative z-10">
                         <div className="flex items-center gap-3">
                             <div className="relative">
-                               <Avatar className="h-14 w-14 border-2 border-white shadow-lg ring-4 ring-yellow-300/50">
-                                <AvatarImage 
-                                    src={LogoAlbiruni} 
-                                    alt="Logo Albiruni" 
-                                   className="object-cover scale-125"
-                                />
-                                <AvatarFallback className="bg-gradient-to-br from-yellow-300 to-orange-400 text-white text-xl font-bold">
-                                </AvatarFallback>
-                                A
-                              </Avatar>
+                                <Avatar className="h-14 w-14 border-2 border-white shadow-lg ring-4 ring-yellow-300/50">
+                                    <AvatarImage
+                                        src={LogoAlbiruni}
+                                        alt="Logo Albiruni"
+                                        className="object-cover scale-125"
+                                    />
+                                    <AvatarFallback className="bg-gradient-to-br from-yellow-300 to-orange-400 text-white text-xl font-bold">
+                                    </AvatarFallback>
+                                    A
+                                </Avatar>
                                 <div className="absolute -bottom-1 -right-1 bg-green-400 rounded-full p-1 border-2 border-white">
                                     <Smile className="h-3 w-3 text-white" />
                                 </div>
@@ -143,47 +150,69 @@ export default function OrangtuaDashboard() {
 
                     {/* Cute Student Info Card */}
                     {siswa ? (
-                        <Card className="border-0 bg-white/95 backdrop-blur shadow-xl rounded-3xl overflow-hidden relative">
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-300 to-purple-300 rounded-bl-full opacity-50"></div>
-                            <CardContent className="p-5 relative z-10">
-                                <div className="flex items-center gap-4">
-                                    {siswa.foto_siswa ? (
-                                        <div className="relative">
-                                            <Avatar className="h-16 w-16 border-4 border-white shadow-lg ring-4 ring-pink-200">
-                                                <AvatarImage src={`/assets/images/foto_siswa/${siswa.foto_siswa}`} />
-                                                <AvatarFallback className="bg-gradient-to-br from-pink-300 to-purple-400 text-white text-2xl font-bold">
-                                                    {siswa.nama_panggilan.charAt(0).toUpperCase()}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 border-2 border-white shadow-md">
-                                                <Star className="h-4 w-4 text-white fill-white" />
+                        siswa.is_active ? (
+                            <Card className="border-0 bg-white/95 backdrop-blur shadow-xl rounded-3xl overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-300 to-purple-300 rounded-bl-full opacity-50"></div>
+                                <CardContent className="p-5 relative z-10">
+                                    <div className="flex items-center gap-4">
+                                        {siswa.foto_siswa ? (
+                                            <div className="relative">
+                                                <Avatar className="h-16 w-16 border-4 border-white shadow-lg ring-4 ring-pink-200">
+                                                    <AvatarImage src={`/assets/images/foto_siswa/${siswa.foto_siswa}`} />
+                                                    <AvatarFallback className="bg-gradient-to-br from-pink-300 to-purple-400 text-white text-2xl font-bold">
+                                                        {siswa.nama_panggilan.charAt(0).toUpperCase()}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 border-2 border-white shadow-md">
+                                                    <Star className="h-4 w-4 text-white fill-white" />
+                                                </div>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="relative">
-                                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-300 to-purple-400 border-4 border-white shadow-lg ring-4 ring-pink-200">
-                                                <Users className="h-8 w-8 text-white" />
+                                        ) : (
+                                            <div className="relative">
+                                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-300 to-purple-400 border-4 border-white shadow-lg ring-4 ring-pink-200">
+                                                    <Users className="h-8 w-8 text-white" />
+                                                </div>
+                                                <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 border-2 border-white shadow-md">
+                                                    <Star className="h-4 w-4 text-white fill-white" />
+                                                </div>
                                             </div>
-                                            <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 border-2 border-white shadow-md">
-                                                <Star className="h-4 w-4 text-white fill-white" />
+                                        )}
+                                        <div className="flex-1">
+                                            <p className="text-xs font-semibold text-purple-600 flex items-center gap-1">
+                                                <Heart className="h-3 w-3 fill-pink-400 text-pink-400" />
+                                                Buah Hati Anda
+                                            </p>
+                                            <p className="text-xl font-bold text-gray-800 mt-0.5">{siswa.nama_panggilan}</p>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-xs bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full font-medium shadow-sm">
+                                                    {siswa.kelas ? siswa.kelas : 'Belum ada kelas'}
+                                                </span>
                                             </div>
-                                        </div>
-                                    )}
-                                    <div className="flex-1">
-                                        <p className="text-xs font-semibold text-purple-600 flex items-center gap-1">
-                                            <Heart className="h-3 w-3 fill-pink-400 text-pink-400" />
-                                            Buah Hati Anda
-                                        </p>
-                                        <p className="text-xl font-bold text-gray-800 mt-0.5">{siswa.nama_panggilan}</p>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-xs bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full font-medium shadow-sm">
-                                                {siswa.kelas ? siswa.kelas : 'Belum ada kelas'}
-                                            </span>
                                         </div>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <Card className="border-0 bg-white/95 backdrop-blur shadow-xl rounded-3xl overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-300 to-orange-300 rounded-bl-full opacity-50"></div>
+                                <CardContent className="p-6 relative z-10">
+                                    <div className="text-center">
+                                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-100 to-orange-100 rounded-full mb-4 border-4 border-red-200">
+                                            <span className="text-4xl">😔</span>
+                                        </div>
+                                        <p className="text-lg font-bold text-gray-800 mb-2">
+                                            Maaf, Buah Hati Anda Sudah Tidak Aktif
+                                        </p>
+                                        <p className="text-sm text-gray-600 mb-4">
+                                            Silakan hubungi admin untuk informasi lebih lanjut
+                                        </p>
+                                        <div className="inline-block text-xs bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 rounded-full font-medium shadow-sm">
+                                            Status: Tidak Aktif
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )
                     ) : (
                         <Card className="border-0 bg-white/95 backdrop-blur shadow-xl rounded-3xl">
                             <CardContent className="p-6">
@@ -201,102 +230,114 @@ export default function OrangtuaDashboard() {
                     )}
                 </div>
 
-                {/* Playful Quick Actions */}
-                <div className="-mt-8 px-4 relative z-20">
-                    <div className="grid grid-cols-4 gap-3">
-                        {quickActions.map((action, index) => (
-                            <Link
-                                key={index}
-                                href={action.href}
-                                className="group flex flex-col items-center gap-2 transition-all hover:scale-110 active:scale-95"
-                            >
-                                <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${action.color} text-white shadow-lg group-hover:shadow-xl transition-all transform group-hover:-translate-y-1`}>
-                                    {action.imageSrc ? (
-                    <img 
-                        src={action.imageSrc} 
-                        alt={action.label} 
-                        className="w-14 h-14 object-contain" 
-                    />
-                ) : (
-                    <span className="text-2xl">{action.imageSrc}</span>
-                )}
-                                    <div className="absolute -top-1 -right-1 bg-yellow-300 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Sparkles className="h-3 w-3 text-yellow-600" />
+                {/* Playful Quick Actions - Only show if student is active */}
+                {siswa && siswa.is_active && (
+                    <div className="-mt-8 px-4 relative z-20">
+                        <div className="grid grid-cols-4 gap-3">
+                            {quickActions.map((action, index) => (
+                                <Link
+                                    key={index}
+                                    href={action.href}
+                                    className="group flex flex-col items-center gap-2 transition-all hover:scale-110 active:scale-95"
+                                >
+                                    <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${action.color} text-white shadow-lg group-hover:shadow-xl transition-all transform group-hover:-translate-y-1`}>
+                                        {action.imageSrc ? (
+                                            <img
+                                                src={action.imageSrc}
+                                                alt={action.label}
+                                                className="w-14 h-14 object-contain"
+                                            />
+                                        ) : (
+                                            <span className="text-2xl">{action.imageSrc}</span>
+                                        )}
+                                        <div className="absolute -top-1 -right-1 bg-yellow-300 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Sparkles className="h-3 w-3 text-yellow-600" />
+                                        </div>
                                     </div>
-                                </div>
-                                <span className="text-xs font-bold text-gray-700 text-center leading-tight">{action.label}</span>
-                            </Link>
-                        ))}
+                                    <span className="text-xs font-bold text-gray-700 text-center leading-tight">{action.label}</span>
+                                </Link>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* Colorful Content Section */}
-                <div className="mt-8 space-y-5 px-4 relative z-10">
-                    {/* Pengumuman dengan Tema Ceria */}
-                    <Link href="/orangtua/pengumuman">
-                        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white hover:shadow-2xl transition-all cursor-pointer">
-                            <CardHeader className="pb-3 bg-gradient-to-r from-yellow-100 to-orange-100">
-                              <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <img 
-                                            src={IconPemberitahuan} 
-                                            alt="Logo" 
-                                            className="w-14 h-14 object-contain"
-                                        />
-                                        Pengumuman Terbaru
-                                    </div>
-                                    <span className="text-sm text-gray-600">Lihat semua →</span>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3 p-4">
-                                <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-l-4 border-blue-400">
-                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-400 shadow-md">
-                                        <Bell className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-bold text-gray-800">Libur Semester 🎉</p>
-                                        <p className="text-xs text-gray-600 mt-1">
-                                            Libur semester akan dimulai tanggal 20 Desember 2024
-                                        </p>
-                                        <p className="mt-2 text-xs text-blue-600 font-medium">2 hari yang lalu</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </Link>
-
-                    {/* Aktivitas Terkini dengan Desain Playful */}
-                    <Link href="/orangtua/pemberitahuan">
-                        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white hover:shadow-2xl transition-all cursor-pointer">
-                            <CardHeader className="pb-3 bg-gradient-to-r from-purple-100 to-pink-100">
-                                <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-2xl">⭐</span>
-                                        Aktivitas Terkini
-                                    </div>
-                                    <span className="text-sm text-gray-600">Lihat semua →</span>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3 p-4">
-                                <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-orange-50 to-yellow-50 p-4 border-2 border-orange-200">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-yellow-400 shadow-md">
-                                            <BookOpen className="h-6 w-6 text-white" />
+                {/* Colorful Content Section - Only show if student is active */}
+                {siswa && siswa.is_active && (
+                    <div className="mt-8 space-y-5 px-4 relative z-10">
+                        {/* Pengumuman dengan Tema Ceria */}
+                        <Link href="">
+                            <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white hover:shadow-2xl transition-all cursor-pointer">
+                                <CardHeader className="pb-3 bg-gradient-to-r from-yellow-100 to-orange-100">
+                                    <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <img
+                                                src={IconPemberitahuan}
+                                                alt="Logo"
+                                                className="w-14 h-14 object-contain"
+                                            />
+                                            Pengumuman Terbaru
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-gray-800">Tugas Menggambar 🎨</p>
-                                            <p className="text-xs text-gray-600">Sudah dikumpulkan</p>
+                                        <span className="text-sm text-gray-600">Lihat semua →</span>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-3 p-4">
+                                    <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-l-4 border-blue-400">
+                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-400 shadow-md">
+                                            <Bell className="h-6 w-6 text-white" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold text-gray-800">Al Biruni Mobile🎉</p>
+                                            <p className="text-xs text-gray-600 mt-1">
+                                                Baru Rumah Digital Al Biruni Sudah Hadir Untuk Menyalurkan Informasi Secara Real-Time Dari Buah Hati Anda
+                                            </p>
+                                            <p className="mt-2 text-xs text-blue-600 font-medium">2 hari yang lalu</p>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-2xl">✓</span>
-                                        <span className="text-xs font-bold text-green-600">Selesai</span>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </Link>
-                </div>
+                                </CardContent>
+                            </Card>
+                        </Link>
+
+                        {/* Aktivitas Terkini dengan Desain Playful */}
+                        <Link href="/orangtua/kegiatan-harian">
+                            <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white hover:shadow-2xl transition-all cursor-pointer">
+                                <CardHeader className="pb-3 bg-gradient-to-r from-purple-100 to-pink-100">
+                                    <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-2xl">⭐</span>
+                                            Aktivitas Hari Ini
+                                        </div>
+                                        <span className="text-sm text-gray-600">Lihat semua →</span>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-3 p-4">
+                                    {kegiatanHariIni && kegiatanHariIni.length > 0 ? (
+                                        kegiatanHariIni.slice(0, 2).map((kegiatan) => (
+                                            <div key={kegiatan.id} className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-orange-50 to-yellow-50 p-4 border-2 border-orange-200">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-yellow-400 shadow-md">
+                                                        <BookOpen className="h-6 w-6 text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-gray-800">{kegiatan.nama_aktivitas}</p>
+                                                        <p className="text-xs text-gray-600 line-clamp-1">{kegiatan.deskripsi}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-2xl">📚</span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-4">
+                                            <p className="text-sm text-gray-600">Belum ada kegiatan hari ini</p>
+                                            <p className="text-xs text-gray-500 mt-1">Klik untuk melihat semua kegiatan</p>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </Link>
+                    </div>
+                )}
             </div>
         </>
     );

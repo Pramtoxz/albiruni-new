@@ -9,7 +9,6 @@ import { LottieLoading } from './components/lottie-loading';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-// Create a simple event emitter for loading state
 const loadingEmitter = {
     listeners: new Set<(loading: boolean) => void>(),
     emit(loading: boolean) {
@@ -23,10 +22,14 @@ const loadingEmitter = {
     }
 };
 
-// Setup Inertia progress events
 let timeout: NodeJS.Timeout;
-router.on('start', () => {
-    timeout = setTimeout(() => loadingEmitter.emit(true), 250);
+router.on('start', (event) => {
+    const targetPage = event.detail.visit.url.pathname;
+    const isAdminRoute = targetPage.startsWith('/admin');
+
+    if (!isAdminRoute) {
+        timeout = setTimeout(() => loadingEmitter.emit(true), 250);
+    }
 });
 
 router.on('finish', () => {
@@ -38,11 +41,9 @@ function AppWrapper({ App, props }: any) {
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(props.initialPage?.component || '');
 
-    // Check if current page is admin page
     const isAdminPage = currentPage.startsWith('admin/');
 
     useEffect(() => {
-        // Update current page on navigation
         const unsubscribeNavigate = router.on('navigate', (event) => {
             setCurrentPage(event.detail.page.component);
         });
@@ -59,7 +60,6 @@ function AppWrapper({ App, props }: any) {
         <>
             <App {...props} />
             <OfflineIndicator />
-            {/* Only show LottieLoading for non-admin pages */}
             {isLoading && !isAdminPage && <LottieLoading />}
         </>
     );
@@ -84,24 +84,15 @@ createInertiaApp({
     },
 });
 
-// This will set light / dark mode on load...
-// initializeTheme();
 document.documentElement.classList.add('light');
 document.documentElement.classList.remove('dark');
 
-// ============================================
-// Flutter WebView Bridge for FCM
-// ============================================
-
-// Detect if running in Flutter WebView
 const isFlutterWebView = typeof (window as any).FlutterBridge !== 'undefined';
 
 if (isFlutterWebView) {
     console.log('[FCM] Running in Flutter WebView');
 
-    // Request FCM token from Flutter after user is authenticated
     const checkAuthAndRequestToken = () => {
-        // Check if user is authenticated (Laravel session)
         const isAuthenticated = document.querySelector('meta[name="user-authenticated"]')?.getAttribute('content') === 'true';
 
         if (isAuthenticated) {
@@ -110,19 +101,15 @@ if (isFlutterWebView) {
         }
     };
 
-    // Callback function to receive FCM token from Flutter
     (window as any).receiveFCMToken = function (token: string) {
         console.log('[FCM] Received token from Flutter:', token.substring(0, 20) + '...');
 
-        // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
         if (!csrfToken) {
             console.error('[FCM] CSRF token not found');
             return;
         }
-
-        // Send token to Laravel backend
         fetch('/api/device-tokens', {
             method: 'POST',
             headers: {
@@ -144,10 +131,7 @@ if (isFlutterWebView) {
             });
     };
 
-    // Request token on page load if authenticated
     checkAuthAndRequestToken();
-
-    // Also request token after Inertia navigation (in case user just logged in)
     router.on('navigate', () => {
         setTimeout(checkAuthAndRequestToken, 500);
     });

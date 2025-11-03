@@ -113,7 +113,7 @@ class NotificationService
         $message .= "\n";
 
         // Call to action - buka aplikasi
-        $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP*\n";
+        $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP* _(COMING SOON)_\n ";
         $message .= "\n";
         $message .= "Lihat foto kegiatan, detail makanan, dan catatan lengkap dari Aunty {$guruName}\n";
         $message .= "\n";
