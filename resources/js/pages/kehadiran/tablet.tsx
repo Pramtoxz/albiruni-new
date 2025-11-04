@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import Lottie from 'lottie-react';
 import jumpAnimation from '@/assets/absen/jump.json';
+import sambutanAnimation from '@/assets/absen/sambutan.json';
 import kelasBackground from '@/assets/absen/kelas.webp';
 import tosImage from '@/assets/absen/tos.webp';
 import tinjuImage from '@/assets/absen/tinju.webp';
@@ -28,6 +29,7 @@ export default function TabletKehadiran() {
     const [selectedSiswa, setSelectedSiswa] = useState<Siswa | null>(null);
     const [jenisInteraksi, setJenisInteraksi] = useState<'tos' | 'tinju' | null>(null);
     const [canTap, setCanTap] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
 
     const tosAudioRef = useRef<HTMLAudioElement>(null);
     const yeyAudioRef = useRef<HTMLAudioElement>(null);
@@ -100,10 +102,14 @@ export default function TabletKehadiran() {
         const random = Math.random() > 0.5 ? 'tos' : 'tinju';
         setJenisInteraksi(random);
 
+        // Set speaking langsung dan pindah ke step interaksi
+        setIsSpeaking(true);
+        setStep('interaksi');
+
         // Delay 0.8s untuk voice
         setTimeout(() => {
             // Text-to-Speech: Ucapan selamat datang dengan suara wanita
-            const greeting = `Selamat datang ${siswa.nama}. Silahkan melakukan ${random}`;
+            const greeting = ` Assalamualaikum Warahmatullahi Wabarakatuh ${siswa.nama}. Silahkan melakukan ${random}`;
             const utterance = new SpeechSynthesisUtterance(greeting);
             utterance.lang = 'id-ID';
             utterance.rate = 0.8; // Lebih lambat agar terdengar natural
@@ -133,6 +139,7 @@ export default function TabletKehadiran() {
             }
 
             utterance.onend = () => {
+                setIsSpeaking(false);
                 setCanTap(true);
             };
 
@@ -142,9 +149,6 @@ export default function TabletKehadiran() {
                 setCanTap(true);
             }, 5000);
         }, 800);
-        setTimeout(() => {
-            setStep('interaksi');
-        }, 700);
     };
 
     const handleTapInteraksi = () => {
@@ -213,8 +217,8 @@ export default function TabletKehadiran() {
                 {/* Step 1: Pilih Kelas */}
                 {step === 'kelas' && (
                     <div className="max-w-6xl mx-auto">
-                        <h1 className="text-6xl font-bold text-white text-center mb-12 drop-shadow-lg">
-                            Pilih Kelasmu! 🎒
+                        <h1 className="text-4xl font-bold text-black text-center mb-12 drop-shadow-lg">
+                            Silahkan Pilih Kelas Mu
                         </h1>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                             {kelasList.map((kelas) => (
@@ -281,20 +285,26 @@ export default function TabletKehadiran() {
                 {step === 'interaksi' && jenisInteraksi && (
                     <div
                         onClick={handleTapInteraksi}
-                        className={`flex items-center justify-center h-screen ${canTap ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}`}
+                        className={`flex items-center justify-center h-screen ${canTap ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                         style={{
-                            backgroundImage: `url(${jenisInteraksi === 'tos' ? tosImage : tinjuImage})`,
+                            backgroundImage: isSpeaking ? `url(${kelasBackground})` : `url(${jenisInteraksi === 'tos' ? tosImage : tinjuImage})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}
                     >
-                        <div className="text-center">
-                            <h2 className="text-9xl font-bold text-white drop-shadow-2xl animate-pulse">
-
-                            </h2>
-                            <p className="text-3xl text-white mt-8 drop-shadow-lg animate-bounce">
-                            </p>
-                        </div>
+                        {/* Animasi Robot Sambutan saat berbicara */}
+                        {isSpeaking && (
+                            <div className="flex items-center justify-center w-full h-full">
+                                <div className="bg-white/95 rounded-3xl p-12 shadow-2xl max-w-2xl">
+                                    <div className="w-80 h-80 mx-auto">
+                                        <Lottie
+                                            animationData={sambutanAnimation}
+                                            loop={true}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -305,13 +315,13 @@ export default function TabletKehadiran() {
                             <div className="w-50 h-50 mx-auto">
                                 <Lottie animationData={jumpAnimation} loop={true} />
                             </div>
-                            <h2 className="text-7xl font-bold text-blue mt-8 drop-shadow-lg animate-pulse">
-                                Yeay! Selamat Datang! 🎉
-                            </h2>
+                            <p className="text-4xl text-blue mt-4 drop-shadow-lg">
+                                Selamat Datang
+                            </p>
                             {selectedSiswa && (
-                                <p className="text-4xl text-blue mt-4 drop-shadow-lg">
+                                <h2 className="text-7xl font-bold text-blue mt-8 drop-shadow-lg animate-pulse">
                                     {selectedSiswa.nama}
-                                </p>
+                                </h2>
                             )}
                         </div>
                     </div>
