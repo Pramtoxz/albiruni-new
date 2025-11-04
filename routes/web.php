@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\DeviceTokenController;
-use App\Http\Controllers\KegiatanHarianController;
 use App\Http\Controllers\OrangtuaDashboardController;
-use App\Http\Controllers\PembayaranSppController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -13,66 +10,38 @@ Route::get('/', function () {
     return Inertia::render('Home');
 })->name('home');
 
+// Kehadiran Routes (Public - untuk tablet dan TV)
+Route::prefix('kehadiran')->name('kehadiran.')->group(function () {
+    Route::get('setup', [\App\Http\Controllers\KehadiranController::class, 'setup'])->name('setup');
+    Route::get('tablet', [\App\Http\Controllers\KehadiranController::class, 'tablet'])->name('tablet');
+    Route::get('display', [\App\Http\Controllers\KehadiranController::class, 'display'])->name('display');
+
+    Route::get('api/kelas', [\App\Http\Controllers\KehadiranController::class, 'getKelas'])->name('api.kelas');
+    Route::get('api/siswa/{kelasId}', [\App\Http\Controllers\KehadiranController::class, 'getSiswaByKelas'])->name('api.siswa');
+    Route::post('api/hadir', [\App\Http\Controllers\KehadiranController::class, 'store'])->name('api.store');
+    Route::get('api/hari-ini', [\App\Http\Controllers\KehadiranController::class, 'getKehadiranHariIni'])->name('api.hari-ini');
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
-    // FCM Device Token Management
     Route::post('api/device-tokens', [DeviceTokenController::class, 'store'])
         ->name('device-tokens.store');
     Route::delete('api/device-tokens', [DeviceTokenController::class, 'destroy'])
         ->name('device-tokens.destroy');
-
     Route::get('siswa/register', [SiswaController::class, 'create'])
         ->name('siswa.create');
     Route::post('siswa/register', [SiswaController::class, 'store'])
         ->name('siswa.store');
 
-    // Routes untuk guru - Daily Report & Rencana Pembelajaran
     Route::prefix('guru')->name('guru.')->group(function () {
-        Route::get('daily-report', [DailyReportController::class, 'index'])
-            ->name('daily-report.index');
-        Route::get('daily-report/create', [DailyReportController::class, 'create'])
-            ->name('daily-report.create');
-        Route::post('daily-report', [DailyReportController::class, 'store'])
-            ->name('daily-report.store');
-        Route::get('daily-report/{dailyReport}', [DailyReportController::class, 'show'])
-            ->name('daily-report.show');
-        Route::get('daily-report/{dailyReport}/edit', [DailyReportController::class, 'edit'])
-            ->name('daily-report.edit');
-        Route::put('daily-report/{dailyReport}', [DailyReportController::class, 'update'])
-            ->name('daily-report.update');
-        Route::post('daily-report/{dailyReport}/finalize', [DailyReportController::class, 'finalize'])
-            ->name('daily-report.finalize');
-
-        // Rencana Pembelajaran (Read Only)
-        Route::get('rencana-pembelajaran', [\App\Http\Controllers\Guru\RencanaPembelajaranController::class, 'index'])
-            ->name('rencana-pembelajaran.index');
-        Route::get('rencana-pembelajaran/{rencanaPembelajaran}', [\App\Http\Controllers\Guru\RencanaPembelajaranController::class, 'show'])
-            ->name('rencana-pembelajaran.show');
+        require_once 'guru.php';
     });
-
-    // Routes untuk orang tua - Daily Report & Pembayaran
     Route::prefix('orangtua')->name('orangtua.')->middleware('check.siswa')->group(function () {
-        Route::get('daily-report', [DailyReportController::class, 'orangtuaIndex'])
-            ->name('daily-report.index');
-        Route::get('daily-report/{dailyReport}', [DailyReportController::class, 'orangtuaShow'])
-            ->name('daily-report.show');
-
-        // Kegiatan Harian
-        Route::get('kegiatan-harian', [KegiatanHarianController::class, 'orangtuaIndex'])
-            ->name('kegiatan-harian.index');
-
-        // Pembayaran SPP
-        Route::get('pembayaran', [PembayaranSppController::class, 'index'])
-            ->name('pembayaran.index');
-        Route::post('pembayaran/{pembayaran}/upload', [PembayaranSppController::class, 'upload'])
-            ->name('pembayaran.upload');
+        require_once 'orangtua.php';
     });
 
-    // Dashboard dengan middleware check.siswa
     Route::middleware('check.siswa')->group(function () {
         Route::get('dashboard', function () {
             $user = auth()->user();
-
-            // Pisahkan dashboard berdasarkan role
             if ($user->role === 'admin') {
                 return Inertia::render('dashboard/admin');
             }
@@ -81,7 +50,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 return Inertia::render('dashboard/guru');
             }
 
-            // Dashboard orang tua - gunakan controller
             return app(OrangtuaDashboardController::class)->index(request());
         })->name('dashboard');
     });
