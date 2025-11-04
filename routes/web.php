@@ -19,6 +19,7 @@ Route::prefix('kehadiran')->name('kehadiran.')->group(function () {
     Route::get('api/kelas', [\App\Http\Controllers\KehadiranController::class, 'getKelas'])->name('api.kelas');
     Route::get('api/siswa/{kelasId}', [\App\Http\Controllers\KehadiranController::class, 'getSiswaByKelas'])->name('api.siswa');
     Route::post('api/hadir', [\App\Http\Controllers\KehadiranController::class, 'store'])->name('api.store');
+    Route::post('api/pulang', [\App\Http\Controllers\KehadiranController::class, 'storePulang'])->name('api.pulang');
     Route::get('api/hari-ini', [\App\Http\Controllers\KehadiranController::class, 'getKehadiranHariIni'])->name('api.hari-ini');
 });
 

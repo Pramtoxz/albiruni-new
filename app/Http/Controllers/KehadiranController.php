@@ -68,6 +68,7 @@ class KehadiranController extends Controller
     {
         $lokasi = $request->query('lokasi');
         $excludeHadir = $request->query('exclude_hadir');
+        $onlyHadir = $request->query('only_hadir');
 
         $query = Siswa::where('kelas_id', $kelasId);
 
@@ -76,13 +77,24 @@ class KehadiranController extends Controller
             $query->where('lokasi_pendaftaran', $lokasi);
         }
 
-        // Exclude siswa yang sudah hadir hari ini
+        // Exclude siswa yang sudah hadir hari ini (untuk check-in)
         if ($excludeHadir) {
             $siswaHadirIds = Kehadiran::whereDate('tanggal', now()->toDateString())
                 ->pluck('siswa_id')
                 ->toArray();
 
             $query->whereNotIn('id', $siswaHadirIds);
+        }
+
+        // Only siswa yang sudah hadir tapi belum pulang (untuk check-out)
+        if ($onlyHadir) {
+            $siswaHadirIds = Kehadiran::whereDate('tanggal', now()->toDateString())
+                ->whereNotNull('waktu_hadir')
+                ->whereNull('waktu_pulang')
+                ->pluck('siswa_id')
+                ->toArray();
+
+            $query->whereIn('id', $siswaHadirIds);
         }
 
         $siswa = $query->select('id', 'nama_panggilan', 'nama_lengkap', 'foto_siswa')
@@ -113,7 +125,7 @@ class KehadiranController extends Controller
                 'tanggal' => now()->toDateString(),
             ],
             [
-                'waktu_hadir' => now()->toTimeString(),
+                'waktu_hadir' => now()->timezone('Asia/Jakarta')->toTimeString(),
                 'jenis_interaksi' => $request->jenis_interaksi,
             ]
         );
@@ -130,6 +142,36 @@ class KehadiranController extends Controller
             'waktu' => $kehadiran->waktu_hadir,
             'jenis_interaksi' => $kehadiran->jenis_interaksi,
         ]));
+
+        return response()->json([
+            'success' => true,
+            'data' => $kehadiran,
+        ]);
+    }
+
+    // API: Simpan waktu pulang
+    public function storePulang(Request $request)
+    {
+        $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'rating' => 'required|in:like,no',
+        ]);
+
+        $kehadiran = Kehadiran::where('siswa_id', $request->siswa_id)
+            ->whereDate('tanggal', now()->toDateString())
+            ->first();
+
+        if (! $kehadiran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Siswa belum check-in hari ini',
+            ], 400);
+        }
+
+        $kehadiran->update([
+            'waktu_pulang' => now()->timezone('Asia/Jakarta')->toTimeString(),
+            'rating' => $request->rating,
+        ]);
 
         return response()->json([
             'success' => true,
