@@ -20,6 +20,7 @@ export default function DisplayKehadiran() {
     const [kehadiranList, setKehadiranList] = useState<KehadiranItem[]>([]);
     const [latestKehadiran, setLatestKehadiran] = useState<KehadiranItem | null>(null);
     const [showAnimation, setShowAnimation] = useState(false);
+    const [isStarted, setIsStarted] = useState(false);
     const [lastId, setLastId] = useState<number>(() => {
         // Load lastId dari localStorage
         const today = new Date().toDateString();
@@ -40,37 +41,36 @@ export default function DisplayKehadiran() {
     useEffect(() => {
         loadKehadiranHariIni();
 
-        // Auto-play musik background saat halaman load
+        if (isStarted) {
+            // Polling setiap 3 detik untuk update
+            const interval = setInterval(() => {
+                checkNewKehadiran();
+            }, 3000);
+
+            return () => {
+                clearInterval(interval);
+            };
+        }
+    }, [isStarted]);
+
+    const handleStart = () => {
+        // Play musik
         if (musicRef.current) {
             musicRef.current.loop = true;
-            musicRef.current.volume = 0.3; // Volume 30%
-            musicRef.current.play().catch(err => {
-                console.log('Autoplay prevented:', err);
-            });
+            musicRef.current.volume = 0.3;
+            musicRef.current.play();
         }
 
         // Request fullscreen
-        const enterFullscreen = () => {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(err => {
-                    console.log('Fullscreen request failed:', err);
-                });
-            }
-        };
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => {
+                console.log('Fullscreen request failed:', err);
+            });
+        }
 
-        // Delay sedikit untuk memastikan halaman sudah load
-        setTimeout(enterFullscreen, 500);
-
-        // Polling setiap 3 detik untuk update
-        const interval = setInterval(() => {
-            checkNewKehadiran();
-        }, 3000);
-
-        return () => {
-            clearInterval(interval);
-        };
-    }, []);
+        setIsStarted(true);
+    };
 
     const checkNewKehadiran = async () => {
         try {
@@ -133,6 +133,26 @@ export default function DisplayKehadiran() {
             {/* Audio element untuk musik sekolah */}
             <audio ref={musicRef} src={albiruniMusic} preload="auto" />
 
+            {/* Start Button Overlay */}
+            {!isStarted && (
+                <div className="fixed inset-0 bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center z-50">
+                    <div className="text-center">
+                        <h1 className="text-8xl font-bold text-white mb-8 drop-shadow-2xl animate-pulse">
+                            🎉 Display Kehadiran 🎉
+                        </h1>
+                        <p className="text-3xl text-white mb-12">
+                            Klik tombol di bawah untuk memulai
+                        </p>
+                        <button
+                            onClick={handleStart}
+                            className="bg-white text-purple-600 px-16 py-8 rounded-full text-4xl font-bold shadow-2xl hover:scale-110 transform transition-all duration-300 hover:shadow-3xl"
+                        >
+                            ▶ Mulai Display
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div
                 className="min-h-screen p-8"
                 style={{
@@ -174,7 +194,7 @@ export default function DisplayKehadiran() {
 
                     {/* Daftar Kehadiran */}
                     <div className="bg-white/90 rounded-3xl p-8 shadow-2xl">
-                          <p className="text-3xl text-center text-gray-600 mt-4">
+                        <p className="text-3xl text-center text-gray-600 mt-4">
                             {new Date().toLocaleDateString('id-ID', {
                                 weekday: 'long',
                                 year: 'numeric',
