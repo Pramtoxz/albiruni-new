@@ -205,4 +205,24 @@ class KehadiranController extends Controller
 
         return response()->json($kehadiran);
     }
+
+    // Orangtua: Lihat absensi anak
+    public function orangtuaIndex()
+    {
+        $user = auth()->user();
+        $siswa = $user->siswa;
+
+        if (! $siswa) {
+            return redirect()->route('dashboard')->with('error', 'Data siswa tidak ditemukan');
+        }
+
+        $kehadiran = Kehadiran::where('siswa_id', $siswa->id)
+            ->orderBy('tanggal', 'desc')
+            ->paginate(20);
+
+        return Inertia::render('orangtua/absensi-list', [
+            'kehadiran' => $kehadiran,
+            'siswa' => $siswa,
+        ]);
+    }
 }

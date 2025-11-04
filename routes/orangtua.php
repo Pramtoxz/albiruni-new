@@ -3,6 +3,7 @@
 use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\KegiatanHarianController;
 use App\Http\Controllers\PembayaranSppController;
+use App\Http\Controllers\KehadiranController;
 
 
    Route::get('daily-report', [DailyReportController::class, 'orangtuaIndex'])
@@ -17,3 +18,6 @@ use App\Http\Controllers\PembayaranSppController;
             ->name('pembayaran.index');
         Route::post('pembayaran/{pembayaran}/upload', [PembayaranSppController::class, 'upload'])
             ->name('pembayaran.upload');
+
+        Route::get('absensi', [KehadiranController::class, 'orangtuaIndex'])
+            ->name('absensi.index');
