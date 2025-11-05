@@ -20,10 +20,10 @@ class HandleInertiaRequests extends Middleware
      * Handle the incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  callable  $next
+     * @param  \Closure  $next
      * @return mixed
      */
-    public function handle(Request $request, $next)
+    public function handle(Request $request, \Closure $next)
     {
         // Optimize session handling for webview stability
         $this->optimizeSessionForWebview($request);

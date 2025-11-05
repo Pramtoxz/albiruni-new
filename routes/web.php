@@ -34,10 +34,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('siswa.store');
 
     Route::prefix('guru')->name('guru.')->group(function () {
-        require_once 'guru.php';
+        require __DIR__.'/guru.php';
     });
     Route::prefix('orangtua')->name('orangtua.')->middleware('check.siswa')->group(function () {
-        require_once 'orangtua.php';
+        require __DIR__.'/orangtua.php';
     });
 
     Route::middleware('check.siswa')->group(function () {
