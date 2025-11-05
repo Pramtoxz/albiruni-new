@@ -17,6 +17,21 @@ class HandleInertiaRequests extends Middleware
     protected $rootView = 'app';
 
     /**
+     * Handle the incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  callable  $next
+     * @return mixed
+     */
+    public function handle(Request $request, $next)
+    {
+        // Optimize session handling for webview stability
+        $this->optimizeSessionForWebview($request);
+        
+        return parent::handle($request, $next);
+    }
+
+    /**
      * Determines the current asset version.
      *
      * @see https://inertiajs.com/asset-versioning
@@ -43,6 +58,94 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'webview' => [
+                'isWebview' => $this->isWebview($request),
+                'userAgent' => $request->userAgent(),
+            ],
         ]);
+    }
+
+    /**
+     * Detect if the request is coming from a webview
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function isWebview(Request $request): bool
+    {
+        $userAgent = $request->userAgent();
+        
+        if (!$userAgent) {
+            return false;
+        }
+
+        // Common webview indicators
+        $webviewIndicators = [
+            'wv',           // Android WebView
+            'WebView',      // Generic WebView
+            'Flutter',      // Flutter WebView
+            'Mobile/',      // Mobile app context
+            'App/',         // App context
+        ];
+
+        foreach ($webviewIndicators as $indicator) {
+            if (stripos($userAgent, $indicator) !== false) {
+                return true;
+            }
+        }
+
+        // Check for missing browser-specific strings that indicate webview
+        $browserStrings = ['Chrome/', 'Firefox/', 'Safari/', 'Edge/'];
+        $hasBrowserString = false;
+        
+        foreach ($browserStrings as $browser) {
+            if (stripos($userAgent, $browser) !== false) {
+                $hasBrowserString = true;
+                break;
+            }
+        }
+
+        // If it has mobile indicators but no browser strings, likely webview
+        if (!$hasBrowserString && (stripos($userAgent, 'Mobile') !== false || stripos($userAgent, 'Android') !== false)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Optimize session handling for webview stability
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function optimizeSessionForWebview(Request $request): void
+    {
+        if (!$this->isWebview($request)) {
+            return;
+        }
+
+        // Ensure session is started and properly configured for webview
+        if (!$request->hasSession()) {
+            return;
+        }
+
+        $session = $request->session();
+
+        // Regenerate session ID periodically for security but not too frequently for webview stability
+        if (!$session->has('_webview_session_initialized')) {
+            $session->put('_webview_session_initialized', true);
+            $session->put('_webview_last_regenerated', now()->timestamp);
+        }
+
+        // Only regenerate session ID if it's been more than 30 minutes for webview stability
+        $lastRegenerated = $session->get('_webview_last_regenerated', 0);
+        if (now()->timestamp - $lastRegenerated > 1800) { // 30 minutes
+            $session->regenerate(false); // Don't destroy old session data
+            $session->put('_webview_last_regenerated', now()->timestamp);
+        }
+
+        // Ensure session persistence for webview
+        $session->save();
     }
 }

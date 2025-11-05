@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 class OtpController extends Controller
 {
@@ -51,7 +53,7 @@ class OtpController extends Controller
         ]);
     }
 
-    public function login(Request $request): RedirectResponse
+    public function login(Request $request): Response
     {
         $request->merge([
             'nohp' => $this->otpService->normalizePhone($request->string('nohp')->toString()),
@@ -90,14 +92,19 @@ class OtpController extends Controller
         // Auto-enable remember me for webview compatibility
         Auth::login($user, true);
 
+        // Ensure proper session regeneration after login
         $request->session()->regenerate();
 
+        // Determine redirect destination
+        $redirectUrl = $request->session()->pull('url.intended', route('dashboard', absolute: false));
+        
         // Jika user adalah orangtua dan belum ada data siswa, redirect ke pendaftaran siswa
         if ($user->role === 'orangtua' && !$user->siswa) {
-            return redirect()->route('siswa.create');
+            $redirectUrl = route('siswa.create', absolute: false);
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Return Inertia location response for smooth webview navigation
+        return Inertia::location($redirectUrl);
     }
 
     protected function ensureUserExistsForLogin(string $phone): void

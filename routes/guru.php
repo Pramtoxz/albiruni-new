@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\DailyReportController;
-use App\Http\Controllers\RencanaPembelajaranController;
+use App\Http\Controllers\Guru\RencanaPembelajaranController;
 
 Route::get('daily-report', [DailyReportController::class, 'index'])
     ->name('daily-report.index');

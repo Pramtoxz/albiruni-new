@@ -49,11 +49,7 @@ export default function GuruDashboard() {
             cancelButtonText: 'Batal',
         }).then((result) => {
             if (result.isConfirmed) {
-                router.post('/logout', {}, {
-                    onSuccess: () => {
-                        router.visit('/login');
-                    }
-                });
+                router.post('/logout');
             }
         });
     };

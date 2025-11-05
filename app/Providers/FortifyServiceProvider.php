@@ -29,6 +29,7 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureViews();
         $this->configureRateLimiting();
         $this->configureAuthentication();
+        $this->configureLogout();
         
         // Disable default login route (only OTP login allowed)
         Fortify::authenticateUsing(function () {
@@ -43,6 +44,18 @@ class FortifyServiceProvider extends ServiceProvider
     {
         // Disable default email/password authentication
         // Only OTP login is allowed via OtpController
+    }
+
+    /**
+     * Configure logout behavior.
+     */
+    private function configureLogout(): void
+    {
+        // Bind custom logout response for direct redirect to login
+        $this->app->singleton(
+            \Laravel\Fortify\Contracts\LogoutResponse::class,
+            \App\Http\Responses\LogoutResponse::class
+        );
     }
 
     /**
