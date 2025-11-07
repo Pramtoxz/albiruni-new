@@ -63,7 +63,7 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
 
     const { data, setData, processing } = useForm({
         siswa_id: '',
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }),
         mood: '',
         activity: '',
         emosi_ids: [] as number[],

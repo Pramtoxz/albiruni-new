@@ -65,7 +65,8 @@ export interface Siswa {
     alasan_rawat_inap?: string;
     riwayat_alergi_makanan?: string;
     ayah_nama_lengkap?: string;
-    ayah_tempat_tanggal_lahir?: string;
+    ayah_tanggal_lahir?: string;
+    ayah_tempat_lahir?: string;
     ayah_pekerjaan?: string;
     ayah_pendidikan_terakhir?: string;
     ayah_nomor_identitas?: string;
@@ -75,7 +76,8 @@ export interface Siswa {
     ayah_telepon_kantor?: string;
     ayah_no_hp?: string;
     ibu_nama_lengkap?: string;
-    ibu_tempat_tanggal_lahir?: string;
+    ibu_tempat_lahir?: string;
+    ibu_tanggal_lahir?: string;
     ibu_pekerjaan?: string;
     ibu_pendidikan_terakhir?: string;
     ibu_nomor_identitas?: string;

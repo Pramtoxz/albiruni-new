@@ -26,7 +26,7 @@ export default function RegisterSiswa() {
         jumlah_saudara_kandung: '',
         bahasa_sehari_hari: '',
         foto_siswa: null as File | null,
-        
+
         // Kesehatan
         berat_badan: '',
         tinggi_badan: '',
@@ -34,7 +34,7 @@ export default function RegisterSiswa() {
         riwayat_penyakit: '',
         alasan_rawat_inap: '',
         riwayat_alergi_makanan: '',
-        
+
         // Data Ayah
         ayah_nama_lengkap: '',
         ayah_tempat_lahir: '',
@@ -47,7 +47,7 @@ export default function RegisterSiswa() {
         ayah_alamat_kantor: '',
         ayah_telepon_kantor: '',
         ayah_no_hp: '',
-        
+
         // Data Ibu
         ibu_nama_lengkap: '',
         ibu_tempat_lahir: '',
@@ -60,7 +60,7 @@ export default function RegisterSiswa() {
         ibu_alamat_kantor: '',
         ibu_telepon_kantor: '',
         ibu_no_hp: '',
-        
+
         // Kontak Darurat
         kontak_darurat_nama_lengkap: '',
         kontak_darurat_hubungan: '',
@@ -71,7 +71,7 @@ export default function RegisterSiswa() {
         kontak_darurat_alamat_kantor: '',
         kontak_darurat_telepon_kantor: '',
         kontak_darurat_no_hp: '',
-        
+
         // Persetujuan
         lokasi_pendaftaran: '',
         tanggal_pendaftaran: '',
@@ -96,7 +96,7 @@ export default function RegisterSiswa() {
                     {/* Informasi Umum Siswa */}
                     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
                         <h2 className="text-lg font-semibold">📋 Informasi Umum Siswa</h2>
-                        
+
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="nama_lengkap">Nama Lengkap *</Label>
@@ -243,14 +243,13 @@ export default function RegisterSiswa() {
                     {/* Informasi Kesehatan */}
                     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
                         <h2 className="text-lg font-semibold">🏥 Informasi Kesehatan Siswa</h2>
-                        
+
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="berat_badan">Berat Badan (kg)</Label>
                                 <Input
                                     id="berat_badan"
                                     type="number"
-                                    step="0.01"
                                     value={data.berat_badan}
                                     onChange={(e) => setData('berat_badan', e.target.value)}
                                 />
@@ -317,7 +316,7 @@ export default function RegisterSiswa() {
                     {/* Data Ayah */}
                     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
                         <h2 className="text-lg font-semibold">👨 Data Ayah</h2>
-                        
+
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="ayah_nama_lengkap">Nama Lengkap</Label>
@@ -370,8 +369,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="ayah_nomor_identitas">Nomor Identitas</Label>
                                 <Input
                                     id="ayah_nomor_identitas"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.ayah_nomor_identitas}
                                     onChange={(e) => setData('ayah_nomor_identitas', e.target.value)}
+                                    placeholder="Contoh: 1371234567890123"
                                 />
                             </div>
 
@@ -379,8 +382,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="ayah_no_hp">No Handphone</Label>
                                 <Input
                                     id="ayah_no_hp"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.ayah_no_hp}
                                     onChange={(e) => setData('ayah_no_hp', e.target.value)}
+                                    placeholder="Contoh: 081234567890"
                                 />
                             </div>
 
@@ -397,8 +404,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="ayah_telepon_rumah">Telepon Rumah</Label>
                                 <Input
                                     id="ayah_telepon_rumah"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.ayah_telepon_rumah}
                                     onChange={(e) => setData('ayah_telepon_rumah', e.target.value)}
+                                    placeholder="Contoh: 0751123456"
                                 />
                             </div>
 
@@ -415,8 +426,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="ayah_telepon_kantor">Telepon Kantor</Label>
                                 <Input
                                     id="ayah_telepon_kantor"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.ayah_telepon_kantor}
                                     onChange={(e) => setData('ayah_telepon_kantor', e.target.value)}
+                                    placeholder="Contoh: 0751123456"
                                 />
                             </div>
                         </div>
@@ -425,7 +440,7 @@ export default function RegisterSiswa() {
                     {/* Data Ibu */}
                     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
                         <h2 className="text-lg font-semibold">👩 Data Ibu</h2>
-                        
+
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="ibu_nama_lengkap">Nama Lengkap</Label>
@@ -478,8 +493,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="ibu_nomor_identitas">Nomor Identitas</Label>
                                 <Input
                                     id="ibu_nomor_identitas"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.ibu_nomor_identitas}
                                     onChange={(e) => setData('ibu_nomor_identitas', e.target.value)}
+                                    placeholder="Contoh: 1371234567890123"
                                 />
                             </div>
 
@@ -487,8 +506,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="ibu_no_hp">No Handphone</Label>
                                 <Input
                                     id="ibu_no_hp"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.ibu_no_hp}
                                     onChange={(e) => setData('ibu_no_hp', e.target.value)}
+                                    placeholder="Contoh: 081234567890"
                                 />
                             </div>
 
@@ -505,8 +528,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="ibu_telepon_rumah">Telepon Rumah</Label>
                                 <Input
                                     id="ibu_telepon_rumah"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.ibu_telepon_rumah}
                                     onChange={(e) => setData('ibu_telepon_rumah', e.target.value)}
+                                    placeholder="Contoh: 0751123456"
                                 />
                             </div>
 
@@ -523,8 +550,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="ibu_telepon_kantor">Telepon Kantor</Label>
                                 <Input
                                     id="ibu_telepon_kantor"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.ibu_telepon_kantor}
                                     onChange={(e) => setData('ibu_telepon_kantor', e.target.value)}
+                                    placeholder="Contoh: 0751123456"
                                 />
                             </div>
                         </div>
@@ -533,7 +564,7 @@ export default function RegisterSiswa() {
                     {/* Kontak Darurat */}
                     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
                         <h2 className="text-lg font-semibold">🚨 Kontak Darurat</h2>
-                        
+
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="kontak_darurat_nama_lengkap">Nama Lengkap</Label>
@@ -566,8 +597,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="kontak_darurat_nomor_identitas">Nomor Identitas</Label>
                                 <Input
                                     id="kontak_darurat_nomor_identitas"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.kontak_darurat_nomor_identitas}
                                     onChange={(e) => setData('kontak_darurat_nomor_identitas', e.target.value)}
+                                    placeholder="Contoh: 1371234567890123"
                                 />
                             </div>
 
@@ -575,8 +610,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="kontak_darurat_no_hp">No Handphone</Label>
                                 <Input
                                     id="kontak_darurat_no_hp"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.kontak_darurat_no_hp}
                                     onChange={(e) => setData('kontak_darurat_no_hp', e.target.value)}
+                                    placeholder="Contoh: 081234567890"
                                 />
                             </div>
 
@@ -593,8 +632,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="kontak_darurat_telepon_rumah">Telepon Rumah</Label>
                                 <Input
                                     id="kontak_darurat_telepon_rumah"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.kontak_darurat_telepon_rumah}
                                     onChange={(e) => setData('kontak_darurat_telepon_rumah', e.target.value)}
+                                    placeholder="Contoh: 0751123456"
                                 />
                             </div>
 
@@ -611,8 +654,12 @@ export default function RegisterSiswa() {
                                 <Label htmlFor="kontak_darurat_telepon_kantor">Telepon Kantor</Label>
                                 <Input
                                     id="kontak_darurat_telepon_kantor"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={data.kontak_darurat_telepon_kantor}
                                     onChange={(e) => setData('kontak_darurat_telepon_kantor', e.target.value)}
+                                    placeholder="Contoh: 0751123456"
                                 />
                             </div>
                         </div>
@@ -621,7 +668,7 @@ export default function RegisterSiswa() {
                     {/* Persetujuan */}
                     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
                         <h2 className="text-lg font-semibold">✅ Persetujuan</h2>
-                        
+
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="lokasi_pendaftaran">Lokasi Pendaftaran / Cabang *</Label>

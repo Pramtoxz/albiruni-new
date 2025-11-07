@@ -31,7 +31,8 @@ class Siswa extends Model
         'alasan_rawat_inap',
         'riwayat_alergi_makanan',
         'ayah_nama_lengkap',
-        'ayah_tempat_tanggal_lahir',
+        'ayah_tempat_lahir',
+        'ayah_tanggal_lahir',
         'ayah_pekerjaan',
         'ayah_pendidikan_terakhir',
         'ayah_nomor_identitas',
@@ -41,7 +42,8 @@ class Siswa extends Model
         'ayah_telepon_kantor',
         'ayah_no_hp',
         'ibu_nama_lengkap',
-        'ibu_tempat_tanggal_lahir',
+        'ibu_tempat_lahir',
+        'ibu_tanggal_lahir',
         'ibu_pekerjaan',
         'ibu_pendidikan_terakhir',
         'ibu_nomor_identitas',
@@ -68,6 +70,8 @@ class Siswa extends Model
 
     protected $casts = [
         'tanggal_lahir' => 'date',
+        'ayah_tanggal_lahir' => 'date',
+        'ibu_tanggal_lahir' => 'date',
         'tanggal_pendaftaran' => 'date',
         'berat_badan' => 'decimal:2',
         'tinggi_badan' => 'decimal:2',

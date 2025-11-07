@@ -148,7 +148,8 @@ export default function SiswaShow({ siswa, kelasList, guruList }: Props) {
                         </CardHeader>
                         <CardContent className="space-y-1">
                             <InfoRow label="Nama Lengkap" value={siswa.ayah_nama_lengkap} />
-                            <InfoRow label="Tempat, Tanggal Lahir" value={siswa.ayah_tempat_tanggal_lahir} />
+                            <InfoRow label="Tempat Lahir" value={siswa.ayah_tempat_lahir} />
+                            <InfoRow label="Tanggal Lahir" value={formatDate(siswa.ayah_tanggal_lahir)} />
                             <InfoRow label="Pekerjaan" value={siswa.ayah_pekerjaan} />
                             <InfoRow label="Pendidikan Terakhir" value={siswa.ayah_pendidikan_terakhir} />
                             <InfoRow label="Nomor Identitas" value={siswa.ayah_nomor_identitas} />
@@ -167,7 +168,8 @@ export default function SiswaShow({ siswa, kelasList, guruList }: Props) {
                         </CardHeader>
                         <CardContent className="space-y-1">
                             <InfoRow label="Nama Lengkap" value={siswa.ibu_nama_lengkap} />
-                            <InfoRow label="Tempat, Tanggal Lahir" value={siswa.ibu_tempat_tanggal_lahir} />
+                            <InfoRow label="Tempat Lahir" value={siswa.ibu_tempat_lahir} />
+                            <InfoRow label="Tanggal Lahir" value={formatDate(siswa.ibu_tanggal_lahir)} />
                             <InfoRow label="Pekerjaan" value={siswa.ibu_pekerjaan} />
                             <InfoRow label="Pendidikan Terakhir" value={siswa.ibu_pendidikan_terakhir} />
                             <InfoRow label="Nomor Identitas" value={siswa.ibu_nomor_identitas} />

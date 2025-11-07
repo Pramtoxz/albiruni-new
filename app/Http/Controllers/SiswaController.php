@@ -29,16 +29,17 @@ class SiswaController extends Controller
             'jumlah_saudara_kandung' => 'nullable|integer|min:0',
             'bahasa_sehari_hari' => 'nullable|string|max:255',
             'foto_siswa' => 'nullable|image|max:2048',
-            
+
             'berat_badan' => 'nullable|numeric|min:0',
             'tinggi_badan' => 'nullable|numeric|min:0',
             'golongan_darah' => 'nullable|string|max:10',
             'riwayat_penyakit' => 'nullable|string',
             'alasan_rawat_inap' => 'nullable|string',
             'riwayat_alergi_makanan' => 'nullable|string',
-            
+
             'ayah_nama_lengkap' => 'nullable|string|max:255',
-            'ayah_tempat_tanggal_lahir' => 'nullable|string|max:255',
+            'ayah_tempat_lahir' => 'nullable|string|max:255',
+            'ayah_tanggal_lahir' => 'nullable|date',
             'ayah_pekerjaan' => 'nullable|string|max:255',
             'ayah_pendidikan_terakhir' => 'nullable|string|max:255',
             'ayah_nomor_identitas' => 'nullable|string|max:255',
@@ -47,9 +48,10 @@ class SiswaController extends Controller
             'ayah_alamat_kantor' => 'nullable|string',
             'ayah_telepon_kantor' => 'nullable|string|max:20',
             'ayah_no_hp' => 'nullable|string|max:20',
-            
+
             'ibu_nama_lengkap' => 'nullable|string|max:255',
-            'ibu_tempat_tanggal_lahir' => 'nullable|string|max:255',
+            'ibu_tempat_lahir' => 'nullable|string|max:255',
+            'ibu_tanggal_lahir' => 'nullable|date',
             'ibu_pekerjaan' => 'nullable|string|max:255',
             'ibu_pendidikan_terakhir' => 'nullable|string|max:255',
             'ibu_nomor_identitas' => 'nullable|string|max:255',
@@ -58,7 +60,7 @@ class SiswaController extends Controller
             'ibu_alamat_kantor' => 'nullable|string',
             'ibu_telepon_kantor' => 'nullable|string|max:20',
             'ibu_no_hp' => 'nullable|string|max:20',
-            
+
             'kontak_darurat_nama_lengkap' => 'nullable|string|max:255',
             'kontak_darurat_hubungan' => 'nullable|string|max:255',
             'kontak_darurat_pekerjaan' => 'nullable|string|max:255',
@@ -68,7 +70,7 @@ class SiswaController extends Controller
             'kontak_darurat_alamat_kantor' => 'nullable|string',
             'kontak_darurat_telepon_kantor' => 'nullable|string|max:20',
             'kontak_darurat_no_hp' => 'nullable|string|max:20',
-            
+
             'lokasi_pendaftaran' => 'nullable|string|max:255',
             'tanggal_pendaftaran' => 'nullable|date',
         ]);

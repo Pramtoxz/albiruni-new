@@ -112,7 +112,8 @@ class SiswaController extends Controller
             'riwayat_alergi_makanan' => 'nullable|string',
 
             'ayah_nama_lengkap' => 'nullable|string|max:255',
-            'ayah_tempat_tanggal_lahir' => 'nullable|string|max:255',
+            'ayah_tempat_lahir' => 'nullable|string|max:255',
+            'ayah_tanggal_lahir' => 'nullable|date',
             'ayah_pekerjaan' => 'nullable|string|max:255',
             'ayah_pendidikan_terakhir' => 'nullable|string|max:255',
             'ayah_nomor_identitas' => 'nullable|string|max:255',
@@ -123,7 +124,8 @@ class SiswaController extends Controller
             'ayah_no_hp' => 'nullable|string|max:20',
 
             'ibu_nama_lengkap' => 'nullable|string|max:255',
-            'ibu_tempat_tanggal_lahir' => 'nullable|string|max:255',
+            'ibu_tempat_lahir' => 'nullable|string|max:255',
+            'ibu_tanggal_lahir' => 'nullable|date',
             'ibu_pekerjaan' => 'nullable|string|max:255',
             'ibu_pendidikan_terakhir' => 'nullable|string|max:255',
             'ibu_nomor_identitas' => 'nullable|string|max:255',
