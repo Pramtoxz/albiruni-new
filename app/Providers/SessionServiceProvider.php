@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Session\SessionManager;
 
 class SessionServiceProvider extends ServiceProvider
 {
@@ -31,13 +30,44 @@ class SessionServiceProvider extends ServiceProvider
     {
         if (!$this->app->runningInConsole() && $this->isWebviewRequest()) {
             // For webview requests, adjust session configuration
+            // Use secure cookies based on environment (HTTPS detection)
+            $isSecure = $this->isSecureConnection();
+            
             config([
-                'session.same_site' => 'none',
-                'session.secure' => true, // Required when same_site is 'none'
-                'session.lifetime' => 240, // Longer session for webview stability (4 hours)
+                'session.same_site' => $isSecure ? 'none' : 'lax',
+                'session.secure' => $isSecure,
+                'session.lifetime' => 43200, // 30 days (30 * 24 * 60 = 43200 minutes)
                 'session.expire_on_close' => false, // Don't expire on close for webview
             ]);
         }
+    }
+
+    /**
+     * Check if the current connection is secure (HTTPS)
+     */
+    protected function isSecureConnection(): bool
+    {
+        // Check if running on HTTPS
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+            return true;
+        }
+
+        // Check if behind a proxy/load balancer (AWS, Cloudflare, etc.)
+        if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            return true;
+        }
+
+        // Check if behind AWS ELB
+        if (!empty($_SERVER['HTTP_X_FORWARDED_PORT']) && $_SERVER['HTTP_X_FORWARDED_PORT'] === '443') {
+            return true;
+        }
+
+        // Force secure in production environment
+        if (config('app.env') === 'production') {
+            return true;
+        }
+
+        return false;
     }
 
     /**
