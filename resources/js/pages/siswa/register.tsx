@@ -37,7 +37,8 @@ export default function RegisterSiswa() {
         
         // Data Ayah
         ayah_nama_lengkap: '',
-        ayah_tempat_tanggal_lahir: '',
+        ayah_tempat_lahir: '',
+        ayah_tanggal_lahir: '',
         ayah_pekerjaan: '',
         ayah_pendidikan_terakhir: '',
         ayah_nomor_identitas: '',
@@ -49,7 +50,8 @@ export default function RegisterSiswa() {
         
         // Data Ibu
         ibu_nama_lengkap: '',
-        ibu_tempat_tanggal_lahir: '',
+        ibu_tempat_lahir: '',
+        ibu_tanggal_lahir: '',
         ibu_pekerjaan: '',
         ibu_pendidikan_terakhir: '',
         ibu_nomor_identitas: '',
@@ -327,11 +329,22 @@ export default function RegisterSiswa() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="ayah_tempat_tanggal_lahir">Tempat/Tanggal Lahir</Label>
+                                <Label htmlFor="ayah_tempat_lahir">Tempat Lahir</Label>
                                 <Input
-                                    id="ayah_tempat_tanggal_lahir"
-                                    value={data.ayah_tempat_tanggal_lahir}
-                                    onChange={(e) => setData('ayah_tempat_tanggal_lahir', e.target.value)}
+                                    id="ayah_tempat_lahir"
+                                    value={data.ayah_tempat_lahir}
+                                    onChange={(e) => setData('ayah_tempat_lahir', e.target.value)}
+                                    placeholder="Contoh: Padang"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="ayah_tanggal_lahir">Tanggal Lahir</Label>
+                                <Input
+                                    id="ayah_tanggal_lahir"
+                                    type="date"
+                                    value={data.ayah_tanggal_lahir}
+                                    onChange={(e) => setData('ayah_tanggal_lahir', e.target.value)}
                                 />
                             </div>
 
@@ -424,11 +437,22 @@ export default function RegisterSiswa() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="ibu_tempat_tanggal_lahir">Tempat/Tanggal Lahir</Label>
+                                <Label htmlFor="ibu_tempat_lahir">Tempat Lahir</Label>
                                 <Input
-                                    id="ibu_tempat_tanggal_lahir"
-                                    value={data.ibu_tempat_tanggal_lahir}
-                                    onChange={(e) => setData('ibu_tempat_tanggal_lahir', e.target.value)}
+                                    id="ibu_tempat_lahir"
+                                    value={data.ibu_tempat_lahir}
+                                    onChange={(e) => setData('ibu_tempat_lahir', e.target.value)}
+                                    placeholder="Contoh: Padang"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="ibu_tanggal_lahir">Tanggal Lahir</Label>
+                                <Input
+                                    id="ibu_tanggal_lahir"
+                                    type="date"
+                                    value={data.ibu_tanggal_lahir}
+                                    onChange={(e) => setData('ibu_tanggal_lahir', e.target.value)}
                                 />
                             </div>
 

@@ -67,6 +67,9 @@ class DailyReportController extends Controller
                 ];
             });
 
+        // Get all emosi
+        $emosis = \App\Models\Emosi::orderBy('nama_emosi')->get();
+
         $menuMingguan = \App\Models\MenuMingguan::with('menuHarian')
             ->where('is_active', true)
             ->first();
@@ -143,6 +146,7 @@ class DailyReportController extends Controller
             'menuMakanan' => $menuMakanan,
             'menuMingguan' => $menuMingguan,
             'kegiatanHarian' => $kegiatanHarian,
+            'emosis' => $emosis,
         ]);
     }
 
@@ -188,6 +192,8 @@ class DailyReportController extends Controller
             'catatan_insiden' => 'nullable|string',
 
             'foto_kegiatan' => 'nullable|image|max:5120', // 5MB
+            'emosi_ids' => 'nullable|array',
+            'emosi_ids.*' => 'exists:emosis,id',
         ]);
 
         if ($request->hasFile('foto_kegiatan')) {
@@ -202,13 +208,18 @@ class DailyReportController extends Controller
 
         $report = DailyReport::create($validated);
 
+        // Attach emosis
+        if (isset($validated['emosi_ids'])) {
+            $report->emosis()->attach($validated['emosi_ids']);
+        }
+
         return redirect()->route('guru.daily-report.index')
             ->with('success', 'Daily report berhasil disimpan!');
     }
 
     public function show(DailyReport $dailyReport): Response
     {
-        $dailyReport->load(['siswa', 'user']);
+        $dailyReport->load(['siswa', 'user', 'emosis']);
 
         return Inertia::render('guru/daily-report-show', [
             'report' => $dailyReport,
@@ -223,8 +234,8 @@ class DailyReportController extends Controller
                 ->with('error', 'Daily report sudah final dan tidak bisa diedit lagi.');
         }
 
-        // Load siswa relationship
-        $dailyReport->load('siswa');
+        // Load siswa and emosis relationship
+        $dailyReport->load(['siswa', 'emosis']);
 
         $user = auth()->user();
         $guru = $user->guru;
@@ -326,12 +337,16 @@ class DailyReportController extends Controller
                 ];
             });
 
+        // Get all emosi
+        $emosis = \App\Models\Emosi::orderBy('nama_emosi')->get();
+
         return Inertia::render('guru/daily-report-edit', [
             'report' => $dailyReport,
             'siswaList' => $siswaList,
             'menuMakanan' => $menuMakanan,
             'menuMingguan' => $menuMingguan,
             'kegiatanHarian' => $kegiatanHarian,
+            'emosis' => $emosis,
         ]);
     }
 
@@ -384,6 +399,8 @@ class DailyReportController extends Controller
             'catatan_insiden' => 'nullable|string',
 
             'foto_kegiatan' => 'nullable|image|max:5120', // 5MB
+            'emosi_ids' => 'nullable|array',
+            'emosi_ids.*' => 'exists:emosis,id',
         ]);
 
         // Handle photo upload
@@ -403,6 +420,13 @@ class DailyReportController extends Controller
         }
 
         $dailyReport->update($validated);
+
+        // Sync emosis
+        if (isset($validated['emosi_ids'])) {
+            $dailyReport->emosis()->sync($validated['emosi_ids']);
+        } else {
+            $dailyReport->emosis()->detach();
+        }
 
         return redirect()->route('guru.daily-report.show', $dailyReport)
             ->with('success', 'Daily report berhasil diupdate!');
@@ -477,7 +501,7 @@ class DailyReportController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $dailyReport->load(['siswa', 'user']);
+        $dailyReport->load(['siswa', 'user', 'emosis']);
 
         return Inertia::render('orangtua/daily-report-show', [
             'report' => $dailyReport,

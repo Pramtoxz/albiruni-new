@@ -25,6 +25,7 @@ import {
     CreditCard,
     GraduationCap,
     UserCog,
+    Smile,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -95,6 +96,11 @@ export function AppSidebar() {
             title: 'Rencana Pembelajaran',
             href: '/admin/rencana-pembelajaran',
             icon: GraduationCap,
+        });
+        mainNavItems.push({
+            title: 'Emosi',
+            href: '/admin/emosi',
+            icon: Smile,
         });
     }
 

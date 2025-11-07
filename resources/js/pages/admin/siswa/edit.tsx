@@ -44,6 +44,13 @@ interface Props {
 }
 
 export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
+    // Format dates to YYYY-MM-DD for input[type="date"]
+    const formatDate = (dateString: string | null | undefined) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+    };
+
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         kelas_id: siswa.kelas_id?.toString() || '',
@@ -53,7 +60,7 @@ export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
         nama_panggilan: siswa.nama_panggilan || '',
         jenis_kelamin: siswa.jenis_kelamin || '',
         tempat_lahir: siswa.tempat_lahir || '',
-        tanggal_lahir: siswa.tanggal_lahir || '',
+        tanggal_lahir: formatDate(siswa.tanggal_lahir),
         agama: siswa.agama || '',
         kewarganegaraan: siswa.kewarganegaraan || 'Indonesia',
         anak_ke: siswa.anak_ke?.toString() || '',
@@ -96,7 +103,7 @@ export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
         kontak_darurat_telepon_kantor: siswa.kontak_darurat_telepon_kantor || '',
         kontak_darurat_no_hp: siswa.kontak_darurat_no_hp || '',
         lokasi_pendaftaran: siswa.lokasi_pendaftaran || '',
-        tanggal_pendaftaran: siswa.tanggal_pendaftaran || '',
+        tanggal_pendaftaran: formatDate(siswa.tanggal_pendaftaran),
         jenis_pembayaran: siswa.jenis_pembayaran || '',
     });
 

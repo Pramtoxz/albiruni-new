@@ -26,18 +26,36 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-
          User::firstOrCreate(
-            ['email' => 'orangtua1@gmail.com'],
+            ['email' => 'azali@gmail.com'],
             [
-                'name' => 'Orang Tua 1',
-                'role' => 'orangtua',
+                'name' => 'Azzalia Darma Putri',
+                'role' => 'guru',
                 'password' => Hash::make('1234'),
-                'nohp' => '6282279690769',
+                'nohp' => '6282173427113',
                 'email_verified_at' => now(),
             ]
         );
-
+         User::firstOrCreate(
+            ['email' => 'shinta@gmail.com'],
+            [
+                'name' => 'Shinta Gusri Amanda',
+                'role' => 'guru',
+                'password' => Hash::make('1234'),
+                'nohp' => '6281268632133',
+                'email_verified_at' => now(),
+            ]
+        );
+         User::firstOrCreate(
+            ['email' => 'messi@gmail.com'],
+            [
+                'name' => 'Mesi Fitri Yanti',
+                'role' => 'guru',
+                'password' => Hash::make('1234'),
+                'nohp' => '6283180659296',
+                'email_verified_at' => now(),
+            ]
+        );
 
     }
 }

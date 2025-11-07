@@ -4,6 +4,12 @@ import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Check, X, Star, Sparkles, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+interface Emosi {
+    id: number;
+    nama_emosi: string;
+    deskripsi: string;
+}
+
 interface DailyReport {
     id: number;
     tanggal: string;
@@ -16,6 +22,7 @@ interface DailyReport {
     user: {
         name: string;
     };
+    emosis: Emosi[];
     sarapan_pagi: string;
     sarapan_status: number;
     makan_siang: string;
@@ -173,6 +180,37 @@ export default function OrangtuaDailyReportShow({ report }: Props) {
                                     <h3 className="font-bold text-gray-800">🎯 Aktivitas Hari Ini</h3>
                                 </div>
                                 <p className="text-sm text-gray-700">{report.activity}</p>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Emosi */}
+                    {report.emosis && report.emosis.length > 0 && (
+                        <Card className="border-0 shadow-lg rounded-3xl overflow-hidden bg-gradient-to-r from-purple-50 to-pink-50">
+                            <CardContent className="p-4">
+                                <div className="mb-3 flex items-center gap-2">
+                                    <div className="h-8 w-1 rounded-full bg-gradient-to-b from-purple-400 to-pink-400"></div>
+                                    <h3 className="font-bold text-gray-800">💭 Emosi Hari Ini</h3>
+                                </div>
+                                <div className="space-y-3">
+                                    {report.emosis.map((emosi) => (
+                                        <div
+                                            key={emosi.id}
+                                            className="flex items-start gap-3 rounded-lg bg-white p-3 shadow-sm border border-purple-200"
+                                        >
+                                            <div className="flex h-5 w-5 items-center justify-center rounded border-2 border-purple-600 bg-purple-600 mt-0.5">
+                                                <Check className="h-4 w-4 text-white" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="font-medium text-gray-800">{emosi.nama_emosi}</p>
+                                                <p className="text-xs text-gray-600 mt-1">{emosi.deskripsi}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="mt-3 text-xs text-gray-600">
+                                    {report.emosis.length} emosi yang dialami hari ini
+                                </p>
                             </CardContent>
                         </Card>
                     )}

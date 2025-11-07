@@ -40,12 +40,19 @@ interface KegiatanHarian {
     deskripsi?: string;
 }
 
+interface Emosi {
+    id: number;
+    nama_emosi: string;
+    deskripsi: string;
+}
+
 interface DailyReport {
     id: number;
     siswa_id: number;
     tanggal: string;
     mood: string;
     activity: string;
+    emosis: Emosi[];
     sarapan_pagi: string;
     sarapan_status: number;
     makan_siang: string;
@@ -77,9 +84,10 @@ interface Props {
     };
     menuMingguan?: any;
     kegiatanHarian: KegiatanHarian[];
+    emosis: Emosi[];
 }
 
-export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiatanHarian }: Props) {
+export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiatanHarian, emosis }: Props) {
     const [selectedSiswa, setSelectedSiswa] = useState<Siswa | null>(null);
 
     // Format date to YYYY-MM-DD for input[type="date"]
@@ -94,6 +102,7 @@ export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiat
         tanggal: formatDate(report.tanggal),
         mood: report.mood || '',
         activity: report.activity || '',
+        emosi_ids: report.emosis?.map(e => e.id) || [] as number[],
         sarapan_pagi: report.sarapan_pagi || '',
         sarapan_status: report.sarapan_status || 0,
         makan_siang: report.makan_siang || '',
@@ -300,6 +309,40 @@ export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiat
                                     )}
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Emosi */}
+                        <div className="space-y-4 rounded-3xl border-0 bg-white p-4 shadow-lg">
+                            <h2 className="text-lg font-semibold">💭 Emosi Hari Ini</h2>
+                            <p className="text-sm text-muted-foreground">Pilih emosi yang dialami siswa (bisa lebih dari satu)</p>
+                            <div className="space-y-3">
+                                {emosis.map((emosi) => (
+                                    <div key={emosi.id} className="flex items-start space-x-3 rounded-lg border p-3 hover:bg-gray-50">
+                                        <Checkbox
+                                            id={`emosi-${emosi.id}`}
+                                            checked={data.emosi_ids.includes(emosi.id)}
+                                            onCheckedChange={(checked) => {
+                                                if (checked) {
+                                                    setData('emosi_ids', [...data.emosi_ids, emosi.id]);
+                                                } else {
+                                                    setData('emosi_ids', data.emosi_ids.filter(id => id !== emosi.id));
+                                                }
+                                            }}
+                                        />
+                                        <div className="flex-1">
+                                            <Label htmlFor={`emosi-${emosi.id}`} className="cursor-pointer font-medium">
+                                                {emosi.nama_emosi}
+                                            </Label>
+                                            <p className="text-xs text-muted-foreground">{emosi.deskripsi}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            {data.emosi_ids.length > 0 && (
+                                <p className="text-sm text-green-600">
+                                    ✓ {data.emosi_ids.length} emosi dipilih
+                                </p>
+                            )}
                         </div>
 
                         {/* Makanan */}

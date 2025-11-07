@@ -21,6 +21,7 @@ class Kehadiran extends Model
     protected $casts = [
         'tanggal' => 'date',
         'waktu_hadir' => 'datetime:H:i:s',
+        'waktu_pulang' => 'datetime:H:i:s',
     ];
 
     public function siswa(): BelongsTo

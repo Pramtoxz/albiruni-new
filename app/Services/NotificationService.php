@@ -26,6 +26,9 @@ class NotificationService
                 return;
             }
 
+            // Load emosis relationship
+            $report->load('emosis');
+
             $parentPhone = $siswa->user->nohp;
             $message = $this->buildDailyReportMessage($report, $siswa);
 
@@ -67,6 +70,41 @@ class NotificationService
         $message .= "😊 Mood: {$report->mood}\n";
         $message .= "\n";
 
+        // Kehadiran (waktu hadir dan pulang)
+        $kehadiran = \App\Models\Kehadiran::where('siswa_id', $siswa->id)
+            ->whereDate('tanggal', $report->tanggal)
+            ->first();
+
+        $message .= "🕐 *Kehadiran:*\n";
+        if ($kehadiran) {
+            if ($kehadiran->waktu_hadir) {
+                $waktuHadir = \Carbon\Carbon::parse($kehadiran->waktu_hadir)->format('H:i');
+                $message .= "• Hadir: {$waktuHadir}\n";
+            } else {
+                $message .= "• Hadir: Belum tercatat\n";
+            }
+            
+            if ($kehadiran->waktu_pulang) {
+                $waktuPulang = \Carbon\Carbon::parse($kehadiran->waktu_pulang)->format('H:i');
+                $message .= "• Pulang: {$waktuPulang}\n";
+            } else {
+                $message .= "• Pulang: Belum pulang\n";
+            }
+        } else {
+            $message .= "• Hadir: Belum tercatat\n";
+            $message .= "• Pulang: Belum tercatat\n";
+        }
+        $message .= "\n";
+
+        // Emosi
+        if ($report->emosis && $report->emosis->count() > 0) {
+            $message .= "💭 *Emosi Hari Ini:*\n";
+            foreach ($report->emosis as $emosi) {
+                $message .= "✓ {$emosi->nama_emosi}\n";
+            }
+            $message .= "\n";
+        }
+
         // Activity
         if ($report->activity) {
             $message .= "🎯 *Aktivitas Hari Ini:*\n";
@@ -87,22 +125,40 @@ class NotificationService
         }
         $message .= "\n";
 
+        // Minuman
+        if ($report->minum_air_putih || $report->minum_susu) {
+            $message .= "🥤 *Minuman:*\n";
+            if ($report->minum_air_putih) {
+                $message .= "• Air Putih: {$report->minum_air_putih}\n";
+            }
+            if ($report->minum_susu) {
+                $message .= "• Susu: {$report->minum_susu}\n";
+            }
+            $message .= "\n";
+        }
+
         // Ringkasan tidur & toilet
         $message .= "😴 *Tidur & Toilet:*\n";
-        $message .= '• Tidur Siang: '.($report->tidur_siang ? '✅' : '❌')."\n";
+        $message .= '• Tidur Siang: '.($report->tidur_siang ? '✅' : '❌');
+        if ($report->tidur_siang && $report->tidur_siang_durasi) {
+            $message .= " ({$report->tidur_siang_durasi})";
+        }
+        $message .= "\n";
         $message .= '• BAK: '.($report->bak ? "✅ {$report->bak_frekuensi}x" : '❌')."\n";
         $message .= '• BAB: '.($report->bab ? "✅ {$report->bab_frekuensi}x" : '❌')."\n";
         $message .= "\n";
 
-        // Highlight catatan penting
-        if ($report->catatan_insiden) {
-            $message .= "⚠️ *Ada Catatan Insiden*\n";
-            $message .= "\n";
-        } elseif ($report->catatan_khusus) {
-            $message .= "� **Ada Catatan Khusus*\n";
-            $message .= "\n";
-        }
+        // Catatan Insiden
+        $message .= "⚠️ *Catatan Insiden:*\n";
+        $message .= $report->catatan_insiden ?: "Tidak ada insiden";
+        $message .= "\n\n";
 
+        // Catatan Khusus
+        $message .= "📝 *Catatan Khusus:*\n";
+        $message .= $report->catatan_khusus ?: "Tidak ada catatan khusus";
+        $message .= "\n\n";
+
+        // Kebutuhan Besok
         if ($report->kebutuhan_besok) {
             $message .= "📦 *Kebutuhan Besok:*\n";
             $message .= "{$report->kebutuhan_besok}\n";

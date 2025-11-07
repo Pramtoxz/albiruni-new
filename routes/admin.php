@@ -50,4 +50,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // Guru Management
     Route::resource('guru', \App\Http\Controllers\Admin\GuruController::class);
+
+    // Emosi Management
+    Route::resource('emosi', \App\Http\Controllers\Admin\EmosiController::class);
 });
