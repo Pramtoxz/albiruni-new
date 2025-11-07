@@ -3,6 +3,7 @@
 use App\Http\Controllers\DeviceTokenController;
 use App\Http\Controllers\OrangtuaDashboardController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\KehadiranController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -12,15 +13,16 @@ Route::get('/', function () {
 
 // Kehadiran Routes (Public - untuk tablet dan TV)
 Route::prefix('kehadiran')->name('kehadiran.')->group(function () {
-    Route::get('setup', [\App\Http\Controllers\KehadiranController::class, 'setup'])->name('setup');
-    Route::get('tablet', [\App\Http\Controllers\KehadiranController::class, 'tablet'])->name('tablet');
-    Route::get('display', [\App\Http\Controllers\KehadiranController::class, 'display'])->name('display');
+    // New routes with cabang_id parameter
+    Route::get('tablet/{cabang_id}', [KehadiranController::class, 'tablet'])->name('tablet');
+    Route::get('display/{cabang_id}', [KehadiranController::class, 'display'])->name('display');
 
-    Route::get('api/kelas', [\App\Http\Controllers\KehadiranController::class, 'getKelas'])->name('api.kelas');
-    Route::get('api/siswa/{kelasId}', [\App\Http\Controllers\KehadiranController::class, 'getSiswaByKelas'])->name('api.siswa');
-    Route::post('api/hadir', [\App\Http\Controllers\KehadiranController::class, 'store'])->name('api.store');
-    Route::post('api/pulang', [\App\Http\Controllers\KehadiranController::class, 'storePulang'])->name('api.pulang');
-    Route::get('api/hari-ini', [\App\Http\Controllers\KehadiranController::class, 'getKehadiranHariIni'])->name('api.hari-ini');
+    // API routes
+    Route::get('api/kelas/{cabang_id}', [KehadiranController::class, 'getKelas'])->name('api.kelas');
+    Route::get('api/siswa/{cabang_id}/{kelasId}', [KehadiranController::class, 'getSiswaByKelas'])->name('api.siswa');
+    Route::post('api/hadir', [KehadiranController::class, 'store'])->name('api.store');
+    Route::post('api/pulang', [KehadiranController::class, 'storePulang'])->name('api.pulang');
+    Route::get('api/hari-ini/{cabang_id}', [KehadiranController::class, 'getKehadiranHariIni'])->name('api.hari-ini');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

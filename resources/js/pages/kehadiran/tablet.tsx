@@ -4,15 +4,19 @@ import CheckInFlow from '@/components/kehadiran/CheckInFlow';
 import CheckOutFlow from '@/components/kehadiran/CheckOutFlow';
 import kelasBackground from '@/assets/absen/kelas.webp';
 
-export default function TabletKehadiran() {
+interface Cabang {
+    id: number;
+    nama_cabang: string;
+}
+
+interface Props {
+    cabang: Cabang;
+}
+
+export default function TabletKehadiran({ cabang }: Props) {
     const [mode, setMode] = useState<'checkin' | 'checkout'>('checkin');
-    const lokasi = localStorage.getItem('lokasi_cabang') || '';
 
     useEffect(() => {
-        if (!lokasi) {
-            window.location.href = '/kehadiran/setup';
-            return;
-        }
 
         // Load voices untuk TTS
         if (window.speechSynthesis.getVoices().length === 0) {
@@ -47,9 +51,9 @@ export default function TabletKehadiran() {
                 }}
             >
                 {mode === 'checkin' ? (
-                    <CheckInFlow lokasi={lokasi} onModeChange={setMode} />
+                    <CheckInFlow cabang={cabang} onModeChange={setMode} />
                 ) : (
-                    <CheckOutFlow lokasi={lokasi} onModeChange={setMode} />
+                    <CheckOutFlow cabang={cabang} onModeChange={setMode} />
                 )}
             </div>
         </>

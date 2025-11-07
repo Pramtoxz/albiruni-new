@@ -38,7 +38,6 @@ return new class extends Migration
             
             // Data Ayah
             $table->string('ayah_nama_lengkap')->nullable();
-            $table->string('ayah_tempat_tanggal_lahir')->nullable();
             $table->string('ayah_pekerjaan')->nullable();
             $table->string('ayah_pendidikan_terakhir')->nullable();
             $table->string('ayah_nomor_identitas')->nullable();
@@ -50,7 +49,6 @@ return new class extends Migration
             
             // Data Ibu
             $table->string('ibu_nama_lengkap')->nullable();
-            $table->string('ibu_tempat_tanggal_lahir')->nullable();
             $table->string('ibu_pekerjaan')->nullable();
             $table->string('ibu_pendidikan_terakhir')->nullable();
             $table->string('ibu_nomor_identitas')->nullable();

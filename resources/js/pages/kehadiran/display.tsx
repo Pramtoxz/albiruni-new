@@ -16,7 +16,16 @@ interface KehadiranItem {
     jenis_interaksi: 'tos' | 'tinju';
 }
 
-export default function DisplayKehadiran() {
+interface Cabang {
+    id: number;
+    nama_cabang: string;
+}
+
+interface Props {
+    cabang: Cabang;
+}
+
+export default function DisplayKehadiran({ cabang }: Props) {
     const [kehadiranList, setKehadiranList] = useState<KehadiranItem[]>([]);
     const [latestKehadiran, setLatestKehadiran] = useState<KehadiranItem | null>(null);
     const [showAnimation, setShowAnimation] = useState(false);
@@ -74,7 +83,7 @@ export default function DisplayKehadiran() {
 
     const checkNewKehadiran = async () => {
         try {
-            const response = await axios.get('/kehadiran/api/hari-ini');
+            const response = await axios.get(`/kehadiran/api/hari-ini/${cabang.id}`);
             const newList: KehadiranItem[] = response.data;
 
             // Cek apakah ada kehadiran baru berdasarkan ID terbesar
@@ -98,7 +107,7 @@ export default function DisplayKehadiran() {
 
     const loadKehadiranHariIni = async () => {
         try {
-            const response = await axios.get('/kehadiran/api/hari-ini');
+            const response = await axios.get(`/kehadiran/api/hari-ini/${cabang.id}`);
             const data: KehadiranItem[] = response.data;
             setKehadiranList(data);
 

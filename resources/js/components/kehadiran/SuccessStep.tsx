@@ -19,7 +19,10 @@ export default function SuccessStep({ mode, siswa }: SuccessStepProps) {
 
     useEffect(() => {
         if (yeyAudioRef.current) {
-            yeyAudioRef.current.play();
+            yeyAudioRef.current.play().catch((error) => {
+                console.error('Audio play error:', error);
+                // Lanjutkan meskipun audio gagal
+            });
         }
     }, []);
 
@@ -29,7 +32,14 @@ export default function SuccessStep({ mode, siswa }: SuccessStepProps) {
             <div className="flex items-center justify-center h-screen">
                 <div className="text-center bg-white/80 backdrop-blur-sm rounded-3xl p-12">
                     <div className="w-50 h-50 mx-auto">
-                        <Lottie animationData={jumpAnimation} loop={true} />
+                        <Lottie 
+                            animationData={jumpAnimation} 
+                            loop={true}
+                            rendererSettings={{
+                                preserveAspectRatio: 'xMidYMid slice',
+                                progressiveLoad: true
+                            }}
+                        />
                     </div>
                     <p className="text-4xl text-blue mt-4 drop-shadow-lg">
                         {mode === 'checkin' ? 'Selamat Datang' : 'Hati-hati di Jalan'}

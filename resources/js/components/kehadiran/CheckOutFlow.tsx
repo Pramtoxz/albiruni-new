@@ -16,12 +16,17 @@ interface Siswa {
     foto: string | null;
 }
 
+interface Cabang {
+    id: number;
+    nama_cabang: string;
+}
+
 interface CheckOutFlowProps {
-    lokasi: string;
+    cabang: Cabang;
     onModeChange: (mode: 'checkin' | 'checkout') => void;
 }
 
-export default function CheckOutFlow({ lokasi, onModeChange }: CheckOutFlowProps) {
+export default function CheckOutFlow({ cabang, onModeChange }: CheckOutFlowProps) {
     const [step, setStep] = useState<'kelas' | 'siswa' | 'rating' | 'success'>('kelas');
     const [kelasList, setKelasList] = useState<Kelas[]>([]);
     const [siswaList, setSiswaList] = useState<Siswa[]>([]);
@@ -29,9 +34,7 @@ export default function CheckOutFlow({ lokasi, onModeChange }: CheckOutFlowProps
 
     const loadKelas = async () => {
         try {
-            const response = await axios.get('/kehadiran/api/kelas', {
-                params: { lokasi }
-            });
+            const response = await axios.get(`/kehadiran/api/kelas/${cabang.id}`);
             setKelasList(response.data);
         } catch (error) {
             console.error('Error loading kelas:', error);
@@ -40,9 +43,8 @@ export default function CheckOutFlow({ lokasi, onModeChange }: CheckOutFlowProps
 
     const handleSelectKelas = async (kelasId: number) => {
         try {
-            const response = await axios.get(`/kehadiran/api/siswa/${kelasId}`, {
+            const response = await axios.get(`/kehadiran/api/siswa/${cabang.id}/${kelasId}`, {
                 params: {
-                    lokasi,
                     only_hadir: true
                 }
             });
