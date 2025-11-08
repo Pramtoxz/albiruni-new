@@ -47,6 +47,13 @@ export default function DisplayKehadiran({ cabang }: Props) {
 
     const musicRef = useRef<HTMLAudioElement>(null);
 
+    // --- PERUBAHAN 1: Paksa Light Mode (Hapus class 'dark') ---
+    // Efek ini akan berjalan sekali saat komponen dimuat
+    useEffect(() => {
+        // 1. Hapus class 'dark' dari <html> jika ada (untuk Tailwind 'class' strategy)
+        document.documentElement.classList.remove('dark');
+    }, []); // [] = jalankan sekali saja
+
     useEffect(() => {
         loadKehadiranHariIni();
 
@@ -137,7 +144,12 @@ export default function DisplayKehadiran({ cabang }: Props) {
 
     return (
         <>
-            <Head title="Display Kehadiran" />
+            {/* --- PERUBAHAN 2: Tambahkan meta tag color-scheme --- */}
+            <Head>
+                <title>Display Kehadiran</title>
+                {/* Ini memberi tahu browser untuk HANYA menggunakan mode terang */}
+                <meta name="color-scheme" content="light" />
+            </Head>
 
             {/* Audio element untuk musik sekolah */}
             <audio ref={musicRef} src={albiruniMusic} preload="auto" />
@@ -147,7 +159,7 @@ export default function DisplayKehadiran({ cabang }: Props) {
                 <div className="fixed inset-0 bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center z-50">
                     <div className="text-center">
                         <h1 className="text-8xl font-bold text-white mb-8 drop-shadow-2xl animate-pulse">
-                            🎉 Display Kehadiran 🎉
+                            🏫 Display Kehadiran 🏫
                         </h1>
                         <p className="text-3xl text-white mb-12">
                             Klik tombol di bawah untuk memulai
@@ -156,7 +168,7 @@ export default function DisplayKehadiran({ cabang }: Props) {
                             onClick={handleStart}
                             className="bg-white text-purple-600 px-16 py-8 rounded-full text-4xl font-bold shadow-2xl hover:scale-110 transform transition-all duration-300 hover:shadow-3xl"
                         >
-                            ▶ Mulai Display
+                            🚀 Mulai Display
                         </button>
                     </div>
                 </div>
@@ -232,10 +244,17 @@ export default function DisplayKehadiran({ cabang }: Props) {
                                                 alt={item.nama}
                                                 className="w-20 h-20 rounded-full mx-auto mb-3 object-cover border-4 border-white shadow-md"
                                                 onError={(e) => {
+                                                    // Sembunyikan gambar jika error
                                                     e.currentTarget.style.display = 'none';
+                                                    // Dapatkan parent dan ganti dengan placeholder
                                                     const parent = e.currentTarget.parentElement;
                                                     if (parent) {
-                                                        parent.innerHTML = '<div class="w-20 h-20 rounded-full mx-auto mb-3 bg-purple-300 flex items-center justify-center text-3xl">👤</div>';
+                                                        // Buat div placeholder baru
+                                                        const placeholder = document.createElement('div');
+                                                        placeholder.className = "w-20 h-20 rounded-full mx-auto mb-3 bg-purple-300 flex items-center justify-center text-3xl";
+                                                        placeholder.innerHTML = '👤';
+                                                        // Ganti img dengan placeholder
+                                                        parent.prepend(placeholder);
                                                     }
                                                 }}
                                             />

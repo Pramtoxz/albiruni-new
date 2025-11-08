@@ -554,11 +554,16 @@ export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
                         <CardContent className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="lokasi_pendaftaran">Lokasi Pendaftaran</Label>
-                                <Input
-                                    id="lokasi_pendaftaran"
+                                   <select
+                               id="lokasi_pendaftaran"
                                     value={data.lokasi_pendaftaran}
-                                    onChange={(e) => setData('lokasi_pendaftaran', e.target.value)}
-                                />
+                               onChange={(e) => setData('lokasi_pendaftaran', e.target.value)}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                required
+                            >
+                                <option value="Ulak Karang">Cabang Ulak Karang</option>
+                                <option value="Aur Duri">Cabang Aur Duri</option>
+                            </select>
                             </div>
 
                             <div className="space-y-2">
