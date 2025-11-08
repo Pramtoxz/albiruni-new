@@ -74,7 +74,7 @@ class KelasSeeder extends Seeder
          ]);
 
            Cabang::create([
-            'nama_cabang' => 'Aur Duri',
+            'nama_cabang' => 'Marapalam',
          ]);
     }
 }

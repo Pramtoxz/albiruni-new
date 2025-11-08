@@ -562,7 +562,7 @@ export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
                                 required
                             >
                                 <option value="Ulak Karang">Cabang Ulak Karang</option>
-                                <option value="Aur Duri">Cabang Aur Duri</option>
+                                <option value="Marapalam">Cabang Marapalam</option>
                             </select>
                             </div>
 

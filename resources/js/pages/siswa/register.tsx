@@ -681,7 +681,7 @@ export default function RegisterSiswa() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Ulak Karang">Ulak Karang</SelectItem>
-                                        <SelectItem value="Aur Duri">Aur Duri</SelectItem>
+                                        <SelectItem value="Marapalam">Marapalam</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 {errors.lokasi_pendaftaran && (

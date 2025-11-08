@@ -154,7 +154,7 @@ export default function PembayaranIndex({ pembayaran, filters }: Props) {
                                 <SelectContent>
                                     <SelectItem value="all">Semua Cabang</SelectItem>
                                     <SelectItem value="Ulak Karang">Ulak Karang</SelectItem>
-                                    <SelectItem value="Aur Duri">Aur Duri</SelectItem>
+                                    <SelectItem value="Marapalam">Marapalam</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

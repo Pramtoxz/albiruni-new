@@ -41,9 +41,9 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Cabang Aur Duri */}
+          {/* Cabang Marapalam */}
           <div className="text-center md:text-left">
-            <h3 className="text-white font-bold mb-3 text-lg">Cabang Aur Duri</h3>
+            <h3 className="text-white font-bold mb-3 text-lg">Cabang Marapalam</h3>
             <div className="space-y-2 text-blue-200 text-sm">
               <div className="flex items-start gap-2 justify-center md:justify-start">
                 <MapPin className="w-4 h-4 mt-1 flex-shrink-0 text-blue-400" />
