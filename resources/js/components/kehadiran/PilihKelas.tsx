@@ -46,19 +46,16 @@ export default function PilihKelas({ mode, kelasList, onSelectKelas, onLoadKelas
                 </div>
             </div>
 
-            <h1 className="text-4xl font-bold text-black text-center mb-12 drop-shadow-lg">
-                {mode === 'checkin' ? 'Silahkan Pilih Kelas Mu' : 'Pilih Kelas untuk Pulang'}
-            </h1>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          
+            <div className="grid grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {kelasList.map((kelas) => (
                     <button
                         key={kelas.id}
                         onClick={() => onSelectKelas(kelas.id)}
-                        className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl hover:scale-105 transform transition-all duration-300 hover:shadow-3xl"
-                        style={{ minHeight: '200px' }}
+                        className="bg-white/90 backdrop-blur-sm rounded-3xl p-12 shadow-2xl hover:scale-105 transform transition-all duration-300 hover:shadow-3xl"
                     >
-                        <div className="bg-white/90 rounded-2xl p-6">
-                            <p className="text-4xl font-bold text-gray-800">{kelas.nama_kelas}</p>
+                        <div className="bg-white/95 rounded-2xl p-8">
+                            <p className="text-5xl font-bold text-gray-800">{kelas.nama_kelas}</p>
                         </div>
                     </button>
                 ))}
