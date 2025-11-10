@@ -498,7 +498,34 @@ class DailyReportController extends Controller
 
     public function orangtuaShow(DailyReport $dailyReport): Response
     {
-        // TEMPORARY: Skip authorization untuk debug
+        $user = auth()->user();
+        
+        // Authorization check berdasarkan role
+        if ($user->role === 'orangtua') {
+            // Orangtua: cek berdasarkan user_id di tabel siswa
+            $siswaIds = Siswa::where('user_id', $user->id)->pluck('id')->toArray();
+
+            if (empty($siswaIds)) {
+                abort(403, 'Data siswa tidak ditemukan');
+            }
+
+            if (!in_array($dailyReport->siswa_id, $siswaIds)) {
+                abort(403, 'Anda tidak memiliki akses ke laporan ini');
+            }
+        } elseif ($user->role === 'guru') {
+            // Guru: cek berdasarkan guru_id di tabel siswa
+            $guru = $user->guru;
+            
+            if ($guru) {
+                $siswaIds = Siswa::where('guru_id', $guru->id)->pluck('id')->toArray();
+                
+                if (!in_array($dailyReport->siswa_id, $siswaIds)) {
+                    abort(403, 'Daily report ini bukan untuk siswa yang Anda handle');
+                }
+            }
+        }
+        // Admin bisa akses semua
+
         $dailyReport->load(['siswa', 'user', 'emosis']);
 
         return Inertia::render('orangtua/daily-report-show', [
