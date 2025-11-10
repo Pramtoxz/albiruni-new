@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
-import Lottie from 'lottie-react';
-import jumpAnimation from '@/assets/home/astro.json';
 import kehadiranBackground from '@/assets/absen/kehadiran.webp';
 import albiruniMusic from '@/assets/absen/albiruni.mp3';
 
@@ -27,8 +25,6 @@ interface Props {
 
 export default function DisplayKehadiran({ cabang }: Props) {
     const [kehadiranList, setKehadiranList] = useState<KehadiranItem[]>([]);
-    const [latestKehadiran, setLatestKehadiran] = useState<KehadiranItem | null>(null);
-    const [showAnimation, setShowAnimation] = useState(false);
     const [isStarted, setIsStarted] = useState(false);
     const [lastId, setLastId] = useState<number>(() => {
         // Load lastId dari localStorage
@@ -46,13 +42,94 @@ export default function DisplayKehadiran({ cabang }: Props) {
     });
 
     const musicRef = useRef<HTMLAudioElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollDirectionRef = useRef<number>(1); // 1 = down, -1 = up
+    const isPausedRef = useRef<boolean>(false);
 
-    // --- PERUBAHAN 1: Paksa Light Mode (Hapus class 'dark') ---
-    // Efek ini akan berjalan sekali saat komponen dimuat
+    // Force Light Mode - Multiple strategies untuk TV Xiaomi
     useEffect(() => {
-        // 1. Hapus class 'dark' dari <html> jika ada (untuk Tailwind 'class' strategy)
+        // 1. Hapus class 'dark' dari <html>
         document.documentElement.classList.remove('dark');
-    }, []); // [] = jalankan sekali saja
+        document.body.classList.remove('dark');
+        
+        // 2. Set inline style untuk force light background
+        document.documentElement.style.colorScheme = 'light';
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#000000';
+        
+        // 3. Add class 'light' explicitly
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+        
+        // 4. Override dengan !important via style tag
+        const styleTag = document.createElement('style');
+        styleTag.innerHTML = `
+            html, body {
+                color-scheme: light !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            * {
+                color-scheme: light !important;
+            }
+            /* Hide scrollbar but keep functionality */
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        `;
+        document.head.appendChild(styleTag);
+        
+        return () => {
+            document.head.removeChild(styleTag);
+        };
+    }, []);
+
+    // Auto-scroll effect
+    useEffect(() => {
+        if (!isStarted || !scrollContainerRef.current) return;
+
+        const container = scrollContainerRef.current;
+        const scrollSpeed = 1; // pixels per frame
+
+        const autoScroll = () => {
+            if (!container || isPausedRef.current) return;
+
+            const maxScroll = container.scrollHeight - container.clientHeight;
+            const currentScroll = container.scrollTop;
+            
+            // Jika sudah di bawah, pause lalu balik arah ke atas
+            if (currentScroll >= maxScroll - 5 && scrollDirectionRef.current === 1) {
+                isPausedRef.current = true;
+                setTimeout(() => {
+                    scrollDirectionRef.current = -1;
+                    isPausedRef.current = false;
+                }, 2000);
+                return;
+            }
+            
+            // Jika sudah di atas, pause lalu balik arah ke bawah
+            if (currentScroll <= 5 && scrollDirectionRef.current === -1) {
+                isPausedRef.current = true;
+                setTimeout(() => {
+                    scrollDirectionRef.current = 1;
+                    isPausedRef.current = false;
+                }, 2000);
+                return;
+            }
+
+            container.scrollTop += scrollDirectionRef.current * scrollSpeed;
+        };
+
+        const scrollInterval = setInterval(autoScroll, 30); // 30ms = smooth scroll
+
+        return () => {
+            clearInterval(scrollInterval);
+        };
+    }, [isStarted, kehadiranList]);
 
     useEffect(() => {
         loadKehadiranHariIni();
@@ -130,16 +207,8 @@ export default function DisplayKehadiran({ cabang }: Props) {
     };
 
     const handleNewKehadiran = (kehadiran: KehadiranItem) => {
-        setLatestKehadiran(kehadiran);
-        setShowAnimation(true);
-
-        // Musik tetap berjalan, tidak di-restart
-
-        // Hide animation after 5 seconds
-        setTimeout(() => {
-            setShowAnimation(false);
-            setLatestKehadiran(null);
-        }, 5000);
+        // Tidak ada animation popup, hanya update list
+        // Musik tetap berjalan
     };
 
     return (
@@ -175,64 +244,49 @@ export default function DisplayKehadiran({ cabang }: Props) {
             )}
 
             <div
-                className="min-h-screen p-8"
+                className="min-h-screen p-8 bg-white"
                 style={{
                     backgroundImage: `url(${kehadiranBackground})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
+                    backgroundColor: '#ffffff',
+                    colorScheme: 'light',
                 }}
             >
                 <div className="max-w-7xl mx-auto">
-                    {/* Animation Overlay */}
-                    {showAnimation && latestKehadiran && (
-                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-3xl p-12 shadow-2xl text-center max-w-2xl">
-                                <div className="w-64 h-64 mx-auto mb-6">
-                                    <Lottie animationData={jumpAnimation} loop={true} />
-                                </div>
-                                {latestKehadiran.foto && (
-                                    <img
-                                        src={`/assets/images/foto_siswa/${latestKehadiran.foto}`}
-                                        alt={latestKehadiran.nama}
-                                        className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-8 border-purple-400"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                        }}
-                                    />
-                                )}
-                                <h2 className="text-6xl font-bold text-gray-800 mb-4">
-                                    {latestKehadiran.nama}
-                                </h2>
-                                {/* <p className="text-4xl text-purple-600 font-semibold mb-2">
-                                    {latestKehadiran.kelas}
-                                </p> */}
-                                <p className="text-5xl font-bold text-green-600 animate-pulse">
-                                    Sudah Hadir!
+                    {/* Daftar Kehadiran */}
+                    <div className="h-[90vh] flex flex-col">
+                        <div className="flex-shrink-0 flex justify-center mb-4">
+                            <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-8 py-4 shadow-lg">
+                                <p className="text-3xl text-center text-gray-800 font-semibold whitespace-nowrap">
+                                    {new Date().toLocaleDateString('id-ID', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </p>
+                                <p className="text-4xl font-bold text-center text-purple-600 mt-2 whitespace-nowrap">
+                                    Total Hadir: {kehadiranList.length} Siswa
                                 </p>
                             </div>
                         </div>
-                    )}
-
-                    {/* Daftar Kehadiran */}
-                    <div className="bg-white/90 rounded-3xl p-8 shadow-2xl">
-                        <p className="text-3xl text-center text-gray-600 mt-4">
-                            {new Date().toLocaleDateString('id-ID', {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}
-                        </p>
-                        <p className="text-4xl font-bold text-center text-purple-600 mt-2">
-                            Total Hadir: {kehadiranList.length} Siswa
-                        </p>
 
                         {kehadiranList.length === 0 ? (
-                            <p className="text-3xl text-gray-500 text-center py-12">
-                                Belum ada siswa yang hadir
-                            </p>
+                            <div className="flex-1 flex items-center justify-center">
+                                <p className="text-4xl text-white font-bold text-center bg-purple-600/80 backdrop-blur-sm px-12 py-8 rounded-3xl shadow-2xl">
+                                    Belum ada siswa yang hadir
+                                </p>
+                            </div>
                         ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            <div 
+                                ref={scrollContainerRef}
+                                className="flex-1 overflow-y-auto scrollbar-hide"
+                                style={{
+                                    scrollBehavior: 'auto',
+                                }}
+                            >
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 pb-4">
                                 {kehadiranList.map((item) => (
                                     <div
                                         key={item.id}
@@ -274,6 +328,7 @@ export default function DisplayKehadiran({ cabang }: Props) {
                                         </p>
                                     </div>
                                 ))}
+                                </div>
                             </div>
                         )}
                     </div>

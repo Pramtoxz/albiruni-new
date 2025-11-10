@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Lottie from 'lottie-react';
 import sambutanAnimation from '@/assets/absen/sambutan.json';
+import fingerAnimation from '@/assets/absen/finger.json';
 import kelasBackground from '@/assets/absen/kelas.webp';
-import tosImage from '@/assets/absen/tos.webp';
-import tinjuImage from '@/assets/absen/tinju.webp';
 import tosSound from '@/assets/absen/tos.mp3';
 
 interface Siswa {
@@ -22,7 +21,9 @@ interface InteraksiStepProps {
 export default function InteraksiStep({ mode, siswa, jenisInteraksi, onSubmit }: InteraksiStepProps) {
     const [canTap, setCanTap] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(true);
+    const [showCheckmark, setShowCheckmark] = useState(false);
     const tosAudioRef = useRef<HTMLAudioElement>(null);
+    const lottieRef = useRef<any>(null);
 
     useEffect(() => {
         let fallbackTimeout: NodeJS.Timeout;
@@ -45,8 +46,8 @@ export default function InteraksiStep({ mode, siswa, jenisInteraksi, onSubmit }:
 
                 const greeting =
                     mode === 'checkin'
-                        ? ` Assalamualaikum Warahmatullahi Wabarakatuh ${siswa.nama}. Silahkan melakukan ${jenisInteraksi}`
-                        : ` Wassalamualaikum Warahmatullahi Wabarakatuh ${siswa.nama}. Hati hati di jalan. Silahkan melakukan ${jenisInteraksi}`;
+                        ? `Assalamualaikum Warahmatullahi Wabarakatuh ${siswa.nama}. Silahkan sentuh layar untuk absen masuk`
+                        : `Wassalamualaikum Warahmatullahi Wabarakatuh ${siswa.nama}. Hati hati di jalan. Silahkan sentuh layar untuk absen pulang`;
 
                 const utterance = new SpeechSynthesisUtterance(greeting);
                 utterance.lang = 'id-ID';
@@ -105,16 +106,28 @@ export default function InteraksiStep({ mode, siswa, jenisInteraksi, onSubmit }:
     }, [mode, siswa.nama, jenisInteraksi]);
 
     const handleTap = () => {
-        if (!canTap) return;
+        if (!canTap || showCheckmark) return;
 
+        // Disable tap
+        setCanTap(false);
+        setShowCheckmark(true);
+
+        // Play sound
         if (tosAudioRef.current) {
             tosAudioRef.current.play().catch((error) => {
                 console.error('Audio play error:', error);
-                // Lanjutkan meskipun audio gagal
             });
         }
 
-        onSubmit(siswa.id, jenisInteraksi);
+        // Play checkmark animation (frame 150-241)
+        if (lottieRef.current) {
+            lottieRef.current.playSegments([150, 241], true);
+        }
+
+        // Submit after 1 second
+        setTimeout(() => {
+            onSubmit(siswa.id, jenisInteraksi);
+        }, 1000);
     };
 
     return (
@@ -124,20 +137,36 @@ export default function InteraksiStep({ mode, siswa, jenisInteraksi, onSubmit }:
                 onClick={handleTap}
                 className={`flex items-center justify-center h-screen ${canTap ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                 style={{
-                    backgroundImage: isSpeaking
-                        ? `url(${kelasBackground})`
-                        : `url(${jenisInteraksi === 'tos' ? tosImage : tinjuImage})`,
+                    backgroundImage: `url(${kelasBackground})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
             >
-                {isSpeaking && (
+                {isSpeaking ? (
                     <div className="flex items-center justify-center w-full h-full">
                         <div className="bg-white/95 rounded-3xl p-12 shadow-2xl max-w-2xl">
                             <div className="w-80 h-80 mx-auto">
                                 <Lottie 
                                     animationData={sambutanAnimation} 
                                     loop={true}
+                                    rendererSettings={{
+                                        preserveAspectRatio: 'xMidYMid slice',
+                                        progressiveLoad: true
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center w-full h-full">
+                        <div className="bg-white/95 rounded-3xl p-16 shadow-2xl">
+                            <div className="w-96 h-96 mx-auto">
+                                <Lottie 
+                                    lottieRef={lottieRef}
+                                    animationData={fingerAnimation} 
+                                    loop={!showCheckmark}
+                                    autoplay={true}
+                                    initialSegment={showCheckmark ? [150, 241] : [0, 119]}
                                     rendererSettings={{
                                         preserveAspectRatio: 'xMidYMid slice',
                                         progressiveLoad: true
