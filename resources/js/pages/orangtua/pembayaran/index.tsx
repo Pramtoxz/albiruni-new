@@ -49,9 +49,18 @@ interface Props {
 export default function PembayaranIndex({ siswa, pembayaran }: Props) {
     const [selectedPembayaran, setSelectedPembayaran] = useState<Pembayaran | null>(null);
     const [viewBukti, setViewBukti] = useState<string | null>(null);
+    
+    const getTodayDate = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+    
     const { data, setData, post, processing, reset } = useForm({
         bukti_bayar: null as File | null,
-        tanggal_bayar: new Date().toISOString().split('T')[0],
+        tanggal_bayar: getTodayDate(),
     });
 
     const handleUpload: FormEventHandler = (e) => {

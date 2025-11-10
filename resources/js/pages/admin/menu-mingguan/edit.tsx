@@ -63,7 +63,10 @@ export default function MenuMingguanEdit({ menuMingguan }: Props) {
     // Format dates to YYYY-MM-DD for input[type="date"]
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        return date.toISOString().split('T')[0];
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     const { data, setData, put, processing, errors } = useForm({

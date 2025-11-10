@@ -38,6 +38,7 @@ interface KegiatanHarian {
     id: number;
     nama_aktivitas: string;
     deskripsi?: string;
+    kelas_id?: number;
 }
 
 interface Emosi {
@@ -129,12 +130,23 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
             }
         }
 
-        // Auto-fill activity from kegiatan harian
+        // Auto-fill activity from kegiatan harian - filter by kelas_id
         console.log('Checking kegiatanHarian:', kegiatanHarian);
-        if (kegiatanHarian && kegiatanHarian.length > 0) {
-            const activities = kegiatanHarian.map(k => k.nama_aktivitas).join(', ');
-            console.log('Activities string:', activities);
-            updates.activity = activities;
+        console.log('Siswa kelas_id:', siswa?.kelas_id);
+        
+        if (kegiatanHarian && kegiatanHarian.length > 0 && siswa?.kelas_id) {
+            // STRICT filter: only activities that match kelas_id exactly
+            const filteredActivities = kegiatanHarian.filter(k => k.kelas_id === siswa.kelas_id);
+            console.log('Filtered activities for kelas_id', siswa.kelas_id, ':', filteredActivities);
+            
+            if (filteredActivities.length > 0) {
+                const activities = filteredActivities.map(k => k.nama_aktivitas).join(', ');
+                console.log('Activities string:', activities);
+                updates.activity = activities;
+            } else {
+                console.log('No activities found for kelas_id:', siswa.kelas_id);
+                updates.activity = '';
+            }
         }
 
         console.log('Final updates:', updates);
@@ -272,9 +284,15 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                                         placeholder="Aktivitas akan terisi otomatis setelah memilih siswa..."
                                         rows={3}
                                     />
-                                    {kegiatanHarian && kegiatanHarian.length > 0 && (
+                                    {kegiatanHarian && kegiatanHarian.length > 0 && selectedSiswa?.kelas_id && (
                                         <p className="text-xs text-muted-foreground">
-                                            ✓ Aktivitas dari jadwal: {kegiatanHarian.map(k => k.nama_aktivitas).join(', ')}
+                                            {(() => {
+                                                const filtered = kegiatanHarian.filter(k => k.kelas_id === selectedSiswa.kelas_id);
+                                                if (filtered.length > 0) {
+                                                    return `✓ Aktivitas untuk kelas ini: ${filtered.map(k => k.nama_aktivitas).join(', ')}`;
+                                                }
+                                                return '⚠️ Belum ada aktivitas untuk kelas ini. Silakan isi manual.';
+                                            })()}
                                         </p>
                                     )}
                                 </div>

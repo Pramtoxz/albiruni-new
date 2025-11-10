@@ -19,7 +19,7 @@ class Kehadiran extends Model
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal' => 'date:Y-m-d',
         'waktu_hadir' => 'datetime:H:i:s',
         'waktu_pulang' => 'datetime:H:i:s',
     ];

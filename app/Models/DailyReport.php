@@ -36,7 +36,7 @@ class DailyReport extends Model
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal' => 'date:Y-m-d',
         'tidur_siang' => 'boolean',
         'bak' => 'boolean',
         'bab' => 'boolean',

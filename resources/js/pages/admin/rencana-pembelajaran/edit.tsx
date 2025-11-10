@@ -62,8 +62,14 @@ export default function RencanaPembelajaranEdit({ rencanaPembelajaran, kelas }: 
         const existing = rencanaPembelajaran.kegiatan_harian.find((k) => k.hari === hari);
         if (existing) {
             // Format tanggal untuk input type="date" (YYYY-MM-DD)
-            const formattedTanggal = existing.tanggal ?
-                (typeof existing.tanggal === 'string' ? existing.tanggal.split('T')[0] : existing.tanggal) : '';
+            let formattedTanggal = '';
+            if (existing.tanggal) {
+                const date = new Date(existing.tanggal);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                formattedTanggal = `${year}-${month}-${day}`;
+            }
 
             return {
                 hari: existing.hari,
@@ -92,17 +98,21 @@ export default function RencanaPembelajaranEdit({ rencanaPembelajaran, kelas }: 
         };
     });
 
+    const formatDateSafe = (dateString: string) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         nama_rencana: rencanaPembelajaran.nama_rencana,
         tema: rencanaPembelajaran.tema,
         sub_tema: rencanaPembelajaran.sub_tema || '',
-        tanggal_mulai: typeof rencanaPembelajaran.tanggal_mulai === 'string'
-            ? rencanaPembelajaran.tanggal_mulai.split('T')[0]
-            : rencanaPembelajaran.tanggal_mulai,
-        tanggal_selesai: typeof rencanaPembelajaran.tanggal_selesai === 'string'
-            ? rencanaPembelajaran.tanggal_selesai.split('T')[0]
-            : rencanaPembelajaran.tanggal_selesai,
+        tanggal_mulai: formatDateSafe(rencanaPembelajaran.tanggal_mulai),
+        tanggal_selesai: formatDateSafe(rencanaPembelajaran.tanggal_selesai),
         kelas_id: rencanaPembelajaran.kelas_id.toString(),
         is_active: rencanaPembelajaran.is_active,
         kegiatan_harian: initialKegiatan as Array<{
@@ -136,7 +146,10 @@ export default function RencanaPembelajaranEdit({ rencanaPembelajaran, kelas }: 
                 const kegiatanIndex = newKegiatan.findIndex((k) => k.hari === hari);
                 const tanggalHari = new Date(startDate);
                 tanggalHari.setDate(startDate.getDate() + index);
-                const formattedDate = tanggalHari.toISOString().split('T')[0];
+                const year = tanggalHari.getFullYear();
+                const month = String(tanggalHari.getMonth() + 1).padStart(2, '0');
+                const day = String(tanggalHari.getDate()).padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day}`;
 
                 if (kegiatanIndex >= 0) {
                     newKegiatan[kegiatanIndex].tanggal = formattedDate;
@@ -148,7 +161,10 @@ export default function RencanaPembelajaranEdit({ rencanaPembelajaran, kelas }: 
             // Auto-set tanggal_selesai (Jumat)
             const endDate = new Date(startDate);
             endDate.setDate(startDate.getDate() + 4);
-            setData('tanggal_selesai', endDate.toISOString().split('T')[0]);
+            const endYear = endDate.getFullYear();
+            const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+            const endDay = String(endDate.getDate()).padStart(2, '0');
+            setData('tanggal_selesai', `${endYear}-${endMonth}-${endDay}`);
         }
     };
 

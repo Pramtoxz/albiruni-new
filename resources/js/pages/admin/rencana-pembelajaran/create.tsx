@@ -69,7 +69,10 @@ export default function RencanaPembelajaranCreate({ kelas }: Props) {
                 const kegiatanIndex = newKegiatan.findIndex((k) => k.hari === hari);
                 const tanggalHari = new Date(startDate);
                 tanggalHari.setDate(startDate.getDate() + index);
-                const formattedDate = tanggalHari.toISOString().split('T')[0];
+                const year = tanggalHari.getFullYear();
+                const month = String(tanggalHari.getMonth() + 1).padStart(2, '0');
+                const day = String(tanggalHari.getDate()).padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day}`;
                 
                 if (kegiatanIndex >= 0) {
                     newKegiatan[kegiatanIndex].tanggal = formattedDate;
@@ -94,7 +97,10 @@ export default function RencanaPembelajaranCreate({ kelas }: Props) {
             // Auto-set tanggal_selesai (Jumat)
             const endDate = new Date(startDate);
             endDate.setDate(startDate.getDate() + 4);
-            setData('tanggal_selesai', endDate.toISOString().split('T')[0]);
+            const endYear = endDate.getFullYear();
+            const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+            const endDay = String(endDate.getDate()).padStart(2, '0');
+            setData('tanggal_selesai', `${endYear}-${endMonth}-${endDay}`);
         }
     };
 

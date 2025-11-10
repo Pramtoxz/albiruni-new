@@ -69,10 +69,10 @@ class Siswa extends Model
     ];
 
     protected $casts = [
-        'tanggal_lahir' => 'date',
-        'ayah_tanggal_lahir' => 'date',
-        'ibu_tanggal_lahir' => 'date',
-        'tanggal_pendaftaran' => 'date',
+        'tanggal_lahir' => 'date:Y-m-d',
+        'ayah_tanggal_lahir' => 'date:Y-m-d',
+        'ibu_tanggal_lahir' => 'date:Y-m-d',
+        'tanggal_pendaftaran' => 'date:Y-m-d',
         'berat_badan' => 'decimal:2',
         'tinggi_badan' => 'decimal:2',
         'status_siswa' => 'boolean',

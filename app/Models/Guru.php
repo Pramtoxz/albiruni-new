@@ -25,7 +25,7 @@ class Guru extends Model
     ];
 
     protected $casts = [
-        'tanggal_lahir' => 'date',
+        'tanggal_lahir' => 'date:Y-m-d',
     ];
 
     public function user(): BelongsTo

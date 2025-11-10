@@ -23,7 +23,7 @@ class PembayaranSpp extends Model
 
     protected $casts = [
         'biaya' => 'decimal:2',
-        'tanggal_bayar' => 'date',
+        'tanggal_bayar' => 'date:Y-m-d',
         'tahun' => 'integer',
     ];
 

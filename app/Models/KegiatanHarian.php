@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class KegiatanHarian extends Model
 {
@@ -24,12 +25,22 @@ class KegiatanHarian extends Model
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal' => 'date:Y-m-d',
     ];
+
+    protected $appends = ['kelas_id'];
 
     public function rencanaPembelajaran(): BelongsTo
     {
         return $this->belongsTo(RencanaPembelajaran::class);
+    }
+
+    // Accessor untuk mendapatkan kelas_id dari rencana pembelajaran
+    protected function kelasId(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->rencanaPembelajaran?->kelas_id,
+        );
     }
 
     // Scope untuk filter by hari
@@ -42,5 +53,13 @@ class KegiatanHarian extends Model
     public function scopeForTanggal($query, $tanggal)
     {
         return $query->where('tanggal', $tanggal);
+    }
+
+    // Scope untuk filter by kelas_id
+    public function scopeForKelas($query, $kelasId)
+    {
+        return $query->whereHas('rencanaPembelajaran', function ($q) use ($kelasId) {
+            $q->where('kelas_id', $kelasId);
+        });
     }
 }

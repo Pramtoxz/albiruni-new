@@ -38,6 +38,7 @@ interface KegiatanHarian {
     id: number;
     nama_aktivitas: string;
     deskripsi?: string;
+    kelas_id?: number;
 }
 
 interface Emosi {
@@ -92,9 +93,18 @@ export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiat
 
     // Format date to YYYY-MM-DD for input[type="date"]
     const formatDate = (dateString: string) => {
-        if (!dateString) return new Date().toISOString().split('T')[0];
+        if (!dateString) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
         const date = new Date(dateString);
-        return date.toISOString().split('T')[0];
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     const { data, setData, processing } = useForm({
@@ -162,9 +172,17 @@ export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiat
             }
         }
 
-        if (kegiatanHarian && kegiatanHarian.length > 0) {
-            const activities = kegiatanHarian.map(k => k.nama_aktivitas).join(', ');
-            updates.activity = activities;
+        // Auto-fill activity from kegiatan harian - filter by kelas_id
+        if (kegiatanHarian && kegiatanHarian.length > 0 && siswa?.kelas_id) {
+            // STRICT filter: only activities that match kelas_id exactly
+            const filteredActivities = kegiatanHarian.filter(k => k.kelas_id === siswa.kelas_id);
+            
+            if (filteredActivities.length > 0) {
+                const activities = filteredActivities.map(k => k.nama_aktivitas).join(', ');
+                updates.activity = activities;
+            } else {
+                updates.activity = '';
+            }
         }
 
         setData(prev => ({

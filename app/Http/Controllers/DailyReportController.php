@@ -130,7 +130,8 @@ class DailyReportController extends Controller
             $targetDate = $now;
         }
 
-        $kegiatanHarian = \App\Models\KegiatanHarian::whereDate('tanggal', $targetDate->toDateString())
+        $kegiatanHarian = \App\Models\KegiatanHarian::with('rencanaPembelajaran')
+            ->whereDate('tanggal', $targetDate->toDateString())
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($kegiatan) {
@@ -138,6 +139,7 @@ class DailyReportController extends Controller
                     'id' => $kegiatan->id,
                     'nama_aktivitas' => $kegiatan->nama_aktivitas,
                     'deskripsi' => $kegiatan->deskripsi,
+                    'kelas_id' => $kegiatan->kelas_id,
                 ];
             });
 
@@ -326,7 +328,8 @@ class DailyReportController extends Controller
             $targetDate = $now;
         }
 
-        $kegiatanHarian = \App\Models\KegiatanHarian::whereDate('tanggal', $targetDate->toDateString())
+        $kegiatanHarian = \App\Models\KegiatanHarian::with('rencanaPembelajaran')
+            ->whereDate('tanggal', $targetDate->toDateString())
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($kegiatan) {
@@ -334,6 +337,7 @@ class DailyReportController extends Controller
                     'id' => $kegiatan->id,
                     'nama_aktivitas' => $kegiatan->nama_aktivitas,
                     'deskripsi' => $kegiatan->deskripsi,
+                    'kelas_id' => $kegiatan->kelas_id,
                 ];
             });
 
