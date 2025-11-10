@@ -53,6 +53,12 @@ class NotificationService
         $guruName = $report->user->name ?? 'Guru';
 
         $ratingText = function ($rating) {
+            $rating = (int) $rating;
+            if ($rating <= 0) {
+                return '-';
+            }
+            
+            // Ini Opsi Ya Guysszzzz ganti dengan ★/☆
             return match ($rating) {
                 1 => '⭐',
                 2 => '⭐⭐',
@@ -64,7 +70,7 @@ class NotificationService
         };
 
         $message = "*📋 DAILY REPORT - {$siswa->nama_lengkap}*\n";
-        $message .= "━━━━━━━━━\n";
+        $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         $message .= "\n";
         $message .= "📅 {$date}\n";
         $message .= "😊 Mood: {$report->mood}\n";
@@ -165,10 +171,13 @@ class NotificationService
             $message .= "\n";
         }
 
-        $message .= "━━━━━━━━━\n";
+        $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         $message .= "\n";
 
         // Call to action - buka aplikasi
+        $message .= "*Ini Pesan 0T0MATIS Harap Jangan Di Balas!!!*\n ";
+        $message .= "\n";
+        $message .= "\n";
         $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP* _(COMING SOON)_\n ";
         $message .= "\n";
         $message .= "Lihat foto kegiatan, detail makanan, dan catatan lengkap dari Aunty {$guruName}\n";
