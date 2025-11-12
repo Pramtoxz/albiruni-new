@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, UserCog } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserCog, Search } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -13,6 +13,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface Guru {
     id: number;
@@ -40,9 +43,29 @@ interface Props {
         current_page: number;
         last_page: number;
     };
+    filters: {
+        search?: string;
+    };
 }
 
-export default function GuruIndex({ gurus }: Props) {
+export default function GuruIndex({ gurus, filters }: Props) {
+    const [search, setSearch] = useState(filters.search || '');
+
+    const debouncedSearch = useDebouncedCallback((value: string) => {
+        router.get(
+            '/admin/guru',
+            { search: value },
+            {
+                preserveState: true,
+                replace: true,
+            }
+        );
+    }, 500);
+
+    useEffect(() => {
+        debouncedSearch(search);
+    }, [search]);
+
     const handleDelete = (id: number, nama: string) => {
         if (confirm(`Apakah Anda yakin ingin menghapus data guru "${nama}"?`)) {
             router.delete(`/admin/guru/${id}`);
@@ -68,6 +91,29 @@ export default function GuruIndex({ gurus }: Props) {
                             Tambah Guru
                         </Button>
                     </Link>
+                </div>
+
+                {/* Search Bar */}
+                <div className="flex items-center gap-4">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Cari nama, NIP, email, atau nomor HP..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10"
+                        />
+                    </div>
+                    {search && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSearch('')}
+                        >
+                            Reset
+                        </Button>
+                    )}
                 </div>
 
                 {/* Table */}

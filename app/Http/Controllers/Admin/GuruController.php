@@ -11,14 +11,30 @@ use Inertia\Inertia;
 
 class GuruController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->input('search');
+
         $gurus = Guru::with(['user:id,name,email,nohp', 'kelas:id,nama_kelas'])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('nip', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('email', 'like', "%{$search}%")
+                                ->orWhere('nohp', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('admin/guru/index', [
             'gurus' => $gurus,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 

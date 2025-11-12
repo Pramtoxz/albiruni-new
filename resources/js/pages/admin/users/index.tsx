@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Users } from 'lucide-react';
+import { Plus, Pencil, Trash2, Users, Search } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -11,6 +11,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface User {
     id: number;
@@ -31,9 +34,29 @@ interface Props {
         current_page: number;
         last_page: number;
     };
+    filters: {
+        search?: string;
+    };
 }
 
-export default function UsersIndex({ users }: Props) {
+export default function UsersIndex({ users, filters }: Props) {
+    const [search, setSearch] = useState(filters.search || '');
+
+    const debouncedSearch = useDebouncedCallback((value: string) => {
+        router.get(
+            '/admin/users',
+            { search: value },
+            {
+                preserveState: true,
+                replace: true,
+            }
+        );
+    }, 500);
+
+    useEffect(() => {
+        debouncedSearch(search);
+    }, [search]);
+
     const handleDelete = (userId: number) => {
         if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
             router.delete(`/admin/users/${userId}`);
@@ -66,6 +89,29 @@ export default function UsersIndex({ users }: Props) {
                             Tambah User
                         </Button>
                     </Link>
+                </div>
+
+                {/* Search Bar */}
+                <div className="flex items-center gap-4">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Cari nama, email, atau nomor HP..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10"
+                        />
+                    </div>
+                    {search && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSearch('')}
+                        >
+                            Reset
+                        </Button>
+                    )}
                 </div>
 
                 {/* Table */}

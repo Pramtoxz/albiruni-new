@@ -47,18 +47,34 @@ class SiswaController extends Controller
         ]);
     }
 
-    public function approved()
+    public function approved(Request $request)
     {
         $this->checkAdmin();
+
+        $search = $request->input('search');
 
         $approvedSiswa = Siswa::query()
             ->where('status_siswa', true)
             ->with(['user', 'kelas'])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('nama_panggilan', 'like', "%{$search}%")
+                        ->orWhere('ayah_nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('ibu_nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('ayah_no_hp', 'like', "%{$search}%")
+                        ->orWhere('ibu_no_hp', 'like', "%{$search}%");
+                });
+            })
             ->latest('updated_at')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('admin/siswa/approved', [
             'approvedSiswa' => $approvedSiswa,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 

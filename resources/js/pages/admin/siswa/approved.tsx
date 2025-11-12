@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Eye, CheckCircle2, CreditCard, Banknote, Pencil } from 'lucide-react';
+import { Eye, CheckCircle2, CreditCard, Banknote, Pencil, Search } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -11,7 +11,10 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Siswa } from '@/types';
+import { useState, useEffect } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface Props {
     approvedSiswa: {
@@ -20,9 +23,29 @@ interface Props {
         current_page: number;
         last_page: number;
     };
+    filters: {
+        search?: string;
+    };
 }
 
-export default function SiswaApproved({ approvedSiswa }: Props) {
+export default function SiswaApproved({ approvedSiswa, filters }: Props) {
+    const [search, setSearch] = useState(filters.search || '');
+
+    const debouncedSearch = useDebouncedCallback((value: string) => {
+        router.get(
+            '/admin/siswa/approved/list',
+            { search: value },
+            {
+                preserveState: true,
+                replace: true,
+            }
+        );
+    }, 500);
+
+    useEffect(() => {
+        debouncedSearch(search);
+    }, [search]);
+
     const formatDate = (dateString?: string) => {
         if (!dateString) return '-';
         return new Date(dateString).toLocaleDateString('id-ID', {
@@ -78,6 +101,29 @@ export default function SiswaApproved({ approvedSiswa }: Props) {
                             {approvedSiswa.data.length} Siswa
                         </Badge>
                     </div>
+                </div>
+
+                {/* Search Bar */}
+                <div className="flex items-center gap-4">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Cari nama siswa, orang tua, atau nomor HP..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10"
+                        />
+                    </div>
+                    {search && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSearch('')}
+                        >
+                            Reset
+                        </Button>
+                    )}
                 </div>
 
                 {/* Table */}
