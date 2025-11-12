@@ -167,6 +167,8 @@ class KehadiranController extends Controller
 
         $kehadiran = Kehadiran::with(['siswa.kelas'])
             ->whereDate('tanggal', now()->toDateString())
+            ->whereNotNull('waktu_hadir')
+            ->whereNull('waktu_pulang') // Hanya tampilkan yang belum check-out
             ->whereHas('siswa', function ($query) use ($cabang) {
                 $query->where('lokasi_pendaftaran', $cabang->nama_cabang);
             })
