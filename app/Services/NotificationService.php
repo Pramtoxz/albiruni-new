@@ -36,15 +36,15 @@ class NotificationService
             $this->gateway->sendText($parentPhone, $message);
 
             // Kirim juga ke developer untuk monitoring
-            $developerPhone = '6282279690769';
-            $devMessage = "🔔 *MONITORING - Daily Report Terkirim*\n\n";
-            $devMessage .= "Kepada: {$siswa->nama_lengkap}\n";
-            $devMessage .= "No. Orang Tua: {$parentPhone}\n";
-            $devMessage .= "Tanggal: ".date('d/m/Y H:i')."\n";
-            $devMessage .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
-            $devMessage .= $message;
+            // $developerPhone = '6282279690769';
+            // $devMessage = "🔔 *MONITORING - Daily Report Terkirim*\n\n";
+            // $devMessage .= "Kepada: {$siswa->nama_lengkap}\n";
+            // $devMessage .= "No. Orang Tua: {$parentPhone}\n";
+            // $devMessage .= "Tanggal: ".date('d/m/Y H:i')."\n";
+            // $devMessage .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            // $devMessage .= $message;
             
-            $this->gateway->sendText($developerPhone, $devMessage);
+            // $this->gateway->sendText($developerPhone, $devMessage);
 
             Log::info('Daily report notification sent', [
                 'report_id' => $report->id,
