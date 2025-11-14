@@ -12,6 +12,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // Student Approval Management
     Route::get('siswa', [SiswaController::class, 'index'])->name('siswa.index');
+    Route::get('siswa/create', [SiswaController::class, 'create'])->name('siswa.create');
+    Route::post('siswa/store', [SiswaController::class, 'store'])->name('siswa.store');
     Route::get('siswa/approved/list', [SiswaController::class, 'approved'])->name('siswa.approved');
     Route::get('siswa/{siswa}', [SiswaController::class, 'show'])->name('siswa.show');
     Route::get('siswa/{siswa}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');

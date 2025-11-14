@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Eye, UserCheck, Clock } from 'lucide-react';
 import {
@@ -50,6 +50,9 @@ export default function SiswaIndex({ pendingSiswa }: Props) {
                         </p>
                     </div>
                     <div className="flex gap-2">
+                        <Link href="/admin/siswa/create">
+                            <Button>Tambah Siswa</Button>
+                        </Link>
                         <Link href="/admin/siswa/approved/list">
                             <Button variant="outline">Data Siswa</Button>
                         </Link>
@@ -133,7 +136,11 @@ export default function SiswaIndex({ pendingSiswa }: Props) {
                                 variant={link.active ? 'default' : 'outline'}
                                 size="sm"
                                 disabled={!link.url}
-                                onClick={() => link.url && router.visit(link.url)}
+                                onClick={() => {
+                                    if (link.url) {
+                                        window.location.href = link.url;
+                                    }
+                                }}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ))}

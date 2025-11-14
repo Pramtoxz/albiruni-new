@@ -43,7 +43,9 @@ export default function SiswaApproved({ approvedSiswa, filters }: Props) {
     }, 500);
 
     useEffect(() => {
-        debouncedSearch(search);
+        if (search !== filters.search) {
+            debouncedSearch(search);
+        }
     }, [search]);
 
     const formatDate = (dateString?: string) => {
@@ -219,7 +221,9 @@ export default function SiswaApproved({ approvedSiswa, filters }: Props) {
                                 variant={link.active ? 'default' : 'outline'}
                                 size="sm"
                                 disabled={!link.url}
-                                onClick={() => link.url && router.visit(link.url)}
+                                onClick={() => link.url && router.visit(link.url, {
+                                    preserveState: true,
+                                })}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ))}
