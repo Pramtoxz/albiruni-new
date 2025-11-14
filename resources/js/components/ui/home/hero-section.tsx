@@ -44,7 +44,7 @@ export function HeroSection({ heroRef, heroControls }: HeroSectionProps) {
             </Button>
             <Button
               variant="outline"
-              className="border-blue-400 text-blue-200 hover:bg-blue-900/30 px-5 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6 text-base md:text-lg rounded-full"
+              className="border-2 border-white bg-white text-blue-900 hover:bg-blue-100 px-5 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6 text-base md:text-lg rounded-full transition-all font-semibold"
             >
               Pelajari Lebih Lanjut
             </Button>
