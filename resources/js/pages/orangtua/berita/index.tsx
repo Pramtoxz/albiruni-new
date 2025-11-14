@@ -50,7 +50,7 @@ export default function OrangtuaNewsIndex({ news }: NewsIndexProps) {
         <div className="pt-12 pb-4 px-4 space-y-4 relative z-10">
           {/* Back Button & Title */}
           <div className="flex items-center gap-3 mb-2">
-            <Link href="/orangtua/dashboard">
+            <Link href="/dashboard">
               <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
                 <ArrowLeft className="h-5 w-5 text-gray-700" />
               </button>
