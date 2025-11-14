@@ -31,24 +31,27 @@ export default function OrangtuaNewsShow({ news, relatedNews }: NewsShowProps) {
     <>
       <Head title={`${news.title} - AL-Biruni`} />
       
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 pb-8">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 px-4 py-6 text-white shadow-lg">
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/orangtua/berita" 
-              className="inline-flex items-center text-white hover:text-yellow-300 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-xl font-bold line-clamp-1">Detail Berita</h1>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 pb-8 relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full opacity-20 -translate-x-16 -translate-y-16"></div>
+        <div className="absolute top-20 right-0 w-24 h-24 bg-pink-300 rounded-full opacity-20 translate-x-12"></div>
+        <div className="absolute bottom-40 left-10 w-20 h-20 bg-blue-300 rounded-full opacity-20"></div>
 
         {/* Article Content */}
-        <div className="px-4 py-6">
+        <div className="pt-12 pb-4 px-4 space-y-4 relative z-10">
+          {/* Back Button & Title */}
+          <div className="flex items-center gap-3 mb-2">
+            <Link href="/orangtua/berita">
+              <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+                <ArrowLeft className="h-5 w-5 text-gray-700" />
+              </button>
+            </Link>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-800">Detail Berita 📰</h1>
+            </div>
+          </div>
           {/* Featured Image */}
-          <div className="relative h-56 rounded-2xl overflow-hidden mb-4 shadow-lg">
+          <div className="relative h-56 rounded-2xl overflow-hidden shadow-lg">
             <img
               src={news.image_url}
               alt={news.title}
@@ -57,7 +60,7 @@ export default function OrangtuaNewsShow({ news, relatedNews }: NewsShowProps) {
           </div>
 
           {/* Article Card */}
-          <Card className="border-0 shadow-lg rounded-2xl mb-4">
+          <Card className="border-0 shadow-lg rounded-3xl">
             <CardContent className="p-5">
               <div className="flex items-center text-blue-600 text-sm mb-3 font-medium">
                 <Calendar className="w-4 h-4 mr-2" />
@@ -86,14 +89,14 @@ export default function OrangtuaNewsShow({ news, relatedNews }: NewsShowProps) {
 
           {/* Related News */}
           {relatedNews.length > 0 && (
-            <div className="mt-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 px-2">
+            <div>
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
                 Berita Lainnya
               </h2>
               <div className="space-y-3">
                 {relatedNews.map((item) => (
                   <Link key={item.id} href={`/orangtua/berita/${item.slug}`}>
-                    <Card className="border-0 shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition-all">
+                    <Card className="border-0 shadow-lg rounded-3xl overflow-hidden hover:shadow-xl transition-all">
                       <CardContent className="p-0">
                         <div className="flex gap-3 p-3">
                           <div className="flex-shrink-0">
