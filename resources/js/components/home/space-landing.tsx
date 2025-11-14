@@ -18,8 +18,25 @@ import { AboutSection } from "@/components/ui/home/about-section"
 import { ContactSection } from "@/components/ui/home/contact-section"
 import { Footer } from "@/components/ui/home/footer"
 import { StarsBackground } from "@/components/ui/home/stars-background"
+import { NewsSection } from "@/components/ui/home/news-section"
 
-export default function SpaceLanding() {
+interface News {
+  id: number
+  title: string
+  excerpt: string
+  content: string
+  image: string
+  image_url: string
+  slug: string
+  published_at: string
+}
+
+interface SpaceLandingProps {
+  latestNews?: News
+  otherNews?: News[]
+}
+
+export default function SpaceLanding({ latestNews, otherNews }: SpaceLandingProps) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const heroRef = useRef<HTMLElement>(null)
   const featuresRef = useRef<HTMLElement>(null)
@@ -126,6 +143,9 @@ export default function SpaceLanding() {
       {/* Menggunakan komponen yang telah dipisahkan */}
       <Header />
       <HeroSection heroRef={heroRef} heroControls={heroControls} />
+      {latestNews && otherNews && otherNews.length > 0 && (
+        <NewsSection latestNews={latestNews} otherNews={otherNews} />
+      )}
       <ChildrenQuotes />
       <FeaturesSection featuresRef={featuresRef} featuresControls={featuresControls} />
       <ActivitiesSection activitiesRef={activitiesRef} activitiesControls={activitiesControls} />

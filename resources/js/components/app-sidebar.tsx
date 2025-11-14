@@ -26,6 +26,7 @@ import {
     GraduationCap,
     UserCog,
     Smile,
+    Newspaper,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -101,6 +102,11 @@ export function AppSidebar() {
             title: 'Emosi',
             href: '/admin/emosi',
             icon: Smile,
+        });
+        mainNavItems.push({
+            title: 'Berita',
+            href: '/admin/news',
+            icon: Newspaper,
         });
     }
 

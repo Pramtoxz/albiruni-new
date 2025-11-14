@@ -4,6 +4,12 @@ use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\KegiatanHarianController;
 use App\Http\Controllers\PembayaranSppController;
 use App\Http\Controllers\KehadiranController;
+use App\Http\Controllers\OrangtuaNewsController;
+
+Route::get('berita', [OrangtuaNewsController::class, 'index'])
+    ->name('berita.index');
+Route::get('berita/{slug}', [OrangtuaNewsController::class, 'show'])
+    ->name('berita.show');
 
 Route::get('daily-report', [DailyReportController::class, 'orangtuaIndex'])
     ->name('daily-report.index');

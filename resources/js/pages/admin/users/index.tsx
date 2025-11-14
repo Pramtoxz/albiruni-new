@@ -54,7 +54,9 @@ export default function UsersIndex({ users, filters }: Props) {
     }, 500);
 
     useEffect(() => {
-        debouncedSearch(search);
+        if (search !== filters.search) {
+            debouncedSearch(search);
+        }
     }, [search]);
 
     const handleDelete = (userId: number) => {
@@ -191,7 +193,9 @@ export default function UsersIndex({ users, filters }: Props) {
                                 variant={link.active ? 'default' : 'outline'}
                                 size="sm"
                                 disabled={!link.url}
-                                onClick={() => link.url && router.visit(link.url)}
+                                onClick={() => link.url && router.visit(link.url, {
+                                    preserveState: true,
+                                })}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ))}

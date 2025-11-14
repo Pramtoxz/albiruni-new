@@ -55,4 +55,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // Emosi Management
     Route::resource('emosi', \App\Http\Controllers\Admin\EmosiController::class);
+
+    // News Management
+    Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
 });

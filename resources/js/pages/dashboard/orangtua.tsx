@@ -52,6 +52,15 @@ interface Notifikasi {
     url: string;
 }
 
+interface News {
+    id: number;
+    title: string;
+    excerpt: string;
+    image_url: string;
+    slug: string;
+    published_at: string;
+}
+
 interface PageProps {
     auth: {
         user: {
@@ -63,15 +72,25 @@ interface PageProps {
     siswa: Siswa | null;
     kegiatanHariIni: KegiatanHarian[];
     notifikasi: Notifikasi[];
+    latestNews: News[];
     [key: string]: any;
 }
 
 export default function OrangtuaDashboard() {
-    const { auth, siswa, kegiatanHariIni, notifikasi } = usePage<PageProps>().props;
+    const { auth, siswa, kegiatanHariIni, notifikasi, latestNews } = usePage<PageProps>().props;
     const [showNotifikasi, setShowNotifikasi] = useState(false);
 
     // Debug notifikasi
     console.log('Notifikasi:', notifikasi);
+    
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('id-ID', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+        });
+    };
 
     const handleLogout = () => {
         Swal.fire({
@@ -279,38 +298,64 @@ export default function OrangtuaDashboard() {
                 {/* Colorful Content Section - Only show if student is active */}
                 {siswa && siswa.is_active && (
                     <div className="mt-8 space-y-5 px-4 relative z-10">
-                        {/* Pengumuman dengan Tema Ceria */}
-                        <Link href="">
-                            <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white hover:shadow-2xl transition-all cursor-pointer">
-                                <CardHeader className="pb-3 bg-gradient-to-r from-yellow-100 to-orange-100">
-                                    <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <img
-                                                src={IconPemberitahuan}
-                                                alt="Logo"
-                                                className="w-14 h-14 object-contain"
-                                            />
-                                            Pengumuman Terbaru
-                                        </div>
-                                        <span className="text-sm text-gray-600">Lihat semua →</span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3 p-4">
-                                    <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-l-4 border-blue-400">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-400 shadow-md">
+                        {/* Berita & Pengumuman dengan Tema Ceria */}
+                        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white">
+                            <CardHeader className="pb-3 bg-gradient-to-r from-yellow-100 to-orange-100">
+                                <CardTitle className="text-lg font-bold text-gray-800 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <img
+                                            src={IconPemberitahuan}
+                                            alt="Logo"
+                                            className="w-14 h-14 object-contain"
+                                        />
+                                        Berita Terkini
+                                    </div>
+                                    <Link href="/orangtua/berita" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">
+                                        Lihat semua →
+                                    </Link>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4 p-4">
+                                {latestNews && latestNews.length > 0 ? (
+                                    latestNews.map((news) => (
+                                        <Link key={news.id} href={`/orangtua/berita/${news.slug}`}>
+                                            <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-3 border-l-4 border-blue-400 hover:shadow-md transition-all mb-3">
+                                                <div className="flex-shrink-0">
+                                                    <img
+                                                        src={news.image_url}
+                                                        alt={news.title}
+                                                        className="w-16 h-16 rounded-xl object-cover shadow-sm"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-bold text-gray-800 line-clamp-2 mb-1">
+                                                        {news.title}
+                                                    </p>
+                                                    <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                                                        {news.excerpt}
+                                                    </p>
+                                                    <p className="text-xs text-blue-600 font-medium">
+                                                        {formatDate(news.published_at)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 p-4 border-l-4 border-gray-300">
+                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-300 shadow-md">
                                             <Bell className="h-6 w-6 text-white" />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-sm font-bold text-gray-800">Al Biruni Mobile🎉</p>
+                                            <p className="text-sm font-bold text-gray-800">Belum ada berita</p>
                                             <p className="text-xs text-gray-600 mt-1">
-                                                Baru Rumah Digital Al Biruni Sudah Hadir Untuk Menyalurkan Informasi Secara Real-Time Dari Buah Hati Anda
+                                                Berita dan pengumuman akan muncul di sini
                                             </p>
-                                            <p className="mt-2 text-xs text-blue-600 font-medium">2 hari yang lalu</p>
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        </Link>
+                                )}
+                            </CardContent>
+                        </Card>
 
                         {/* Aktivitas Terkini dengan Desain Playful */}
                         <Link href="/orangtua/kegiatan-harian">

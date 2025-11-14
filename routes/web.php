@@ -4,12 +4,31 @@ use App\Http\Controllers\DeviceTokenController;
 use App\Http\Controllers\OrangtuaDashboardController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\KehadiranController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\OrangtuaNewsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Home');
+    $latestNews = \App\Models\News::where('is_published', true)
+        ->orderBy('published_at', 'desc')
+        ->first();
+    
+    $otherNews = \App\Models\News::where('is_published', true)
+        ->orderBy('published_at', 'desc')
+        ->skip(1)
+        ->take(3)
+        ->get();
+
+    return Inertia::render('Home', [
+        'latestNews' => $latestNews,
+        'otherNews' => $otherNews
+    ]);
 })->name('home');
+
+// Public News Routes
+Route::get('/berita', [NewsController::class, 'index'])->name('berita.index');
+Route::get('/berita/{slug}', [NewsController::class, 'show'])->name('berita.show');
 
 // Kehadiran Routes (Public - untuk tablet dan TV)
 Route::prefix('kehadiran')->name('kehadiran.')->group(function () {

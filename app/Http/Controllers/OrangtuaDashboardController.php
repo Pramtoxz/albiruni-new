@@ -7,6 +7,7 @@ use App\Models\KegiatanHarian;
 use App\Models\PembayaranSpp;
 use App\Models\RencanaPembelajaran;
 use App\Models\Siswa;
+use App\Models\News;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -93,6 +94,22 @@ class OrangtuaDashboardController extends Controller
                 ->toArray();
         }
 
+        // Ambil 3 berita terbaru yang published
+        $latestNews = News::where('is_published', true)
+            ->orderBy('published_at', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function ($news) {
+                return [
+                    'id' => $news->id,
+                    'title' => $news->title,
+                    'excerpt' => $news->excerpt,
+                    'image_url' => $news->image_url,
+                    'slug' => $news->slug,
+                    'published_at' => $news->published_at->format('Y-m-d'),
+                ];
+            });
+
         return Inertia::render('dashboard/orangtua', [
             'siswa' => $siswa ? [
                 'id' => $siswa->id,
@@ -104,6 +121,7 @@ class OrangtuaDashboardController extends Controller
             ] : null,
             'kegiatanHariIni' => $kegiatanHariIni,
             'notifikasi' => $notifikasi,
+            'latestNews' => $latestNews,
         ]);
     }
 }
