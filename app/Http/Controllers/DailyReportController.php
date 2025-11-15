@@ -12,13 +12,19 @@ use Inertia\Response;
 
 class DailyReportController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $user = auth()->user();
         $guru = $user->guru;
 
+        // Get month and year from request, default to current month
+        $month = $request->input('month', now()->month);
+        $year = $request->input('year', now()->year);
+
         $reportsQuery = DailyReport::with(['siswa.kelas', 'user'])
-            ->where('user_id', $user->id);
+            ->where('user_id', $user->id)
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month);
 
         // If guru exists, filter reports by their assigned students
         if ($guru) {
@@ -33,6 +39,10 @@ class DailyReportController extends Controller
 
         return Inertia::render('guru/daily-report-list', [
             'reports' => $reports,
+            'filters' => [
+                'month' => (int) $month,
+                'year' => (int) $year,
+            ],
         ]);
     }
 
@@ -473,26 +483,40 @@ class DailyReportController extends Controller
             ->with('success', 'Daily report berhasil dikirim ke orang tua!');
     }
 
-    public function orangtuaIndex(): Response
+    public function orangtuaIndex(Request $request): Response
     {
         $user = auth()->user();
         $siswa = Siswa::where('user_id', $user->id)->first();
+
+        // Get month and year from request, default to current month
+        $month = $request->input('month', now()->month);
+        $year = $request->input('year', now()->year);
 
         if (! $siswa) {
             return Inertia::render('orangtua/daily-report-list', [
                 'reports' => ['data' => []],
                 'siswa' => null,
+                'filters' => [
+                    'month' => (int) $month,
+                    'year' => (int) $year,
+                ],
             ]);
         }
 
         $reports = DailyReport::with(['siswa', 'user'])
             ->where('siswa_id', $siswa->id)
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month)
             ->orderBy('tanggal', 'desc')
             ->paginate(10);
 
         return Inertia::render('orangtua/daily-report-list', [
             'reports' => $reports,
             'siswa' => $siswa,
+            'filters' => [
+                'month' => (int) $month,
+                'year' => (int) $year,
+            ],
         ]);
     }
 
