@@ -5,11 +5,7 @@ import {
     BookOpen,
     Calendar,
     CheckSquare,
-    ClipboardList,
-    Home,
-    MessageSquare,
     PenTool,
-    Users,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -23,6 +19,25 @@ import IconSiswa from "@/assets/menu/siswa.webp"
 import IconReport from "@/assets/menu/report.webp"
 import IconPMateri from "@/assets/menu/materi.webp"
 
+interface TodayStats {
+    siswaHadir: number;
+    totalSiswa: number;
+    completedDailyReports: number;
+    totalDailyReports: number;
+    completedMateri: number;
+    totalMateri: number;
+}
+
+interface RecentReport {
+    id: number;
+    title: string;
+    class: string;
+    siswa_name: string;
+    time: string;
+    status: string;
+    statusColor: string;
+}
+
 interface PageProps {
     auth: {
         user: {
@@ -31,11 +46,13 @@ interface PageProps {
             role: string;
         };
     };
+    todayStats: TodayStats;
+    recentReports: RecentReport[];
     [key: string]: any;
 }
 
 export default function GuruDashboard() {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, todayStats, recentReports } = usePage<PageProps>().props;
 
     const handleLogout = () => {
         Swal.fire({
@@ -54,14 +71,6 @@ export default function GuruDashboard() {
         });
     };
 
-    const menuItems = [
-        { icon: Home, label: 'Beranda', active: true, href: '/dashboard' },
-        { icon: PenTool, label: 'Daily Report', active: false, href: '/guru/daily-report' },
-        { icon: BookOpen, label: 'Materi', active: false, href: '/guru/materi' },
-        { icon: Users, label: 'Siswa', active: false, href: '/guru/siswa' },
-        { icon: MessageSquare, label: 'Pesan', active: false, href: '/guru/pesan' },
-    ];
-
     const quickActions = [
         { icon: PenTool, label: 'Daily Report', color: 'from-green-400 to-green-600', imageSrc: IconDaily, href: '/guru/daily-report' },
         { icon: BookOpen, label: 'Materi', color: 'from-orange-400 to-orange-600', imageSrc: IconMateri, href: '/guru/rencana-pembelajaran' },
@@ -69,26 +78,27 @@ export default function GuruDashboard() {
         { icon: Calendar, label: 'Jadwal', color: 'from-purple-400 to-purple-600', imageSrc: IconGaleri, href: '/guru/jadwal' },
     ];
 
-    const todayStats = [
-        { label: 'Siswa Hadir', value: '24', total: '25', color: 'from-green-400 to-green-600', imageSrc: IconSiswa },
-        { label: 'Daily Report', value: '3', total: '5', color: 'from-blue-400 to-blue-600', imageSrc: IconReport },
-        { label: 'Materi Hari Ini', value: '2', total: '3', color: 'from-purple-400 to-purple-600', imageSrc: IconPMateri },
-    ];
-
-    const recentReports = [
-        {
-            title: 'Kegiatan Menggambar',
-            class: 'TK A',
-            time: '10:30 WIB',
-            status: 'Selesai',
-            statusColor: 'text-green-600',
+    const statsCards = [
+        { 
+            label: 'Siswa Hadir', 
+            value: todayStats.siswaHadir.toString(), 
+            total: todayStats.totalSiswa.toString(), 
+            color: 'from-green-400 to-green-600', 
+            imageSrc: IconSiswa 
         },
-        {
-            title: 'Belajar Berhitung',
-            class: 'TK B',
-            time: '13:00 WIB',
-            status: 'Berlangsung',
-            statusColor: 'text-blue-600',
+        { 
+            label: 'Daily Report', 
+            value: todayStats.completedDailyReports.toString(), 
+            total: todayStats.totalDailyReports.toString(), 
+            color: 'from-blue-400 to-blue-600', 
+            imageSrc: IconReport 
+        },
+        { 
+            label: 'Materi Hari Ini', 
+            value: todayStats.completedMateri.toString(), 
+            total: todayStats.totalMateri.toString(), 
+            color: 'from-purple-400 to-purple-600', 
+            imageSrc: IconPMateri 
         },
     ];
 
@@ -114,7 +124,7 @@ export default function GuruDashboard() {
 
                 {/* Stats Cards in Header */}
                 <div className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-4 pb-12 -mt-12">
-                    <StatsCards stats={todayStats} />
+                    <StatsCards stats={statsCards} />
                 </div>
 
                 {/* Quick Actions */}
@@ -138,25 +148,29 @@ export default function GuruDashboard() {
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-3 p-4">
-                            {recentReports.map((report, index) => (
-                                <Link key={index} href={`/guru/daily-report/${index + 1}`}>
-                                    <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 p-4 border-l-4 border-blue-400 hover:shadow-md transition-all">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-purple-400 shadow-md">
-                                            <PenTool className="h-6 w-6 text-white" />
+                            {recentReports && recentReports.length > 0 ? (
+                                recentReports.map((report) => (
+                                    <Link key={report.id} href={`/guru/daily-report/${report.id}`}>
+                                        <div className="flex gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 p-4 border-l-4 border-blue-400 hover:shadow-md transition-all">
+                                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-purple-400 shadow-md">
+                                                <PenTool className="h-6 w-6 text-white" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-bold text-gray-800">{report.siswa_name}</p>
+                                                <p className="text-xs text-gray-600 mt-1">
+                                                    {report.title}
+                                                </p>
+                                                <p className="text-xs text-gray-500 mt-0.5">
+                                                    Kelas: {report.class} • {report.time}
+                                                </p>
+                                            </div>
+                                            <span className={`text-xs font-bold ${report.statusColor} self-center`}>
+                                                {report.status}
+                                            </span>
                                         </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-bold text-gray-800">{report.title}</p>
-                                            <p className="text-xs text-gray-600 mt-1">
-                                                Kelas: {report.class} • {report.time}
-                                            </p>
-                                        </div>
-                                        <span className={`text-xs font-bold ${report.statusColor} self-center`}>
-                                            {report.status}
-                                        </span>
-                                    </div>
-                                </Link>
-                            ))}
-                            {recentReports.length === 0 && (
+                                    </Link>
+                                ))
+                            ) : (
                                 <div className="py-8 text-center text-sm text-gray-500">
                                     Belum ada daily report hari ini
                                 </div>

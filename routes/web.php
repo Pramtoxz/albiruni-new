@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DeviceTokenController;
+use App\Http\Controllers\GuruDashboardController;
 use App\Http\Controllers\OrangtuaDashboardController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\KehadiranController;
@@ -69,7 +70,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             }
 
             if ($user->role === 'guru') {
-                return Inertia::render('dashboard/guru');
+                return app(GuruDashboardController::class)->index();
             }
 
             return app(OrangtuaDashboardController::class)->index(request());

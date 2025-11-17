@@ -147,9 +147,6 @@ export default function OrangtuaDashboard() {
                                     </AvatarFallback>
                                     A
                                 </Avatar>
-                                <div className="absolute -bottom-1 -right-1 bg-green-400 rounded-full p-1 border-2 border-white">
-                                    <Smile className="h-3 w-3 text-white" />
-                                </div>
                             </div>
                             <div>
                                 <p className="text-sm font-medium opacity-90 flex items-center gap-1">
@@ -197,17 +194,11 @@ export default function OrangtuaDashboard() {
                                                         {siswa.nama_panggilan.charAt(0).toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 border-2 border-white shadow-md">
-                                                    <Star className="h-4 w-4 text-white fill-white" />
-                                                </div>
                                             </div>
                                         ) : (
                                             <div className="relative">
                                                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-300 to-purple-400 border-4 border-white shadow-lg ring-4 ring-pink-200">
                                                     <Users className="h-8 w-8 text-white" />
-                                                </div>
-                                                <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 border-2 border-white shadow-md">
-                                                    <Star className="h-4 w-4 text-white fill-white" />
                                                 </div>
                                             </div>
                                         )}
