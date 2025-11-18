@@ -1,6 +1,7 @@
-import { Head, Link } from "@inertiajs/react"
+import { Link } from "@inertiajs/react"
 import { Calendar, ArrowLeft } from "lucide-react"
 import { motion } from "framer-motion"
+import SEOHead from "@/components/seo/SEOHead"
 
 interface News {
   id: number
@@ -39,7 +40,14 @@ export default function NewsIndex({ news }: NewsIndexProps) {
 
   return (
     <>
-      <Head title="Berita - AL-Biruni" />
+      <SEOHead
+        title="Berita & Kegiatan - Al-Biruni Daycare Padang"
+        description="Berita terkini dan informasi kegiatan TK Al-Biruni Padang. Ikuti perkembangan dan aktivitas daycare dan preschool terbaik di Padang, Sumatera Barat."
+        canonical="https://albiruni.sch.id/berita/"
+        keywords="berita daycare padang, kegiatan tk padang, berita preschool padang, informasi daycare sumatera barat, aktivitas tk al-biruni"
+        ogType="website"
+        ogImage="https://albiruni.sch.id/logo.svg"
+      />
       
       <div className="min-h-screen bg-gradient-to-b from-[#020b2d] via-[#041254] to-[#020b2d]" style={{ background: 'linear-gradient(to bottom, #020b2d, #041254, #020b2d)' }}>
         {/* Header */}
@@ -92,7 +100,7 @@ export default function NewsIndex({ news }: NewsIndexProps) {
                           <div className="relative h-56 overflow-hidden">
                             <img
                               src={item.image_url}
-                              alt={item.title}
+                              alt={`${item.title} - Berita TK Al-Biruni Padang`}
                               className="w-full h-full object-cover transition-transform group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-blue-900/90 to-transparent"></div>

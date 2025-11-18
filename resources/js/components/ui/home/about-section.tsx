@@ -60,6 +60,9 @@ export function AboutSection({ aboutRef, aboutControls }: AboutSectionProps) {
             <p className="text-sm md:text-base text-blue-100 mb-4 md:mb-6 leading-relaxed">
               Di Al-Biruni Preschool & Daycare, kami menyediakan pendidikan berkualitas untuk anak usia 1-6 tahun melalui tiga program utama: <span className="text-yellow-300 font-semibold">💙 Baby Class</span> yang penuh kasih sayang untuk usia 1-2 tahun, <span className="text-yellow-300 font-semibold">🤍 Preschool</span> yang interaktif untuk usia 2-4 tahun, dan <span className="text-yellow-300 font-semibold">💛 Kindergarten</span> yang menginspirasi untuk usia 4-6 tahun.
             </p>
+            <p className="text-sm md:text-base text-blue-100 mb-4 md:mb-6 leading-relaxed">
+              Dengan 2 cabang di Padang (Ulak Karang dan Marapalam), kami melayani keluarga di seluruh Sumatera Barat dengan dedikasi penuh untuk memberikan pengalaman belajar terbaik bagi anak-anak.
+            </p>
             <p className="text-sm md:text-base text-blue-100 mb-6 md:mb-8 leading-relaxed">
               Pendidik berpengalaman kami menciptakan lingkungan yang aman dan mendukung di mana anak-anak dapat mengembangkan keterampilan sensorik, bahasa, sosial, literasi dan matematika dalam suasana yang menyenangkan. Kurikulum kami dirancang untuk menumbuhkan rasa ingin tahu dan kecintaan belajar sejak usia dini.
             </p>

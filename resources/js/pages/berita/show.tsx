@@ -1,6 +1,8 @@
-import { Head, Link } from "@inertiajs/react"
+import { Link } from "@inertiajs/react"
 import { Calendar, ArrowLeft, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
+import SEOHead from "@/components/seo/SEOHead"
+import StructuredData from "@/components/seo/StructuredData"
 
 interface News {
   id: number
@@ -11,6 +13,7 @@ interface News {
   image_url: string
   slug: string
   published_at: string
+  updated_at: string
 }
 
 interface NewsShowProps {
@@ -28,9 +31,41 @@ export default function NewsShow({ news, relatedNews }: NewsShowProps) {
     })
   }
 
+  // Prepare meta description (limit to 160 characters)
+  const metaDescription = news.excerpt.length > 160 
+    ? news.excerpt.substring(0, 157) + '...' 
+    : news.excerpt;
+
+  // Format dates for article meta tags (ISO 8601)
+  const publishedTime = new Date(news.published_at).toISOString();
+  const modifiedTime = new Date(news.updated_at).toISOString();
+
   return (
     <>
-      <Head title={`${news.title} - AL-Biruni`} />
+      <SEOHead
+        title={`${news.title} - Al-Biruni Daycare Padang`}
+        description={metaDescription}
+        canonical={`https://albiruni.sch.id/berita/${news.slug}`}
+        keywords={`daycare padang, preschool padang, ${news.title.toLowerCase()}`}
+        ogType="article"
+        ogImage={news.image_url}
+        ogImageAlt={news.title}
+        articlePublishedTime={publishedTime}
+        articleModifiedTime={modifiedTime}
+      />
+      
+      <StructuredData
+        type="article"
+        articleData={{
+          headline: news.title,
+          datePublished: publishedTime,
+          dateModified: modifiedTime,
+          author: 'Al-Biruni Preschool & Daycare',
+          image: news.image_url,
+          description: metaDescription,
+          url: `https://albiruni.sch.id/berita/${news.slug}`,
+        }}
+      />
       
       <div className="min-h-screen bg-gradient-to-b from-[#020b2d] via-[#041254] to-[#020b2d]" style={{ background: 'linear-gradient(to bottom, #020b2d, #041254, #020b2d)' }}>
         {/* Header */}
@@ -66,7 +101,7 @@ export default function NewsShow({ news, relatedNews }: NewsShowProps) {
               <div className="relative h-96 rounded-2xl overflow-hidden mb-8">
                 <img
                   src={news.image_url}
-                  alt={news.title}
+                  alt={`${news.title} - Al-Biruni Daycare Padang`}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/90 to-transparent"></div>
@@ -154,7 +189,7 @@ export default function NewsShow({ news, relatedNews }: NewsShowProps) {
                         <div className="relative h-40 overflow-hidden">
                           <img
                             src={item.image_url}
-                            alt={item.title}
+                            alt={`${item.title} - Berita TK Al-Biruni Padang`}
                             className="w-full h-full object-cover transition-transform group-hover:scale-110"
                           />
                         </div>

@@ -7,6 +7,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\KehadiranController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\OrangtuaNewsController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -23,13 +24,84 @@ Route::get('/', function () {
 
     return Inertia::render('Home', [
         'latestNews' => $latestNews,
-        'otherNews' => $otherNews
+        'otherNews' => $otherNews,
+        'seo' => [
+            'title' => 'Daycare & Preschool Padang - Al-Biruni Sumatera Barat',
+            'description' => 'Daycare dan preschool terbaik di Padang. Al-Biruni melayani anak usia 1-6 tahun dengan 2 cabang di Ulak Karang dan Marapalam, Sumatera Barat.',
+            'canonical' => 'https://albiruni.sch.id/',
+            'keywords' => 'daycare padang, preschool padang, day care padang, tk padang, daycare sumatera barat, preschool sumatera barat, daycare ulak karang, daycare marapalam, baby class padang, kindergarten padang',
+            'ogImage' => 'https://albiruni.sch.id/apple-touch-icon.png'
+        ],
+        'structuredData' => [
+            'organization' => [ 
+                'name' => 'Al-Biruni Preschool & Daycare',
+                'url' => 'https://albiruni.sch.id',
+                'logo' => 'https://albiruni.sch.id/apple-touch-icon.png',
+                'description' => 'Daycare dan preschool terbaik di Padang, Sumatera Barat, melayani anak usia 1-6 tahun',
+                'priceRange' => '$',
+                'areaServed' => 'Padang, Sumatera Barat, Indonesia',
+                'branches' => [
+                    [
+                        'name' => 'Al-Biruni Preschool & Daycare - Ulak Karang',
+                        'address' => [
+                            'streetAddress' => 'Jl. S. Parman No. 5',
+                            'addressLocality' => 'Padang',
+                            'addressRegion' => 'Sumatera Barat',
+                            'postalCode' => '25000',
+                            'addressCountry' => 'ID'
+                        ],
+                        'telephone' => '+62-751-123456',
+                        'geo' => [
+                            'latitude' => -0.9471,
+                            'longitude' => 100.4172
+                        ]
+                    ],
+                    [
+                        'name' => 'Al-Biruni Preschool & Daycare - Marapalam',
+                        'address' => [
+                            'streetAddress' => 'Jl. Marapalam Raya',
+                            'addressLocality' => 'Padang',
+                            'addressRegion' => 'Sumatera Barat',
+                            'postalCode' => '25000',
+                            'addressCountry' => 'ID'
+                        ],
+                        'telephone' => '+62-751-654321',
+                        'geo' => [
+                            'latitude' => -0.9550,
+                            'longitude' => 100.3693
+                        ]
+                    ]
+                ]
+            ]
+        ]
     ]);
 })->name('home');
 
 // Public News Routes
 Route::get('/berita', [NewsController::class, 'index'])->name('berita.index');
 Route::get('/berita/{slug}', [NewsController::class, 'show'])->name('berita.show');
+
+// Sitemap Route
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Robots.txt Route
+Route::get('/robots.txt', function () {
+    $content = "User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /guru
+Disallow: /orangtua
+Disallow: /login
+Disallow: /register
+Disallow: /api/
+Disallow: /kehadiran/
+
+Sitemap: https://albiruni.sch.id/sitemap.xml";
+
+    return response($content)
+        ->header('Content-Type', 'text/plain');
+})->name('robots');
 
 // Kehadiran Routes (Public - untuk tablet dan TV)
 Route::prefix('kehadiran')->name('kehadiran.')->group(function () {
