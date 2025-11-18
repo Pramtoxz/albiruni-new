@@ -29,21 +29,24 @@ class GuruDashboardController extends Controller
         $completedMateri = 0;
 
         if ($guru) {
-            // Get total siswa assigned to this guru
-            $totalSiswa = Siswa::where('guru_id', $guru->id)
+            // Get main guru ID (for guru pendamping, use guru utama's ID)
+            $mainGuruId = $guru->getMainGuruId();
+
+            // Get total siswa assigned to this guru (or guru utama if pendamping)
+            $totalSiswa = Siswa::where('guru_id', $mainGuruId)
                 ->where('is_active', true)
                 ->count();
 
             // Get siswa hadir today (if record exists in kehadiran, student is present)
             $siswaHadir = Kehadiran::whereDate('tanggal', $today)
-                ->whereHas('siswa', function ($query) use ($guru) {
-                    $query->where('guru_id', $guru->id)
+                ->whereHas('siswa', function ($query) use ($mainGuruId) {
+                    $query->where('guru_id', $mainGuruId)
                         ->where('is_active', true);
                 })
                 ->count();
 
-            // Get siswa IDs for this guru
-            $siswaIds = Siswa::where('guru_id', $guru->id)
+            // Get siswa IDs for this guru (or guru utama if pendamping)
+            $siswaIds = Siswa::where('guru_id', $mainGuruId)
                 ->where('is_active', true)
                 ->pluck('id');
 
@@ -56,7 +59,7 @@ class GuruDashboardController extends Controller
                 ->count();
 
             // Get today's kegiatan harian for this guru's class
-            $kelasIds = Siswa::where('guru_id', $guru->id)
+            $kelasIds = Siswa::where('guru_id', $mainGuruId)
                 ->where('is_active', true)
                 ->pluck('kelas_id')
                 ->unique();
@@ -74,10 +77,12 @@ class GuruDashboardController extends Controller
         // Get recent daily reports (today's reports)
         $recentReports = [];
         if ($guru) {
+            $mainGuruId = $guru->getMainGuruId();
+            
             $recentReports = DailyReport::with(['siswa.kelas'])
                 ->whereDate('tanggal', $today)
-                ->whereHas('siswa', function ($query) use ($guru) {
-                    $query->where('guru_id', $guru->id);
+                ->whereHas('siswa', function ($query) use ($mainGuruId) {
+                    $query->where('guru_id', $mainGuruId);
                 })
                 ->orderBy('created_at', 'desc')
                 ->limit(5)

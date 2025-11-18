@@ -63,7 +63,33 @@ class NotificationService
     protected function buildDailyReportMessage(DailyReport $report, $siswa): string
     {
         $date = \Carbon\Carbon::parse($report->tanggal)->format('d/m/Y');
+        
+        // Get guru info - bisa guru utama atau guru pendamping yang input
+        $guruYangInput = $report->user->guru ?? null;
         $guruName = $report->user->name ?? 'Guru';
+        
+        // Get guru utama dari siswa
+        $guruUtama = $siswa->guru ?? null;
+        
+        // Build guru info text
+        $guruInfo = '';
+        if ($guruUtama) {
+            $guruInfo = "👩‍🏫 Guru Utama: Aunty {$guruUtama->nama_lengkap}\n";
+            
+            // Check if ada guru pendamping
+            $guruPendamping = \App\Models\Guru::where('guru_utama_id', $guruUtama->id)->get();
+            if ($guruPendamping->count() > 0) {
+                $guruInfo .= "👥 Guru Pendamping: ";
+                $pendampingNames = $guruPendamping->pluck('nama_lengkap')->toArray();
+                $guruInfo .= "Aunty " . implode(', Aunty ', $pendampingNames) . "\n";
+            }
+            
+            // Show who created this report
+            if ($guruYangInput) {
+                $reportCreator = $guruYangInput->nama_lengkap;
+                $guruInfo .= "✍️ Laporan dibuat oleh: Aunty {$reportCreator}\n";
+            }
+        }
 
         $ratingText = function ($rating) {
             $rating = (int) $rating;
@@ -86,6 +112,9 @@ class NotificationService
         $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         $message .= "\n";
         $message .= "📅 {$date}\n";
+        if ($guruInfo) {
+            $message .= $guruInfo;
+        }
         $message .= "😊 Mood: {$report->mood}\n";
         $message .= "\n";
 
@@ -193,7 +222,20 @@ class NotificationService
         $message .= "\n";
         $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP* _(COMING SOON)_\n ";
         $message .= "\n";
-        $message .= "Lihat foto kegiatan, detail makanan, dan catatan lengkap dari Aunty {$guruName}\n";
+        
+        // Build guru team text
+        if ($guruUtama) {
+            $guruTeam = "Aunty {$guruUtama->nama_lengkap}";
+            $guruPendamping = \App\Models\Guru::where('guru_utama_id', $guruUtama->id)->get();
+            if ($guruPendamping->count() > 0) {
+                $pendampingNames = $guruPendamping->pluck('nama_lengkap')->toArray();
+                $guruTeam .= " & Aunty " . implode(', Aunty ', $pendampingNames);
+            }
+            $message .= "Lihat foto kegiatan, detail makanan, dan catatan lengkap dari {$guruTeam}\n";
+        } else {
+            $message .= "Lihat foto kegiatan, detail makanan, dan catatan lengkap dari Aunty {$guruName}\n";
+        }
+        
         $message .= "\n";
         $message .= '_Terima kasih atas kepercayaan Anda_ 🙏';
 

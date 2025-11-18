@@ -24,6 +24,7 @@ interface Guru {
     jenis_kelamin: string | null;
     pendidikan_terakhir: string | null;
     foto_guru: string | null;
+    guru_utama_id: number | null;
     user: {
         id: number;
         name: string;
@@ -33,6 +34,10 @@ interface Guru {
     kelas: {
         id: number;
         nama_kelas: string;
+    } | null;
+    guru_utama: {
+        id: number;
+        nama_lengkap: string;
     } | null;
 }
 
@@ -123,6 +128,7 @@ export default function GuruIndex({ gurus, filters }: Props) {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Guru</TableHead>
+                                    <TableHead>Tipe</TableHead>
                                     <TableHead>NIP</TableHead>
                                     <TableHead>Kontak</TableHead>
                                     <TableHead>Kelas</TableHead>
@@ -133,7 +139,7 @@ export default function GuruIndex({ gurus, filters }: Props) {
                             <TableBody>
                                 {gurus.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-8">
+                                        <TableCell colSpan={7} className="text-center py-8">
                                             <div className="flex flex-col items-center gap-2">
                                                 <UserCog className="h-12 w-12 text-muted-foreground" />
                                                 <p className="text-muted-foreground">
@@ -166,6 +172,26 @@ export default function GuruIndex({ gurus, filters }: Props) {
                                                             </p>
                                                         )}
                                                     </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="space-y-1">
+                                                    {guru.guru_utama_id ? (
+                                                        <>
+                                                            <Badge variant="secondary" className="text-xs">
+                                                                Guru Pendamping
+                                                            </Badge>
+                                                            {guru.guru_utama && (
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    Membantu: {guru.guru_utama.nama_lengkap}
+                                                                </p>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <Badge variant="default" className="text-xs">
+                                                            Guru Utama
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                             <TableCell>

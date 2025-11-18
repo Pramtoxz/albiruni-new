@@ -22,14 +22,15 @@ class DailyReportController extends Controller
         $year = $request->input('year', now()->year);
 
         $reportsQuery = DailyReport::with(['siswa.kelas', 'user'])
-            ->where('user_id', $user->id)
             ->whereYear('tanggal', $year)
             ->whereMonth('tanggal', $month);
 
-        // If guru exists, filter reports by their assigned students
+        // If guru exists, filter reports by their accessible students
         if ($guru) {
-            $reportsQuery->whereHas('siswa', function ($query) use ($guru) {
-                $query->where('guru_id', $guru->id);
+            $mainGuruId = $guru->getMainGuruId();
+            
+            $reportsQuery->whereHas('siswa', function ($query) use ($mainGuruId) {
+                $query->where('guru_id', $mainGuruId);
             });
         }
 
@@ -55,9 +56,10 @@ class DailyReportController extends Controller
         $siswaQuery = Siswa::with('kelas')
             ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id');
 
-        // If guru exists, only show their assigned students
+        // If guru exists, show accessible students (guru utama or guru pendamping)
         if ($guru) {
-            $siswaQuery->where('guru_id', $guru->id);
+            $mainGuruId = $guru->getMainGuruId();
+            $siswaQuery->where('guru_id', $mainGuruId);
         }
 
         $siswaList = $siswaQuery
@@ -256,9 +258,10 @@ class DailyReportController extends Controller
         $siswaQuery = Siswa::with('kelas')
             ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id');
 
-        // If guru exists, only show their assigned students
+        // If guru exists, show accessible students (guru utama or guru pendamping)
         if ($guru) {
-            $siswaQuery->where('guru_id', $guru->id);
+            $mainGuruId = $guru->getMainGuruId();
+            $siswaQuery->where('guru_id', $mainGuruId);
         }
 
         $siswaList = $siswaQuery
@@ -537,11 +540,12 @@ class DailyReportController extends Controller
                 abort(403, 'Anda tidak memiliki akses ke laporan ini');
             }
         } elseif ($user->role === 'guru') {
-            // Guru: cek berdasarkan guru_id di tabel siswa
+            // Guru: cek berdasarkan guru_id di tabel siswa (termasuk guru pendamping)
             $guru = $user->guru;
             
             if ($guru) {
-                $siswaIds = Siswa::where('guru_id', $guru->id)->pluck('id')->toArray();
+                $mainGuruId = $guru->getMainGuruId();
+                $siswaIds = Siswa::where('guru_id', $mainGuruId)->pluck('id')->toArray();
                 
                 if (!in_array($dailyReport->siswa_id, $siswaIds)) {
                     abort(403, 'Daily report ini bukan untuk siswa yang Anda handle');

@@ -15,7 +15,7 @@ class GuruController extends Controller
     {
         $search = $request->input('search');
 
-        $gurus = Guru::with(['user:id,name,email,nohp', 'kelas:id,nama_kelas'])
+        $gurus = Guru::with(['user:id,name,email,nohp', 'kelas:id,nama_kelas', 'guruUtama:id,nama_lengkap'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_lengkap', 'like', "%{$search}%")
@@ -46,10 +46,16 @@ class GuruController extends Controller
             ->get(['id', 'name', 'email']);
 
         $kelas = Kelas::all();
+        
+        // Get all guru utama (guru without guru_utama_id) for guru pendamping selection
+        $guruUtamaList = Guru::whereNull('guru_utama_id')
+            ->with('user:id,name')
+            ->get(['id', 'user_id', 'nama_lengkap']);
 
         return Inertia::render('admin/guru/create', [
             'availableUsers' => $availableUsers,
             'kelas' => $kelas,
+            'guruUtamaList' => $guruUtamaList,
         ]);
     }
 
@@ -57,6 +63,7 @@ class GuruController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
+            'guru_utama_id' => 'nullable|exists:gurus,id',
             'nip' => 'nullable|unique:gurus,nip',
             'nama_lengkap' => 'required|string|max:255',
             'kelas_id' => 'nullable|exists:kelas,id',
@@ -86,6 +93,7 @@ class GuruController extends Controller
         // Create guru profile
         Guru::create([
             'user_id' => $validated['user_id'],
+            'guru_utama_id' => $validated['guru_utama_id'] ?? null,
             'kelas_id' => $validated['kelas_id'] ?? null,
             'nip' => $validated['nip'] ?? null,
             'nama_lengkap' => $validated['nama_lengkap'],
@@ -103,18 +111,43 @@ class GuruController extends Controller
 
     public function edit(Guru $guru)
     {
-        $guru->load('user:id,name,email,nohp');
+        $guru->load('user:id,name,email,nohp', 'guruUtama:id,nama_lengkap');
         $kelas = Kelas::all();
+        
+        // Get all guru utama (guru without guru_utama_id) for guru pendamping selection
+        // Exclude current guru to prevent self-reference
+        $guruUtamaList = Guru::whereNull('guru_utama_id')
+            ->where('id', '!=', $guru->id)
+            ->with('user:id,name')
+            ->get(['id', 'user_id', 'nama_lengkap']);
 
         return Inertia::render('admin/guru/edit', [
             'guru' => $guru,
             'kelas' => $kelas,
+            'guruUtamaList' => $guruUtamaList,
         ]);
     }
 
     public function update(Request $request, Guru $guru)
     {
         $validated = $request->validate([
+            'guru_utama_id' => [
+                'nullable',
+                'exists:gurus,id',
+                function ($attribute, $value, $fail) use ($guru) {
+                    // Prevent self-reference
+                    if ($value == $guru->id) {
+                        $fail('Guru tidak bisa menjadi pendamping diri sendiri.');
+                    }
+                    // Prevent circular reference
+                    if ($value) {
+                        $targetGuru = Guru::find($value);
+                        if ($targetGuru && $targetGuru->guru_utama_id == $guru->id) {
+                            $fail('Tidak bisa membuat referensi circular.');
+                        }
+                    }
+                },
+            ],
             'nip' => 'nullable|unique:gurus,nip,'.$guru->id,
             'nama_lengkap' => 'required|string|max:255',
             'kelas_id' => 'nullable|exists:kelas,id',
@@ -148,6 +181,7 @@ class GuruController extends Controller
 
         // Update guru profile
         $guru->update([
+            'guru_utama_id' => $validated['guru_utama_id'] ?? null,
             'kelas_id' => $validated['kelas_id'] ?? null,
             'nip' => $validated['nip'] ?? null,
             'nama_lengkap' => $validated['nama_lengkap'],

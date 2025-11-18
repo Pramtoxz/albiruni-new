@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface Kelas {
     id: number;
@@ -20,14 +21,24 @@ interface User {
     email: string;
 }
 
+interface GuruUtama {
+    id: number;
+    user_id: number;
+    nama_lengkap: string;
+}
+
 interface Props {
     availableUsers: User[];
     kelas: Kelas[];
+    guruUtamaList: GuruUtama[];
 }
 
-export default function GuruCreate({ availableUsers, kelas }: Props) {
+export default function GuruCreate({ availableUsers, kelas, guruUtamaList }: Props) {
+    const [guruType, setGuruType] = useState<'utama' | 'pendamping'>('utama');
+    
     const { data, setData, post, processing, errors } = useForm({
         user_id: '',
+        guru_utama_id: '',
         nip: '',
         nama_lengkap: '',
         kelas_id: '',
@@ -42,6 +53,16 @@ export default function GuruCreate({ availableUsers, kelas }: Props) {
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
         post('/admin/guru');
+    };
+
+    const handleGuruTypeChange = (value: string) => {
+        setGuruType(value as 'utama' | 'pendamping');
+        if (value === 'utama') {
+            setData('guru_utama_id', '');
+        } else {
+            // Reset kelas_id when switching to pendamping
+            setData('kelas_id', '');
+        }
     };
 
     return (
@@ -102,6 +123,60 @@ export default function GuruCreate({ availableUsers, kelas }: Props) {
                                     Pilih user yang sudah dibuat dengan role "Guru" di menu User Management
                                 </p>
                             </div>
+
+                            <div className="space-y-2">
+                                <Label>Tipe Guru *</Label>
+                                <RadioGroup value={guruType} onValueChange={handleGuruTypeChange}>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="utama" id="utama" />
+                                        <Label htmlFor="utama" className="font-normal cursor-pointer">
+                                            Guru Utama
+                                        </Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="pendamping" id="pendamping" />
+                                        <Label htmlFor="pendamping" className="font-normal cursor-pointer">
+                                            Guru Pendamping
+                                        </Label>
+                                    </div>
+                                </RadioGroup>
+                                <p className="text-xs text-muted-foreground">
+                                    Guru pendamping membantu guru utama mengelola siswa dan daily report
+                                </p>
+                            </div>
+
+                            {guruType === 'pendamping' && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="guru_utama_id">Guru Utama yang Dibantu *</Label>
+                                    <Select
+                                        value={data.guru_utama_id}
+                                        onValueChange={(value) => setData('guru_utama_id', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih guru utama" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {guruUtamaList.length === 0 ? (
+                                                <div className="p-2 text-sm text-muted-foreground">
+                                                    Belum ada guru utama. Buat guru utama terlebih dahulu.
+                                                </div>
+                                            ) : (
+                                                guruUtamaList.map((guru) => (
+                                                    <SelectItem key={guru.id} value={guru.id.toString()}>
+                                                        {guru.nama_lengkap}
+                                                    </SelectItem>
+                                                ))
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.guru_utama_id && (
+                                        <p className="text-sm text-destructive">{errors.guru_utama_id}</p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">
+                                        Guru pendamping akan dapat mengakses dan mengelola siswa dari guru utama
+                                    </p>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 
@@ -208,7 +283,7 @@ export default function GuruCreate({ availableUsers, kelas }: Props) {
                             <CardTitle>Data Kepegawaian</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className={guruType === 'pendamping' ? '' : 'grid gap-4 md:grid-cols-2'}>
                                 <div className="space-y-2">
                                     <Label htmlFor="pendidikan_terakhir">Pendidikan Terakhir</Label>
                                     <Input
@@ -221,28 +296,35 @@ export default function GuruCreate({ availableUsers, kelas }: Props) {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="kelas_id">Kelas yang Diajar</Label>
-                                    <Select
-                                        value={data.kelas_id}
-                                        onValueChange={(value) => setData('kelas_id', value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Pilih kelas" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {kelas.map((k) => (
-                                                <SelectItem key={k.id} value={k.id.toString()}>
-                                                    {k.nama_kelas}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <p className="text-xs text-muted-foreground">
-                                        Opsional - dapat diatur nanti
-                                    </p>
-                                </div>
+                                {guruType === 'utama' && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="kelas_id">Kelas yang Diajar</Label>
+                                        <Select
+                                            value={data.kelas_id}
+                                            onValueChange={(value) => setData('kelas_id', value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pilih kelas" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {kelas.map((k) => (
+                                                    <SelectItem key={k.id} value={k.id.toString()}>
+                                                        {k.nama_kelas}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-xs text-muted-foreground">
+                                            Opsional - dapat diatur nanti
+                                        </p>
+                                    </div>
+                                )}
                             </div>
+                            {guruType === 'pendamping' && (
+                                <p className="text-sm text-muted-foreground">
+                                    Guru pendamping akan mengikuti kelas dari guru utama yang dibantu
+                                </p>
+                            )}
                         </CardContent>
                     </Card>
 
