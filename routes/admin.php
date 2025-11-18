@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('pembayaran', [PembayaranSppController::class, 'index'])->name('pembayaran.index');
     Route::get('pembayaran/{pembayaran}', [PembayaranSppController::class, 'show'])->name('pembayaran.show');
     Route::post('pembayaran/{pembayaran}/verify', [PembayaranSppController::class, 'verify'])->name('pembayaran.verify');
+    Route::post('pembayaran/{pembayaran}/pay-direct', [PembayaranSppController::class, 'payDirect'])->name('pembayaran.pay-direct');
     Route::post('pembayaran/generate', [PembayaranSppController::class, 'generate'])->name('pembayaran.generate');
 
     // Guru Management

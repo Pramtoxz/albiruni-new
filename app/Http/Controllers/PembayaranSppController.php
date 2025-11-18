@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Log;
 
 class PembayaranSppController extends Controller
 {
+    private $whatsApp;
 
-      public function __construct(WhatsAppGateway $whatsApp)
+    public function __construct(WhatsAppGateway $whatsApp)
     {
         $this->whatsApp = $whatsApp;
     }
@@ -44,6 +45,7 @@ class PembayaranSppController extends Controller
         $validated = $request->validate([
             'bukti_bayar' => 'required|image|max:2048',
             'tanggal_bayar' => 'required|date',
+            'metode_bayar' => 'required|in:transfer',
         ]);
 
         $user = auth()->user();
@@ -70,6 +72,7 @@ class PembayaranSppController extends Controller
         $pembayaran->update([
             'bukti_bayar' => $validated['bukti_bayar'],
             'tanggal_bayar' => $validated['tanggal_bayar'],
+            'metode_bayar' => $validated['metode_bayar'],
             'status_bayar' => 'menunggu_verifikasi',
         ]);
         try {

@@ -204,4 +204,61 @@ class PembayaranSppController extends Controller
         return redirect()->route('admin.pembayaran.index')
             ->with('success', "Berhasil generate {$generated} tagihan SPP untuk bulan ini dan notifikasi telah dikirim ke orang tua.");
     }
+
+    public function payDirect(Request $request, PembayaranSpp $pembayaran)
+    {
+        $this->checkAdmin();
+
+        $validated = $request->validate([
+            'tanggal_bayar' => 'required|date',
+            'metode_bayar' => 'required|in:cash,transfer',
+            'bukti_bayar' => 'nullable|image|max:2048',
+            'catatan_admin' => 'nullable|string',
+        ]);
+
+        // Handle file upload jika ada
+        if ($request->hasFile('bukti_bayar')) {
+            $file = $request->file('bukti_bayar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/images/bukti_bayar'), $filename);
+            $validated['bukti_bayar'] = $filename;
+        }
+
+        $pembayaran->update([
+            'tanggal_bayar' => $validated['tanggal_bayar'],
+            'metode_bayar' => $validated['metode_bayar'],
+            'bukti_bayar' => $validated['bukti_bayar'] ?? null,
+            'status_bayar' => 'diterima',
+            'catatan_admin' => $validated['catatan_admin'] ?? null,
+        ]);
+
+        // Load relasi untuk notifikasi
+        $pembayaran->load(['siswa.user', 'kelas']);
+
+        // Kirim notifikasi FCM ke orang tua
+        try {
+            $fcmService = app(\App\Services\FcmService::class);
+            $bulanTahun = \Carbon\Carbon::parse($pembayaran->bulan)->locale('id')->isoFormat('MMMM YYYY');
+
+            $fcmService->sendToUser(
+                userId: $pembayaran->siswa->user_id,
+                title: 'Pembayaran SPP Diterima',
+                body: "Pembayaran SPP {$bulanTahun} untuk {$pembayaran->siswa->nama_lengkap} telah diterima oleh admin.",
+                url: '/orangtua/pembayaran',
+                extraData: [
+                    'type' => 'spp_verification',
+                    'pembayaran_id' => $pembayaran->id,
+                    'status' => 'diterima',
+                ]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send FCM notification for direct payment', [
+                'pembayaran_id' => $pembayaran->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return redirect()->route('admin.pembayaran.show', $pembayaran->id)
+            ->with('success', 'Pembayaran berhasil dicatat dan notifikasi telah dikirim.');
+    }
 }

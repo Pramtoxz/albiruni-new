@@ -39,6 +39,7 @@ interface Pembayaran {
     tahun: number;
     biaya: string;
     tanggal_bayar: string | null;
+    metode_bayar: 'cash' | 'transfer' | null;
     bukti_bayar: string | null;
     status_bayar: 'pending' | 'menunggu_verifikasi' | 'diterima' | 'ditolak';
     catatan_admin: string | null;
@@ -200,6 +201,7 @@ export default function PembayaranIndex({ pembayaran, filters }: Props) {
                                     <th className="p-4 text-left font-semibold">Periode</th>
                                     <th className="p-4 text-left font-semibold">Biaya</th>
                                     <th className="p-4 text-left font-semibold">Tgl Bayar</th>
+                                    <th className="p-4 text-left font-semibold">Metode</th>
                                     <th className="p-4 text-left font-semibold">Status</th>
                                     <th className="p-4 text-center font-semibold">Aksi</th>
                                 </tr>
@@ -207,7 +209,7 @@ export default function PembayaranIndex({ pembayaran, filters }: Props) {
                             <tbody>
                                 {pembayaran.data.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                                        <td colSpan={8} className="p-8 text-center text-muted-foreground">
                                             Belum ada data pembayaran
                                         </td>
                                     </tr>
@@ -232,6 +234,13 @@ export default function PembayaranIndex({ pembayaran, filters }: Props) {
                                                 {item.tanggal_bayar
                                                     ? new Date(item.tanggal_bayar).toLocaleDateString('id-ID')
                                                     : '-'}
+                                            </td>
+                                            <td className="p-4">
+                                                {item.metode_bayar === 'cash' ? (
+                                                    <Badge variant="outline" className="bg-green-50">Cash</Badge>
+                                                ) : item.metode_bayar === 'transfer' ? (
+                                                    <Badge variant="outline" className="bg-blue-50">Transfer</Badge>
+                                                ) : '-'}
                                             </td>
                                             <td className="p-4">{getStatusBadge(item.status_bayar)}</td>
                                             <td className="p-4">

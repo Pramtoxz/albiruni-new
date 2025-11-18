@@ -16,6 +16,7 @@ class PembayaranSpp extends Model
         'tahun',
         'biaya',
         'tanggal_bayar',
+        'metode_bayar',
         'bukti_bayar',
         'status_bayar',
         'catatan_admin',

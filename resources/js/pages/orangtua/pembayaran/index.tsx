@@ -35,6 +35,7 @@ interface Pembayaran {
     tahun: number;
     biaya: string;
     tanggal_bayar: string | null;
+    metode_bayar: 'cash' | 'transfer' | null;
     bukti_bayar: string | null;
     status_bayar: 'pending' | 'menunggu_verifikasi' | 'diterima' | 'ditolak';
     catatan_admin: string | null;
@@ -61,6 +62,7 @@ export default function PembayaranIndex({ siswa, pembayaran }: Props) {
     const { data, setData, post, processing, reset } = useForm({
         bukti_bayar: null as File | null,
         tanggal_bayar: getTodayDate(),
+        metode_bayar: 'transfer' as 'transfer',
     });
 
     const handleUpload: FormEventHandler = (e) => {
@@ -257,6 +259,11 @@ export default function PembayaranIndex({ siswa, pembayaran }: Props) {
                                                         year: 'numeric'
                                                     })}
                                                 </p>
+                                                {item.metode_bayar && (
+                                                    <p className="text-xs text-gray-600">
+                                                        Metode: {item.metode_bayar === 'cash' ? 'Cash' : 'Transfer'}
+                                                    </p>
+                                                )}
                                             </div>
                                         )}
 
@@ -321,6 +328,18 @@ export default function PembayaranIndex({ siswa, pembayaran }: Props) {
                                     onChange={(e) => setData('tanggal_bayar', e.target.value)}
                                     required
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Metode Pembayaran</Label>
+                                <Input
+                                    type="text"
+                                    value="Transfer"
+                                    disabled
+                                    className="bg-gray-100"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Pembayaran melalui mobile hanya bisa via transfer
+                                </p>
                             </div>
                             <div className="space-y-2">
                                 <Label>Bukti Pembayaran (Foto/Screenshot)</Label>

@@ -6,9 +6,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { ArrowLeft, CheckCircle, XCircle, Wallet } from 'lucide-react';
+import { FormEventHandler, useState } from 'react';
 import Swal from 'sweetalert2';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 interface Kelas {
     id: number;
@@ -36,6 +43,7 @@ interface Pembayaran {
     tahun: number;
     biaya: string;
     tanggal_bayar: string | null;
+    metode_bayar: 'cash' | 'transfer' | null;
     bukti_bayar: string | null;
     status_bayar: 'pending' | 'menunggu_verifikasi' | 'diterima' | 'ditolak';
     catatan_admin: string | null;
@@ -54,9 +62,26 @@ export default function PembayaranShow({ pembayaran }: Props) {
         { title: 'Detail', href: `/admin/pembayaran/${pembayaran.id}` },
     ];
 
+    const [showDirectPayment, setShowDirectPayment] = useState(false);
+
     const { data, setData, post, processing } = useForm({
         status_bayar: '' as 'diterima' | 'ditolak' | '',
         catatan_admin: pembayaran.catatan_admin || '',
+    });
+
+    const getTodayDate = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const { data: directPayData, setData: setDirectPayData, post: postDirectPay, processing: processingDirectPay, reset: resetDirectPay } = useForm({
+        tanggal_bayar: getTodayDate(),
+        metode_bayar: 'cash' as 'cash' | 'transfer',
+        bukti_bayar: null as File | null,
+        catatan_admin: '',
     });
 
     const handleVerify = (status: 'diterima' | 'ditolak') => {
@@ -75,6 +100,29 @@ export default function PembayaranShow({ pembayaran }: Props) {
                 }, {
                     onSuccess: () => {
                         Swal.fire('Berhasil!', 'Status pembayaran berhasil diperbarui', 'success');
+                    },
+                });
+            }
+        });
+    };
+
+    const handleDirectPayment: FormEventHandler = (e) => {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: 'Catat Pembayaran Langsung?',
+            text: 'Pembayaran akan langsung ditandai sebagai diterima',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Catat',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                postDirectPay(`/admin/pembayaran/${pembayaran.id}/pay-direct`, {
+                    onSuccess: () => {
+                        Swal.fire('Berhasil!', 'Pembayaran berhasil dicatat', 'success');
+                        setShowDirectPayment(false);
+                        resetDirectPay();
                     },
                 });
             }
@@ -158,6 +206,12 @@ export default function PembayaranShow({ pembayaran }: Props) {
                                 </span>
                             </div>
                             <div className="flex justify-between">
+                                <span className="text-muted-foreground">Metode Bayar:</span>
+                                <span className="font-medium">
+                                    {pembayaran.metode_bayar === 'cash' ? 'Cash' : pembayaran.metode_bayar === 'transfer' ? 'Transfer' : '-'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
                                 <span className="text-muted-foreground">Status:</span>
                                 <Badge
                                     variant={
@@ -188,6 +242,95 @@ export default function PembayaranShow({ pembayaran }: Props) {
                                 className="w-full max-w-md rounded-lg border"
                             />
                         </CardContent>
+                    </Card>
+                )}
+
+                {/* Form Pembayaran Langsung - untuk status pending */}
+                {pembayaran.status_bayar === 'pending' && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center justify-between">
+                                <span>Catat Pembayaran Langsung</span>
+                                {!showDirectPayment && (
+                                    <Button onClick={() => setShowDirectPayment(true)} size="sm">
+                                        <Wallet className="mr-2 h-4 w-4" />
+                                        Bayar Langsung
+                                    </Button>
+                                )}
+                            </CardTitle>
+                        </CardHeader>
+                        {showDirectPayment && (
+                            <CardContent>
+                                <form onSubmit={handleDirectPayment} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Tanggal Bayar</Label>
+                                        <input
+                                            type="date"
+                                            value={directPayData.tanggal_bayar}
+                                            onChange={(e) => setDirectPayData('tanggal_bayar', e.target.value)}
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Metode Pembayaran</Label>
+                                        <Select
+                                            value={directPayData.metode_bayar}
+                                            onValueChange={(value: 'cash' | 'transfer') => setDirectPayData('metode_bayar', value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="cash">Cash</SelectItem>
+                                                <SelectItem value="transfer">Transfer</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Bukti Pembayaran (Opsional)</Label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => setDirectPayData('bukti_bayar', e.target.files?.[0] || null)}
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Upload bukti jika ada (opsional untuk cash)
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Catatan Admin (Opsional)</Label>
+                                        <Textarea
+                                            value={directPayData.catatan_admin}
+                                            onChange={(e) => setDirectPayData('catatan_admin', e.target.value)}
+                                            placeholder="Tambahkan catatan jika diperlukan..."
+                                            rows={3}
+                                        />
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <Button
+                                            type="submit"
+                                            disabled={processingDirectPay}
+                                            className="flex-1 bg-green-600 hover:bg-green-700"
+                                        >
+                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                            {processingDirectPay ? 'Menyimpan...' : 'Catat Pembayaran'}
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => {
+                                                setShowDirectPayment(false);
+                                                resetDirectPay();
+                                            }}
+                                        >
+                                            Batal
+                                        </Button>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        )}
                     </Card>
                 )}
 
