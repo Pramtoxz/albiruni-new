@@ -49,8 +49,8 @@ class GuruController extends Controller
         
         // Get all guru utama (guru without guru_utama_id) for guru pendamping selection
         $guruUtamaList = Guru::whereNull('guru_utama_id')
-            ->with('user:id,name')
-            ->get(['id', 'user_id', 'nama_lengkap']);
+            ->with(['user:id,name', 'kelas:id,nama_kelas'])
+            ->get(['id', 'user_id', 'nama_lengkap', 'kelas_id']);
 
         return Inertia::render('admin/guru/create', [
             'availableUsers' => $availableUsers,
@@ -79,6 +79,14 @@ class GuruController extends Controller
         $existingGuru = Guru::where('user_id', $validated['user_id'])->first();
         if ($existingGuru) {
             return back()->withErrors(['user_id' => 'User ini sudah memiliki profil guru']);
+        }
+
+        // If guru pendamping, get kelas_id from guru utama
+        if (!empty($validated['guru_utama_id'])) {
+            $guruUtama = Guru::find($validated['guru_utama_id']);
+            if ($guruUtama && $guruUtama->kelas_id) {
+                $validated['kelas_id'] = $guruUtama->kelas_id;
+            }
         }
 
         // Handle foto upload
@@ -118,8 +126,8 @@ class GuruController extends Controller
         // Exclude current guru to prevent self-reference
         $guruUtamaList = Guru::whereNull('guru_utama_id')
             ->where('id', '!=', $guru->id)
-            ->with('user:id,name')
-            ->get(['id', 'user_id', 'nama_lengkap']);
+            ->with(['user:id,name', 'kelas:id,nama_kelas'])
+            ->get(['id', 'user_id', 'nama_lengkap', 'kelas_id']);
 
         return Inertia::render('admin/guru/edit', [
             'guru' => $guru,
@@ -158,6 +166,14 @@ class GuruController extends Controller
             'pendidikan_terakhir' => 'nullable|string|max:255',
             'foto_guru' => 'nullable|image|max:2048',
         ]);
+
+        // If guru pendamping, get kelas_id from guru utama
+        if (!empty($validated['guru_utama_id'])) {
+            $guruUtama = Guru::find($validated['guru_utama_id']);
+            if ($guruUtama && $guruUtama->kelas_id) {
+                $validated['kelas_id'] = $guruUtama->kelas_id;
+            }
+        }
 
         // Update user name
         $guru->user->update([

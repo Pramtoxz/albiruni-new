@@ -25,6 +25,11 @@ interface GuruUtama {
     id: number;
     user_id: number;
     nama_lengkap: string;
+    kelas_id: number | null;
+    kelas: {
+        id: number;
+        nama_kelas: string;
+    } | null;
 }
 
 interface Props {
@@ -150,7 +155,14 @@ export default function GuruCreate({ availableUsers, kelas, guruUtamaList }: Pro
                                     <Label htmlFor="guru_utama_id">Guru Utama yang Dibantu *</Label>
                                     <Select
                                         value={data.guru_utama_id}
-                                        onValueChange={(value) => setData('guru_utama_id', value)}
+                                        onValueChange={(value) => {
+                                            setData('guru_utama_id', value);
+                                            // Auto-set kelas_id from guru utama
+                                            const selectedGuru = guruUtamaList.find(g => g.id.toString() === value);
+                                            if (selectedGuru && selectedGuru.kelas_id) {
+                                                setData('kelas_id', selectedGuru.kelas_id.toString());
+                                            }
+                                        }}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Pilih guru utama" />
@@ -164,6 +176,7 @@ export default function GuruCreate({ availableUsers, kelas, guruUtamaList }: Pro
                                                 guruUtamaList.map((guru) => (
                                                     <SelectItem key={guru.id} value={guru.id.toString()}>
                                                         {guru.nama_lengkap}
+                                                        {guru.kelas && ` - ${guru.kelas.nama_kelas}`}
                                                     </SelectItem>
                                                 ))
                                             )}

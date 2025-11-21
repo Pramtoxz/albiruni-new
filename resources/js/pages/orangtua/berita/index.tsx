@@ -56,7 +56,7 @@ export default function OrangtuaNewsIndex({ news }: NewsIndexProps) {
               </button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-800">Berita & Pengumuman 📰</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Berita & Pengumuman</h1>
               <p className="text-sm text-gray-600">Kabar terkini dari TK Al-Biruni</p>
             </div>
           </div>

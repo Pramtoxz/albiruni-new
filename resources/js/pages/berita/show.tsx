@@ -98,7 +98,7 @@ export default function NewsShow({ news, relatedNews }: NewsShowProps) {
               transition={{ duration: 0.6 }}
             >
               {/* Featured Image */}
-              <div className="relative h-96 rounded-2xl overflow-hidden mb-8">
+              <div className="relative h-full rounded-2xl overflow-hidden mb-8">
                 <img
                   src={news.image_url}
                   alt={`${news.title} - Al-Biruni Daycare Padang`}
