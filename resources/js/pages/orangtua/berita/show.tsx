@@ -47,11 +47,11 @@ export default function OrangtuaNewsShow({ news, relatedNews }: NewsShowProps) {
               </button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-800">Detail Berita 📰</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Detail Berita</h1>
             </div>
           </div>
           {/* Featured Image */}
-          <div className="relative h-56 rounded-2xl overflow-hidden shadow-lg">
+          <div className="relative h-full rounded-2xl overflow-hidden shadow-lg">
             <img
               src={news.image_url}
               alt={news.title}

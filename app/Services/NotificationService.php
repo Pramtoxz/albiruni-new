@@ -217,10 +217,14 @@ class NotificationService
         $message .= "\n";
 
         // Call to action - buka aplikasi
-        $message .= "*Ini Pesan 0T0MATIS Harap Jangan Di Balas!!!*\n ";
+        $message .= "*Ini Pesan OTOMATIS Harap Jangan Di Balas!!!*\n ";
         $message .= "\n";
         $message .= "\n";
-        $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP* _(COMING SOON)_\n ";
+        $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP*\n ";
+        $message .= "\n";
+        $message .= "Download Aplikasi Sekolah Al-Biruni\n";
+        $message .= "https://drive.google.com/file/d/13tDgIV7724TOR4Hf603Ha9YAyoD5DehU/view?usp=drive_link";
+        $message .= "\n";
         $message .= "\n";
         
         // Build guru team text

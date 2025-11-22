@@ -110,7 +110,7 @@ export function NewsSection({ latestNews, otherNews }: NewsSectionProps) {
           >
             <Link href={`/berita/${latestNews.slug}`}>
               <div className="bg-blue-900/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-blue-800/50 hover:border-blue-600/50 transition-all hover:transform hover:-translate-y-2 group h-full">
-                <div className="relative h-80 overflow-hidden">
+                <div className="relative h-full overflow-hidden">
                   <img
                     src={latestNews.image_url}
                     alt={latestNews.title}

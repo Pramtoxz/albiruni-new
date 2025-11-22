@@ -25,7 +25,7 @@ interface Guru {
     pendidikan_terakhir: string | null;
     foto_guru: string | null;
     guru_utama_id: number | null;
-    user: {
+    user?: {
         id: number;
         name: string;
         email: string;
@@ -201,8 +201,8 @@ export default function GuruIndex({ gurus, filters }: Props) {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="text-sm">
-                                                    <p>{guru.user.email}</p>
-                                                    <p className="text-muted-foreground">{guru.user.nohp}</p>
+                                                    <p>{guru.user?.email || '-'}</p>
+                                                    <p className="text-muted-foreground">{guru.user?.nohp || '-'}</p>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
