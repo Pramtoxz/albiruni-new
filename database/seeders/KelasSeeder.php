@@ -19,7 +19,7 @@ class KelasSeeder extends Seeder
             'nama_kelas' => 'Baby',
             'kategori' => 'bayi',
             'deskripsi' => 'Kelas Baby 0-24 Bulan',
-            'spp' => 500000,
+            'spp' => 200000,
         ]);
 
         Kelas::create([
@@ -40,7 +40,7 @@ class KelasSeeder extends Seeder
             'nama_kelas' => 'TK',
             'kategori' => 'anak',
             'deskripsi' => 'Untuk Kelas 4-6 Tahun',
-            'spp' => 500000,
+            'spp' => 400000,
         ]);
 
          Emosi::create([
