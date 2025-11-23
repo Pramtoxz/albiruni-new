@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Guru {
     id: number;
@@ -55,6 +56,11 @@ interface Props {
 
 export default function GuruIndex({ gurus, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null; nama: string }>({
+        open: false,
+        id: null,
+        nama: '',
+    });
 
     const debouncedSearch = useDebouncedCallback((value: string) => {
         router.get(
@@ -71,9 +77,10 @@ export default function GuruIndex({ gurus, filters }: Props) {
         debouncedSearch(search);
     }, [search]);
 
-    const handleDelete = (id: number, nama: string) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus data guru "${nama}"?`)) {
-            router.delete(`/admin/guru/${id}`);
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/guru/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null, nama: '' });
         }
     };
 
@@ -232,7 +239,11 @@ export default function GuruIndex({ gurus, filters }: Props) {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() =>
-                                                            handleDelete(guru.id, guru.nama_lengkap)
+                                                            setDeleteDialog({
+                                                                open: true,
+                                                                id: guru.id,
+                                                                nama: guru.nama_lengkap,
+                                                            })
                                                         }
                                                         title="Hapus"
                                                     >
@@ -248,6 +259,17 @@ export default function GuruIndex({ gurus, filters }: Props) {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
+                onConfirm={handleDelete}
+                title="Konfirmasi Hapus"
+                description={`Apakah Anda yakin ingin menghapus data guru <strong>"${deleteDialog.nama}"</strong>?<br /><br />Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data terkait guru ini.`}
+                confirmText="Hapus"
+                variant="destructive"
+            />
         </AppLayout>
     );
 }

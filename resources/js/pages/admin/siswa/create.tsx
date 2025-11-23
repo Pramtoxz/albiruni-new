@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Head, router, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface User {
     id: number;
@@ -24,6 +25,8 @@ interface Props {
 }
 
 export default function CreateSiswa({ orangtuaList }: Props) {
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    
     const { data, setData, post, processing, errors } = useForm({
         user_id: '',
         nama_lengkap: '',
@@ -90,6 +93,11 @@ export default function CreateSiswa({ orangtuaList }: Props) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
+        setShowConfirmDialog(false);
         post('/admin/siswa/store');
     };
 
@@ -729,6 +737,15 @@ export default function CreateSiswa({ orangtuaList }: Props) {
                         {processing ? 'Menyimpan...' : 'Simpan Data Siswa'}
                     </Button>
                 </form>
+
+                <ConfirmDialog
+                    open={showConfirmDialog}
+                    onOpenChange={setShowConfirmDialog}
+                    onConfirm={confirmSubmit}
+                    title="Konfirmasi Simpan Data"
+                    description={`Apakah Anda yakin ingin menyimpan data siswa <strong>"${data.nama_lengkap || 'siswa baru'}"</strong>?<br /><br />Pastikan semua data yang diisi sudah benar.`}
+                    confirmText="Ya, Simpan"
+                />
             </div>
         </AppLayout>
     );

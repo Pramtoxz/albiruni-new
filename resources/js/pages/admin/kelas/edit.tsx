@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Kelas {
     id: number;
@@ -43,8 +44,14 @@ export default function KelasEdit({ kelas }: Props) {
         spp: kelas.spp,
     });
 
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
         put(`/admin/kelas/${kelas.id}`);
     };
 
@@ -159,6 +166,15 @@ export default function KelasEdit({ kelas }: Props) {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Update Data"
+                description={`Apakah Anda yakin ingin mengupdate kelas <strong>"${data.nama_kelas}"</strong>?<br /><br />Pastikan semua perubahan sudah benar.`}
+                confirmText="Ya, Update"
+            />
         </AppLayout>
     );
 }

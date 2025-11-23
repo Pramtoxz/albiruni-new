@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
+import  ConfirmDialog  from '@/components/confirm-dialog';
 
 const HARI = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
 
@@ -30,6 +31,8 @@ interface Props {
 }
 
 export default function RencanaPembelajaranCreate({ kelas }: Props) {
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     const { data, setData, post, processing, errors } = useForm({
         nama_rencana: '',
         tema: '',
@@ -54,6 +57,11 @@ export default function RencanaPembelajaranCreate({ kelas }: Props) {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
+        setShowConfirmDialog(false);
         post('/admin/rencana-pembelajaran');
     };
 
@@ -431,6 +439,15 @@ export default function RencanaPembelajaranCreate({ kelas }: Props) {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Simpan Data"
+                description={`Apakah Anda yakin ingin menyimpan rencana pembelajaran <strong>"${data.nama_rencana}"</strong>?<br /><br />Pastikan semua data yang diisi sudah benar.`}
+                confirmText="Ya, Simpan"
+            />
         </AppLayout>
     );
 }

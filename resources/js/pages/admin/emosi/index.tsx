@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Edit, Plus, Trash2 } from 'lucide-react';
-import Swal from 'sweetalert2';
+import { useState } from 'react';
+import  ConfirmDialog  from '@/components/confirm-dialog';
 
 interface Emosi {
     id: number;
@@ -27,28 +28,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function EmosiIndex({ emosis }: Props) {
-    const handleDelete = (id: number, namaEmosi: string) => {
-        Swal.fire({
-            title: 'Hapus Emosi?',
-            text: `Apakah Anda yakin ingin menghapus emosi "${namaEmosi}"?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.delete(`/admin/emosi/${id}`, {
-                    onSuccess: () => {
-                        Swal.fire('Terhapus!', 'Emosi berhasil dihapus.', 'success');
-                    },
-                    onError: () => {
-                        Swal.fire('Gagal!', 'Terjadi kesalahan saat menghapus emosi.', 'error');
-                    },
-                });
-            }
-        });
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        id: number | null;
+        nama: string;
+    }>({
+        open: false,
+        id: null,
+        nama: '',
+    });
+
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/emosi/${deleteDialog.id}`, {
+                onFinish: () => {
+                    setDeleteDialog({ open: false, id: null, nama: '' });
+                },
+            });
+        }
     };
 
     return (
@@ -104,7 +101,13 @@ export default function EmosiIndex({ emosis }: Props) {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() => handleDelete(item.id, item.nama_emosi)}
+                                                        onClick={() =>
+                                                            setDeleteDialog({
+                                                                open: true,
+                                                                id: item.id,
+                                                                nama: item.nama_emosi,
+                                                            })
+                                                        }
                                                         className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -119,6 +122,16 @@ export default function EmosiIndex({ emosis }: Props) {
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
+                onConfirm={handleDelete}
+                title="Konfirmasi Hapus"
+                description={`Apakah Anda yakin ingin menghapus data <strong>"${deleteDialog.nama}"</strong>?<br /><br />Tindakan ini tidak dapat dibatalkan.`}
+                confirmText="Hapus"
+                variant="destructive"
+            />
         </AppLayout>
     );
 }

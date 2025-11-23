@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Kelas {
     id: number;
@@ -60,6 +61,7 @@ export default function GuruEdit({ guru, kelas, guruUtamaList }: Props) {
     const [guruType, setGuruType] = useState<'utama' | 'pendamping'>(
         guru.guru_utama_id ? 'pendamping' : 'utama'
     );
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
@@ -77,6 +79,11 @@ export default function GuruEdit({ guru, kelas, guruUtamaList }: Props) {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
+        setShowConfirmDialog(false);
         post(`/admin/guru/${guru.id}`);
     };
 
@@ -369,6 +376,16 @@ export default function GuruEdit({ guru, kelas, guruUtamaList }: Props) {
                     </div>
                 </form>
             </div>
+
+            {/* Update Confirmation Dialog */}
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Update Data"
+                description={`Apakah Anda yakin ingin mengupdate data guru <strong>"${data.nama_lengkap}"</strong>?<br /><br />Pastikan semua perubahan yang dilakukan sudah benar.`}
+                confirmText="Ya, Update"
+            />
         </AppLayout>
     );
 }

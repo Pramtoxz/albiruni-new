@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 // const breadcrumbs: BreadcrumbItem[] = [
 //     {
@@ -58,8 +59,14 @@ export default function KelasCreate() {
         spp: '',
     });
 
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
         post('/admin/kelas');
     };
 
@@ -174,6 +181,15 @@ export default function KelasCreate() {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Simpan Data"
+                description={`Apakah Anda yakin ingin menyimpan kelas <strong>"${data.nama_kelas}"</strong>?<br /><br />Pastikan semua data yang diisi sudah benar.`}
+                confirmText="Ya, Simpan"
+            />
         </AppLayout>
     );
 }

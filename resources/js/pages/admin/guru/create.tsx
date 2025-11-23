@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Kelas {
     id: number;
@@ -40,6 +41,7 @@ interface Props {
 
 export default function GuruCreate({ availableUsers, kelas, guruUtamaList }: Props) {
     const [guruType, setGuruType] = useState<'utama' | 'pendamping'>('utama');
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     
     const { data, setData, post, processing, errors } = useForm({
         user_id: '',
@@ -57,6 +59,11 @@ export default function GuruCreate({ availableUsers, kelas, guruUtamaList }: Pro
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
+        setShowConfirmDialog(false);
         post('/admin/guru');
     };
 
@@ -354,6 +361,16 @@ export default function GuruCreate({ availableUsers, kelas, guruUtamaList }: Pro
                     </div>
                 </form>
             </div>
+
+            {/* Create Confirmation Dialog */}
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Simpan Data"
+                description={`Apakah Anda yakin ingin menyimpan data guru <strong>"${data.nama_lengkap}"</strong>?<br /><br />Pastikan semua data yang diisi sudah benar.`}
+                confirmText="Ya, Simpan"
+            />
         </AppLayout>
     );
 }

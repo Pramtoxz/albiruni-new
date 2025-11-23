@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 const HARI = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
 const WAKTU_MAKAN = ['sarapan', 'makan_siang', 'snack'];
@@ -60,6 +61,8 @@ interface Props {
 }
 
 export default function MenuMingguanEdit({ menuMingguan }: Props) {
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     // Format dates to YYYY-MM-DD for input[type="date"]
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -84,7 +87,12 @@ export default function MenuMingguanEdit({ menuMingguan }: Props) {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
         put(`/admin/menu-mingguan/${menuMingguan.id}`);
+        setShowConfirmDialog(false);
     };
 
     const updateMenuHarian = (hari: string, waktu: string, kategori: string, value: string) => {
@@ -264,6 +272,15 @@ export default function MenuMingguanEdit({ menuMingguan }: Props) {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Update Data"
+                description={`Apakah Anda yakin ingin mengupdate menu <strong>"${data.nama_menu}"</strong>?<br /><br />Pastikan semua perubahan sudah benar.`}
+                confirmText="Ya, Update"
+            />
         </AppLayout>
     );
 }

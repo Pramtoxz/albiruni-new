@@ -5,9 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 export default function CreateNews() {
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         excerpt: '',
@@ -19,7 +22,12 @@ export default function CreateNews() {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
         post('/admin/news');
+        setShowConfirmDialog(false);
     };
 
     return (
@@ -132,6 +140,15 @@ export default function CreateNews() {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Simpan Data"
+                description={`Apakah Anda yakin ingin menyimpan berita <strong>"${data.title}"</strong>?<br /><br />Pastikan semua data yang diisi sudah benar.`}
+                confirmText="Ya, Simpan"
+            />
         </AppLayout>
     );
 }

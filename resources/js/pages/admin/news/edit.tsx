@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface News {
     id: number;
@@ -22,6 +23,8 @@ interface Props {
 }
 
 export default function EditNews({ news }: Props) {
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     const { data, setData, post, processing, errors } = useForm({
         title: news.title,
         excerpt: news.excerpt,
@@ -34,7 +37,12 @@ export default function EditNews({ news }: Props) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
         post(`/admin/news/${news.id}`);
+        setShowConfirmDialog(false);
     };
 
     return (
@@ -156,6 +164,15 @@ export default function EditNews({ news }: Props) {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Update Data"
+                description={`Apakah Anda yakin ingin mengupdate berita <strong>"${data.title}"</strong>?<br /><br />Pastikan semua perubahan sudah benar.`}
+                confirmText="Ya, Update"
+            />
         </AppLayout>
     );
 }

@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface User {
     id: number;
@@ -41,6 +42,15 @@ interface Props {
 
 export default function UsersIndex({ users, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        id: number | null;
+        name: string;
+    }>({
+        open: false,
+        id: null,
+        name: '',
+    });
 
     const debouncedSearch = useDebouncedCallback((value: string) => {
         router.get(
@@ -59,9 +69,10 @@ export default function UsersIndex({ users, filters }: Props) {
         }
     }, [search]);
 
-    const handleDelete = (userId: number) => {
-        if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
-            router.delete(`/admin/users/${userId}`);
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/users/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null, name: '' });
         }
     };
 
@@ -171,7 +182,13 @@ export default function UsersIndex({ users, filters }: Props) {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => router.delete(`/admin/users/${user.id}`)}
+                                                    onClick={() =>
+                                                        setDeleteDialog({
+                                                            open: true,
+                                                            id: user.id,
+                                                            name: user.name,
+                                                        })
+                                                    }
                                                 >
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
@@ -202,6 +219,18 @@ export default function UsersIndex({ users, filters }: Props) {
                     </div>
                 )}
             </div>
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) =>
+                    setDeleteDialog({ ...deleteDialog, open })
+                }
+                onConfirm={handleDelete}
+                title="Konfirmasi Hapus"
+                description={`Apakah Anda yakin ingin menghapus user <strong>"${deleteDialog.name}"</strong>?<br /><br />Tindakan ini tidak dapat dibatalkan.`}
+                confirmText="Hapus"
+                variant="destructive"
+            />
         </AppLayout>
     );
 }

@@ -16,7 +16,8 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Siswa } from '@/types';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Kelas {
     id: number;
@@ -44,6 +45,8 @@ interface Props {
 }
 
 export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    
     // Format dates to YYYY-MM-DD for input[type="date"]
     const formatDate = (dateString: string | null | undefined) => {
         if (!dateString) return '';
@@ -114,6 +117,11 @@ export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
+        setShowConfirmDialog(false);
         post(`/admin/siswa/${siswa.id}`);
     };
 
@@ -687,6 +695,15 @@ export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
                         </Button>
                     </div>
                 </form>
+
+                <ConfirmDialog
+                    open={showConfirmDialog}
+                    onOpenChange={setShowConfirmDialog}
+                    onConfirm={confirmSubmit}
+                    title="Konfirmasi Update Data"
+                    description={`Apakah Anda yakin ingin mengupdate data siswa <strong>"${data.nama_lengkap}"</strong>?<br /><br />Pastikan semua perubahan sudah benar.`}
+                    confirmText="Ya, Update"
+                />
             </div>
         </AppLayout>
     );

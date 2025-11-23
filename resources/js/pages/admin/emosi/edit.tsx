@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import  ConfirmDialog  from '@/components/confirm-dialog';
 
 interface Emosi {
     id: number;
@@ -39,9 +40,19 @@ export default function EmosiEdit({ emosi }: Props) {
         deskripsi: emosi.deskripsi,
     });
 
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(`/admin/emosi/${emosi.id}`);
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
+        put(`/admin/emosi/${emosi.id}`, {
+            onFinish: () => {
+                setShowConfirmDialog(false);
+            },
+        });
     };
 
     return (
@@ -113,6 +124,15 @@ export default function EmosiEdit({ emosi }: Props) {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Update Data"
+                description={`Apakah Anda yakin ingin mengupdate data <strong>"${data.nama_emosi}"</strong>?<br /><br />Pastikan semua perubahan sudah benar.`}
+                confirmText="Ya, Update"
+            />
         </AppLayout>
     );
 }

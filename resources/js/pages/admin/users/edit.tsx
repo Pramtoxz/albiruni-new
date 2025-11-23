@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
 import InputError from '@/components/input-error';
+import ConfirmDialog from '@/components/confirm-dialog';
+import { useState } from 'react';
 
 interface User {
     id: number;
@@ -32,10 +34,16 @@ export default function EditUser({ user }: Props) {
         nohp: user.nohp,
         role: user.role,
     });
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
         put(`/admin/users/${user.id}`);
+        setShowConfirmDialog(false);
     };
 
     return (
@@ -136,6 +144,15 @@ export default function EditUser({ user }: Props) {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Update Data"
+                description={`Apakah Anda yakin ingin mengupdate data user <strong>"${data.name}"</strong>?<br /><br />Pastikan semua perubahan sudah benar.`}
+                confirmText="Ya, Update"
+            />
         </AppLayout>
     );
 }

@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 const HARI = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
 const WAKTU_MAKAN = ['sarapan', 'makan_siang', 'snack'];
@@ -39,6 +40,8 @@ const WAKTU_KATEGORI: Record<string, string[]> = {
 };
 
 export default function MenuMingguanCreate() {
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     const { data, setData, post, processing, errors } = useForm({
         nama_menu: '',
         tanggal_mulai: '',
@@ -54,7 +57,12 @@ export default function MenuMingguanCreate() {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
         post('/admin/menu-mingguan');
+        setShowConfirmDialog(false);
     };
 
     const updateMenuHarian = (hari: string, waktu: string, kategori: string, value: string) => {
@@ -234,6 +242,15 @@ export default function MenuMingguanCreate() {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Simpan Data"
+                description={`Apakah Anda yakin ingin menyimpan menu <strong>"${data.nama_menu}"</strong>?<br /><br />Pastikan semua data yang diisi sudah benar.`}
+                confirmText="Ya, Simpan"
+            />
         </AppLayout>
     );
 }

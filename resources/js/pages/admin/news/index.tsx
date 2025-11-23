@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Eye, Pencil, Trash2, Plus } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import ConfirmDialog from '@/components/confirm-dialog';
+import { useState } from 'react';
 
 interface News {
     id: number;
@@ -25,6 +27,16 @@ interface Props {
 }
 
 export default function NewsIndex({ news }: Props) {
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        id: number | null;
+        title: string;
+    }>({
+        open: false,
+        id: null,
+        title: '',
+    });
+
     const formatDate = (dateString?: string) => {
         if (!dateString) return '-';
         return new Date(dateString).toLocaleDateString('id-ID', {
@@ -34,9 +46,10 @@ export default function NewsIndex({ news }: Props) {
         });
     };
 
-    const handleDelete = (id: number, title: string) => {
-        if (confirm(`Hapus berita "${title}"?`)) {
-            router.delete(`/admin/news/${id}`);
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/news/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null, title: '' });
         }
     };
 
@@ -113,7 +126,13 @@ export default function NewsIndex({ news }: Props) {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => handleDelete(item.id, item.title)}
+                                                    onClick={() =>
+                                                        setDeleteDialog({
+                                                            open: true,
+                                                            id: item.id,
+                                                            title: item.title,
+                                                        })
+                                                    }
                                                 >
                                                     <Trash2 className="h-4 w-4 text-red-500" />
                                                 </Button>
@@ -141,6 +160,16 @@ export default function NewsIndex({ news }: Props) {
                     </div>
                 )}
             </div>
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
+                onConfirm={handleDelete}
+                title="Konfirmasi Hapus"
+                description={`Apakah Anda yakin ingin menghapus berita <strong>"${deleteDialog.title}"</strong>?<br /><br />Tindakan ini tidak dapat dibatalkan.`}
+                confirmText="Hapus"
+                variant="destructive"
+            />
         </AppLayout>
     );
 }

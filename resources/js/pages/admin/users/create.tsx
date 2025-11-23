@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
 import InputError from '@/components/input-error';
+import ConfirmDialog from '@/components/confirm-dialog';
+import { useState } from 'react';
 
 export default function CreateUser() {
     const { data, setData, post, processing, errors } = useForm({
@@ -20,10 +22,16 @@ export default function CreateUser() {
         nohp: '08',
         role: 'guru' as 'guru' | 'orangtua',
     });
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
         post('/admin/users');
+        setShowConfirmDialog(false);
     };
 
     return (
@@ -124,6 +132,15 @@ export default function CreateUser() {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Simpan Data"
+                description={`Apakah Anda yakin ingin menyimpan user <strong>"${data.name}"</strong>?<br /><br />Pastikan semua data yang diisi sudah benar.`}
+                confirmText="Ya, Simpan"
+            />
         </AppLayout>
     );
 }

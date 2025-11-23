@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import ConfirmDialog from '@/components/confirm-dialog';
+import { useState } from 'react';
 
 interface MenuMingguan {
     id: number;
@@ -39,9 +41,20 @@ interface Props {
 }
 
 export default function MenuMingguanIndex({ menuMingguan }: Props) {
-    const handleDelete = (id: number, nama: string) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus menu "${nama}"?`)) {
-            router.delete(`/admin/menu-mingguan/${id}`);
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        id: number | null;
+        nama: string;
+    }>({
+        open: false,
+        id: null,
+        nama: '',
+    });
+
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/menu-mingguan/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null, nama: '' });
         }
     };
 
@@ -165,7 +178,11 @@ export default function MenuMingguanIndex({ menuMingguan }: Props) {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() =>
-                                                            handleDelete(menu.id, menu.nama_menu)
+                                                            setDeleteDialog({
+                                                                open: true,
+                                                                id: menu.id,
+                                                                nama: menu.nama_menu,
+                                                            })
                                                         }
                                                         title="Hapus menu"
                                                     >
@@ -181,6 +198,16 @@ export default function MenuMingguanIndex({ menuMingguan }: Props) {
                     </CardContent>
                 </Card>
             </div>
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
+                onConfirm={handleDelete}
+                title="Konfirmasi Hapus"
+                description={`Apakah Anda yakin ingin menghapus menu <strong>"${deleteDialog.nama}"</strong>?<br /><br />Tindakan ini tidak dapat dibatalkan.`}
+                confirmText="Hapus"
+                variant="destructive"
+            />
         </AppLayout>
     );
 }

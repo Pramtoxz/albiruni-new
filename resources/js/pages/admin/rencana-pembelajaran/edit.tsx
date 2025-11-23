@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import  ConfirmDialog  from '@/components/confirm-dialog';
 
 const HARI = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
 
@@ -57,6 +58,8 @@ interface Props {
 }
 
 export default function RencanaPembelajaranEdit({ rencanaPembelajaran, kelas }: Props) {
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
     // Initialize kegiatan for all days
     const initialKegiatan = HARI.map((hari) => {
         const existing = rencanaPembelajaran.kegiatan_harian.find((k) => k.hari === hari);
@@ -131,6 +134,11 @@ export default function RencanaPembelajaranEdit({ rencanaPembelajaran, kelas }: 
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        setShowConfirmDialog(true);
+    };
+
+    const confirmSubmit = () => {
+        setShowConfirmDialog(false);
         post(`/admin/rencana-pembelajaran/${rencanaPembelajaran.id}`);
     };
 
@@ -480,6 +488,15 @@ export default function RencanaPembelajaranEdit({ rencanaPembelajaran, kelas }: 
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                onConfirm={confirmSubmit}
+                title="Konfirmasi Update Data"
+                description={`Apakah Anda yakin ingin mengupdate rencana pembelajaran <strong>"${data.nama_rencana}"</strong>?<br /><br />Pastikan semua perubahan sudah benar.`}
+                confirmText="Ya, Update"
+            />
         </AppLayout>
     );
 }

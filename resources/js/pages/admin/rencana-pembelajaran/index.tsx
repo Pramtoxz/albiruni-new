@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import ConfirmDialog  from '@/components/confirm-dialog';
+import { useState } from 'react';
 
 interface RencanaPembelajaran {
     id: number;
@@ -44,9 +46,20 @@ interface Props {
 }
 
 export default function RencanaPembelajaranIndex({ rencanaPembelajaran }: Props) {
-    const handleDelete = (id: number, nama: string) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus rencana "${nama}"?`)) {
-            router.delete(`/admin/rencana-pembelajaran/${id}`);
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        id: number | null;
+        nama: string;
+    }>({
+        open: false,
+        id: null,
+        nama: '',
+    });
+
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/rencana-pembelajaran/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null, nama: '' });
         }
     };
 
@@ -174,7 +187,11 @@ export default function RencanaPembelajaranIndex({ rencanaPembelajaran }: Props)
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() =>
-                                                            handleDelete(rencana.id, rencana.nama_rencana)
+                                                            setDeleteDialog({
+                                                                open: true,
+                                                                id: rencana.id,
+                                                                nama: rencana.nama_rencana,
+                                                            })
                                                         }
                                                         title="Hapus rencana"
                                                     >
@@ -190,6 +207,16 @@ export default function RencanaPembelajaranIndex({ rencanaPembelajaran }: Props)
                     </CardContent>
                 </Card>
             </div>
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
+                onConfirm={handleDelete}
+                title="Konfirmasi Hapus"
+                description={`Apakah Anda yakin ingin menghapus rencana pembelajaran <strong>"${deleteDialog.nama}"</strong>?<br /><br />Tindakan ini tidak dapat dibatalkan.`}
+                confirmText="Hapus"
+                variant="destructive"
+            />
         </AppLayout>
     );
 }

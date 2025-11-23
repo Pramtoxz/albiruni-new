@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Edit, Plus, Trash2 } from 'lucide-react';
-import Swal from 'sweetalert2';
+import ConfirmDialog from '@/components/confirm-dialog';
+import { useState } from 'react';
 
 interface Kelas {
     id: number;
@@ -28,28 +29,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function KelasIndex({ kelas }: Props) {
-    const handleDelete = (id: number, namaKelas: string) => {
-        Swal.fire({
-            title: 'Hapus Kelas?',
-            text: `Apakah Anda yakin ingin menghapus kelas "${namaKelas}"?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.delete(`/admin/kelas/${id}`, {
-                    onSuccess: () => {
-                        Swal.fire('Terhapus!', 'Kelas berhasil dihapus.', 'success');
-                    },
-                    onError: () => {
-                        Swal.fire('Gagal!', 'Terjadi kesalahan saat menghapus kelas.', 'error');
-                    },
-                });
-            }
-        });
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        id: number | null;
+        nama: string;
+    }>({
+        open: false,
+        id: null,
+        nama: '',
+    });
+
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/kelas/${deleteDialog.id}`, {
+                onSuccess: () => {
+                    setDeleteDialog({ open: false, id: null, nama: '' });
+                },
+            });
+        }
     };
 
     const formatRupiah = (amount: string) => {
@@ -117,7 +114,7 @@ export default function KelasIndex({ kelas }: Props) {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        onClick={() => handleDelete(item.id, item.nama_kelas)}
+                                                        onClick={() => setDeleteDialog({ open: true, id: item.id, nama: item.nama_kelas })}
                                                         className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -132,6 +129,16 @@ export default function KelasIndex({ kelas }: Props) {
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
+                onConfirm={handleDelete}
+                title="Konfirmasi Hapus"
+                description={`Apakah Anda yakin ingin menghapus kelas <strong>"${deleteDialog.nama}"</strong>?<br /><br />Tindakan ini tidak dapat dibatalkan.`}
+                confirmText="Hapus"
+                variant="destructive"
+            />
         </AppLayout>
     );
 }
