@@ -222,10 +222,6 @@ class NotificationService
         $message .= "\n";
         $message .= "📱 *BUKA APLIKASI UNTUK MELIHAT DETAIL LENGKAP*\n ";
         $message .= "\n";
-        $message .= "Download Aplikasi Sekolah Al-Biruni\n";
-        $message .= "https://drive.google.com/file/d/13tDgIV7724TOR4Hf603Ha9YAyoD5DehU/view?usp=drive_link";
-        $message .= "\n";
-        $message .= "\n";
         
         // Build guru team text
         if ($guruUtama) {
