@@ -115,21 +115,7 @@ export default function GuruAbsensiIndex() {
         return time.substring(0, 5); // HH:MM
     };
 
-    const getWorkDuration = (checkIn: string | null, checkOut: string | null) => {
-        if (!checkIn || !checkOut) return '-';
-        
-        const [inHour, inMin] = checkIn.split(':').map(Number);
-        const [outHour, outMin] = checkOut.split(':').map(Number);
-        
-        const inMinutes = inHour * 60 + inMin;
-        const outMinutes = outHour * 60 + outMin;
-        const duration = outMinutes - inMinutes;
-        
-        const hours = Math.floor(duration / 60);
-        const minutes = duration % 60;
-        
-        return `${hours}j ${minutes}m`;
-    };
+
 
     return (
         <>
@@ -224,9 +210,6 @@ export default function GuruAbsensiIndex() {
                                         <p className="text-sm text-orange-600">
                                             Waktu: {formatTime(todayAttendance.check_out)}
                                         </p>
-                                        <p className="text-sm text-gray-600 mt-2">
-                                            Durasi: {getWorkDuration(todayAttendance.check_in, todayAttendance.check_out)}
-                                        </p>
                                     </div>
                                     {todayAttendance.catatan && (
                                         <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
@@ -281,14 +264,6 @@ export default function GuruAbsensiIndex() {
                                                 </p>
                                             </div>
                                         </div>
-                                        {attendance.check_in && attendance.check_out && (
-                                            <div className="mt-3 bg-blue-50 p-3 rounded-lg">
-                                                <p className="text-xs text-gray-600 mb-1">Durasi Kerja</p>
-                                                <p className="font-bold text-blue-700">
-                                                    {getWorkDuration(attendance.check_in, attendance.check_out)}
-                                                </p>
-                                            </div>
-                                        )}
                                         {attendance.catatan && (
                                             <div className="mt-3 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
                                                 <p className="text-xs text-gray-500 mb-1">Catatan</p>
