@@ -22,3 +22,10 @@ Route::get('rencana-pembelajaran', [RencanaPembelajaranController::class, 'index
     ->name('rencana-pembelajaran.index');
 Route::get('rencana-pembelajaran/{rencanaPembelajaran}', [RencanaPembelajaranController::class, 'show'])
     ->name('rencana-pembelajaran.show');
+
+Route::get('absensi', [\App\Http\Controllers\Guru\KehadiranController::class, 'index'])
+    ->name('absensi.index');
+Route::post('absensi/check-in', [\App\Http\Controllers\Guru\KehadiranController::class, 'checkIn'])
+    ->name('absensi.check-in');
+Route::post('absensi/check-out', [\App\Http\Controllers\Guru\KehadiranController::class, 'checkOut'])
+    ->name('absensi.check-out');
