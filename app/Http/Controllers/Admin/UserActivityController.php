@@ -33,7 +33,7 @@ class UserActivityController extends Controller
                 \DB::raw('MAX(sessions.last_activity) as last_activity'),
                 \DB::raw('COUNT(DISTINCT sessions.id) as session_count')
             )
-            ->groupBy('users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.nohp', 'users.role', 'users.remember_token', 'users.created_at', 'users.updated_at')
+            ->groupBy('users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.nohp', 'users.role', 'users.is_it', 'users.remember_token', 'users.created_at', 'users.updated_at')
             ->orderByDesc('last_activity')
             ->get()
             ->map(function ($user) {
