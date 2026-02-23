@@ -28,6 +28,10 @@ class HandleInertiaRequests extends Middleware
         // Optimize session handling for webview stability
         $this->optimizeSessionForWebview($request);
         
+        // Set appearance for root view
+        $appearance = $request->cookie('appearance', 'light');
+        view()->share('appearance', $appearance);
+        
         return parent::handle($request, $next);
     }
 

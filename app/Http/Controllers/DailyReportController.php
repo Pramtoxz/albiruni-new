@@ -560,4 +560,53 @@ class DailyReportController extends Controller
             'report' => $dailyReport,
         ]);
     }
+
+    public function adminIndex(Request $request): Response
+    {
+        $tanggal = $request->input('tanggal', now()->toDateString());
+        $kelasId = $request->input('kelas_id');
+        $search = $request->input('search');
+
+        $reportsQuery = DailyReport::with(['siswa.kelas', 'user'])
+            ->whereDate('tanggal', $tanggal);
+
+        if ($kelasId) {
+            $reportsQuery->whereHas('siswa', function ($query) use ($kelasId) {
+                $query->where('kelas_id', $kelasId);
+            });
+        }
+
+        if ($search) {
+            $reportsQuery->whereHas('siswa', function ($query) use ($search) {
+                $query->where('nama_lengkap', 'like', "%{$search}%")
+                    ->orWhere('nama_panggilan', 'like', "%{$search}%");
+            });
+        }
+
+        $reports = $reportsQuery
+            ->orderBy('tanggal', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        $kelasList = \App\Models\Kelas::orderBy('nama_kelas')->get();
+
+        return Inertia::render('admin/daily-report/index', [
+            'reports' => $reports,
+            'kelasList' => $kelasList,
+            'filters' => [
+                'tanggal' => $tanggal,
+                'kelas_id' => $kelasId,
+                'search' => $search,
+            ],
+        ]);
+    }
+
+    public function adminShow(DailyReport $dailyReport): Response
+    {
+        $dailyReport->load(['siswa.kelas', 'user', 'emosis']);
+
+        return Inertia::render('admin/daily-report/show', [
+            'report' => $dailyReport,
+        ]);
+    }
 }

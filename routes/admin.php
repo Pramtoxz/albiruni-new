@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\PembayaranSppController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserActivityController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -59,4 +60,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // News Management
     Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
+
+    // Daily Report Management
+    Route::get('daily-report', [\App\Http\Controllers\DailyReportController::class, 'adminIndex'])->name('daily-report.index');
+    Route::get('daily-report/{dailyReport}', [\App\Http\Controllers\DailyReportController::class, 'adminShow'])->name('daily-report.show');
+
+    // User Activity Management
+    Route::get('user-activity', [UserActivityController::class, 'index'])->name('user-activity.index');
 });

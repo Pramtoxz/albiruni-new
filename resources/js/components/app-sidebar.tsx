@@ -14,8 +14,6 @@ import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
-    BookOpen,
-    Folder,
     LayoutGrid,
     Users,
     UserCheck,
@@ -27,6 +25,7 @@ import {
     UserCog,
     Smile,
     Newspaper,
+    FileText,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -107,6 +106,11 @@ export function AppSidebar() {
             title: 'Berita',
             href: '/admin/news',
             icon: Newspaper,
+        });
+        mainNavItems.push({
+            title: 'Daily Report',
+            href: '/admin/daily-report',
+            icon: FileText,
         });
     }
 

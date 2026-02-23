@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'light') == 'dark'])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,7 +12,7 @@
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
             (function() {
-                const appearance = '{{ $appearance ?? "system" }}';
+                const appearance = '{{ $appearance ?? "light" }}';
 
                 if (appearance === 'system') {
                     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -23,21 +23,6 @@
                 }
             })();
         </script>
-
-        {{-- Inline style to set the HTML background gradient based on our theme in app.css --}}
-        <style>
-            html {
-                /* Gradient background dari primary ke dark */
-                background: linear-gradient(135deg, #1E88E5 0%, #2A2D34 100%);
-                background-attachment: fixed;
-                min-height: 100vh;
-            }
-
-            html.dark {
-                background: linear-gradient(135deg, #0d47a1 0%, #1a1d23 100%);
-                background-attachment: fixed;
-            }
-        </style>
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 

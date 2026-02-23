@@ -356,23 +356,19 @@
     body {
         @apply text-foreground;
         font-family: 'Nunito', var(--font-sans);
-        /* Gradient background dari primary ke dark */
-        background: linear-gradient(135deg, #1E88E5 0%, #2A2D34 100%);
+        background: linear-gradient(135deg, #F0F8FF 0%, #E3F2FD 100%);
         background-attachment: fixed;
         min-height: 100vh;
     }
     
-    /* Heading menggunakan Comfortaa untuk tema kindergarten */
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Comfortaa', cursive, var(--font-sans);
     }
     
-    /* Smooth scrolling untuk pengalaman yang lebih baik */
     html {
         scroll-behavior: smooth;
     }
     
-    /* Animasi playful untuk elemen interaktif */
     button:not(:disabled), a {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
