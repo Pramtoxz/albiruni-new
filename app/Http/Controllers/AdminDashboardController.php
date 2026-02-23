@@ -79,7 +79,7 @@ class AdminDashboardController extends Controller
         $activeUsers = User::whereIn('role', ['orangtua', 'guru'])
             ->leftJoin('sessions', 'users.id', '=', 'sessions.user_id')
             ->select('users.*', \DB::raw('MAX(sessions.last_activity) as last_activity'))
-            ->groupBy('users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.nohp', 'users.role', 'users.remember_token', 'users.created_at', 'users.updated_at')
+            ->groupBy('users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.nohp', 'users.role', 'users.is_it', 'users.remember_token', 'users.created_at', 'users.updated_at')
             ->orderByDesc('last_activity')
             ->take(5)
             ->get()

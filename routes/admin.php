@@ -67,4 +67,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // User Activity Management
     Route::get('user-activity', [UserActivityController::class, 'index'])->name('user-activity.index');
+
+    // Permission Management (IT only)
+    Route::get('permissions', [\App\Http\Controllers\Admin\PermissionController::class, 'index'])->name('permissions.index');
+    Route::put('permissions/{user}', [\App\Http\Controllers\Admin\PermissionController::class, 'update'])->name('permissions.update');
 });
