@@ -11,7 +11,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { type NavItem } from '@/types';
+import { type NavGroup } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutGrid,
@@ -26,91 +26,117 @@ import {
     Smile,
     Newspaper,
     FileText,
+    Activity,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const footerNavItems: NavItem[] = [
-    // {
-    //     title: 'Repository',
-    //     href: 'https://github.com/laravel/react-starter-kit',
-    //     icon: Folder,
-    // },
-    // {
-    //     title: 'Documentation',
-    //     href: 'https://laravel.com/docs/starter-kits#react',
-    //     icon: BookOpen,
-    // },
-];
+const footerNavItems: NavGroup[] = [];
 
 export function AppSidebar() {
     const { auth } = usePage().props as any;
     const userRole = auth?.user?.role;
 
-    // Build main nav items based on user role
-    const mainNavItems: NavItem[] = [
-        {
-            title: 'Dashboard',
-            href: dashboard(),
-            icon: LayoutGrid,
-        },
-    ];
+    const navGroups: NavGroup[] = [];
 
-    // Add admin-specific menu items
     if (userRole === 'admin') {
-        mainNavItems.push({
-            title: 'Manajemen User',
-            href: '/admin/users',
-            icon: Users,
+        navGroups.push({
+            title: 'Platform',
+            items: [
+                {
+                    title: 'Dashboard',
+                    href: dashboard(),
+                    icon: LayoutGrid,
+                },
+                {
+                    title: 'User Activity',
+                    href: '/admin/user-activity',
+                    icon: Activity,
+                },
+            ],
         });
-        mainNavItems.push({
-            title: 'Pendaftaran Siswa',
-            href: '/admin/siswa',
-            icon: UserCheck,
+
+        navGroups.push({
+            title: 'Master Data',
+            items: [
+                {
+                    title: 'Manajemen User',
+                    href: '/admin/users',
+                    icon: Users,
+                },
+                {
+                    title: 'Data Guru',
+                    href: '/admin/guru',
+                    icon: UserCog,
+                },
+                {
+                    title: 'Kelas',
+                    href: '/admin/kelas',
+                    icon: School,
+                },
+                {
+                    title: 'Emosi',
+                    href: '/admin/emosi',
+                    icon: Smile,
+                },
+            ],
         });
-        mainNavItems.push({
-            title: 'Data Siswa',
-            href: '/admin/siswa/approved/list',
-            icon: CheckCircle2,
+
+        navGroups.push({
+            title: 'Transaksi',
+            items: [
+                {
+                    title: 'Pendaftaran Siswa',
+                    href: '/admin/siswa',
+                    icon: UserCheck,
+                },
+                {
+                    title: 'Data Siswa',
+                    href: '/admin/siswa/approved/list',
+                    icon: CheckCircle2,
+                },
+                {
+                    title: 'Pembayaran SPP',
+                    href: '/admin/pembayaran',
+                    icon: CreditCard,
+                },
+                {
+                    title: 'Daily Report',
+                    href: '/admin/daily-report',
+                    icon: FileText,
+                },
+            ],
         });
-        mainNavItems.push({
-            title: 'Kelas',
-            href: '/admin/kelas',
-            icon: School,
+
+        navGroups.push({
+            title: 'Konten',
+            items: [
+                {
+                    title: 'Menu Mingguan',
+                    href: '/admin/menu-mingguan',
+                    icon: UtensilsCrossed,
+                },
+                {
+                    title: 'Rencana Pembelajaran',
+                    href: '/admin/rencana-pembelajaran',
+                    icon: GraduationCap,
+                },
+                {
+                    title: 'Berita',
+                    href: '/admin/news',
+                    icon: Newspaper,
+                },
+            ],
         });
-        mainNavItems.push({
-            title: 'Data Guru',
-            href: '/admin/guru',
-            icon: UserCog,
-        });
-        mainNavItems.push({
-            title: 'Pembayaran SPP',
-            href: '/admin/pembayaran',
-            icon: CreditCard,
-        });
-        mainNavItems.push({
-            title: 'Menu Mingguan',
-            href: '/admin/menu-mingguan',
-            icon: UtensilsCrossed,
-        });
-        mainNavItems.push({
-            title: 'Rencana Pembelajaran',
-            href: '/admin/rencana-pembelajaran',
-            icon: GraduationCap,
-        });
-        mainNavItems.push({
-            title: 'Emosi',
-            href: '/admin/emosi',
-            icon: Smile,
-        });
-        mainNavItems.push({
-            title: 'Berita',
-            href: '/admin/news',
-            icon: Newspaper,
-        });
-        mainNavItems.push({
-            title: 'Daily Report',
-            href: '/admin/daily-report',
-            icon: FileText,
+    } else {
+        navGroups.push({
+            title: 'Platform',
+            items: [
+                {
+                    title: 'Dashboard',
+                    href: dashboard(),
+                    icon: LayoutGrid,
+                },
+            ],
         });
     }
 
@@ -129,11 +155,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain groups={navGroups} />
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
