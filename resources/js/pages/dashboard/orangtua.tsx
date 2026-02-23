@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { NotifikasiModal } from '@/components/notifikasi-modal';
+import EventModal from '@/components/event-modal';
 import { useState } from 'react';
 import LogoAlbiruni from "@/assets/home/logo.webp"
 import IconDaily from "@/assets/menu/orangtua/daily.webp"
@@ -61,6 +62,15 @@ interface News {
     published_at: string;
 }
 
+interface Event {
+    id: number;
+    title: string;
+    description: string;
+    image_url: string | null;
+    start_date: string;
+    end_date: string;
+}
+
 interface PageProps {
     auth: {
         user: {
@@ -73,11 +83,12 @@ interface PageProps {
     kegiatanHariIni: KegiatanHarian[];
     notifikasi: Notifikasi[];
     latestNews: News[];
+    activeEvents: Event[];
     [key: string]: any;
 }
 
 export default function OrangtuaDashboard() {
-    const { auth, siswa, kegiatanHariIni, notifikasi, latestNews } = usePage<PageProps>().props;
+    const { auth, siswa, kegiatanHariIni, notifikasi, latestNews, activeEvents } = usePage<PageProps>().props;
     const [showNotifikasi, setShowNotifikasi] = useState(false);
 
     // Debug notifikasi
@@ -119,6 +130,8 @@ export default function OrangtuaDashboard() {
     return (
         <>
             <Head title="Dashboard Orang Tua" />
+            
+            <EventModal events={activeEvents || []} />
 
             <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 pb-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full opacity-20 -translate-x-16 -translate-y-16"></div>

@@ -61,6 +61,15 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // News Management
     Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
 
+    // Events Management
+    Route::get('events', [\App\Http\Controllers\Admin\EventController::class, 'index'])->name('events.index');
+    Route::get('events/create', [\App\Http\Controllers\Admin\EventController::class, 'create'])->name('events.create');
+    Route::post('events', [\App\Http\Controllers\Admin\EventController::class, 'store'])->name('events.store');
+    Route::get('events/{event}/edit', [\App\Http\Controllers\Admin\EventController::class, 'edit'])->name('events.edit');
+    Route::put('events/{event}', [\App\Http\Controllers\Admin\EventController::class, 'update'])->name('events.update');
+    Route::delete('events/{event}', [\App\Http\Controllers\Admin\EventController::class, 'destroy'])->name('events.destroy');
+    Route::post('events/{event}/toggle-active', [\App\Http\Controllers\Admin\EventController::class, 'toggleActive'])->name('events.toggle-active');
+
     // Daily Report Management
     Route::get('daily-report', [\App\Http\Controllers\DailyReportController::class, 'adminIndex'])->name('daily-report.index');
     Route::get('daily-report/{dailyReport}', [\App\Http\Controllers\DailyReportController::class, 'adminShow'])->name('daily-report.show');

@@ -27,6 +27,7 @@ import {
     Newspaper,
     FileText,
     Activity,
+    Calendar,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -169,6 +170,14 @@ export function AppSidebar() {
                 title: 'Berita',
                 href: '/admin/news',
                 icon: Newspaper,
+            });
+        }
+
+        if (isIT || userPermissions.includes('events.manage')) {
+            kontenItems.push({
+                title: 'Events',
+                href: '/admin/events',
+                icon: Calendar,
             });
         }
 

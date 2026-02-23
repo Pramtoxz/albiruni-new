@@ -8,6 +8,7 @@ use App\Models\PembayaranSpp;
 use App\Models\RencanaPembelajaran;
 use App\Models\Siswa;
 use App\Models\News;
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -110,6 +111,20 @@ class OrangtuaDashboardController extends Controller
                 ];
             });
 
+        $activeEvents = Event::active()
+            ->orderBy('priority', 'asc')
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'description' => $event->description,
+                    'image_url' => $event->image_url,
+                    'start_date' => $event->start_date->format('Y-m-d'),
+                    'end_date' => $event->end_date->format('Y-m-d'),
+                ];
+            });
+
         return Inertia::render('dashboard/orangtua', [
             'siswa' => $siswa ? [
                 'id' => $siswa->id,
@@ -122,6 +137,7 @@ class OrangtuaDashboardController extends Controller
             'kegiatanHariIni' => $kegiatanHariIni,
             'notifikasi' => $notifikasi,
             'latestNews' => $latestNews,
+            'activeEvents' => $activeEvents,
         ]);
     }
 }
