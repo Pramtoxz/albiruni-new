@@ -35,98 +35,162 @@ const footerNavItems: NavGroup[] = [];
 export function AppSidebar() {
     const { auth } = usePage().props as any;
     const userRole = auth?.user?.role;
+    const isIT = auth?.user?.is_it;
+    const userPermissions = auth?.user?.permissions || [];
 
     const navGroups: NavGroup[] = [];
 
     if (userRole === 'admin') {
-        navGroups.push({
-            title: 'Platform',
-            items: [
-                {
-                    title: 'Dashboard',
-                    href: dashboard(),
-                    icon: LayoutGrid,
-                },
-                {
-                    title: 'User Activity',
-                    href: '/admin/user-activity',
-                    icon: Activity,
-                },
-            ],
-        });
+        const platformItems = [];
+        const masterDataItems = [];
+        const transaksiItems = [];
+        const kontenItems = [];
+        const itItems = [];
 
-        navGroups.push({
-            title: 'Master Data',
-            items: [
-                {
-                    title: 'Manajemen User',
-                    href: '/admin/users',
-                    icon: Users,
-                },
-                {
-                    title: 'Data Guru',
-                    href: '/admin/guru',
-                    icon: UserCog,
-                },
-                {
-                    title: 'Kelas',
-                    href: '/admin/kelas',
-                    icon: School,
-                },
-                {
-                    title: 'Emosi',
-                    href: '/admin/emosi',
-                    icon: Smile,
-                },
-            ],
-        });
+        if (isIT || userPermissions.includes('dashboard')) {
+            platformItems.push({
+                title: 'Dashboard',
+                href: dashboard(),
+                icon: LayoutGrid,
+            });
+        }
 
-        navGroups.push({
-            title: 'Transaksi',
-            items: [
-                {
-                    title: 'Pendaftaran Siswa',
-                    href: '/admin/siswa',
-                    icon: UserCheck,
-                },
-                {
-                    title: 'Data Siswa',
-                    href: '/admin/siswa/approved/list',
-                    icon: CheckCircle2,
-                },
-                {
-                    title: 'Pembayaran SPP',
-                    href: '/admin/pembayaran',
-                    icon: CreditCard,
-                },
-                {
-                    title: 'Daily Report',
-                    href: '/admin/daily-report',
-                    icon: FileText,
-                },
-            ],
-        });
+        if (isIT || userPermissions.includes('user-activity')) {
+            platformItems.push({
+                title: 'User Activity',
+                href: '/admin/user-activity',
+                icon: Activity,
+            });
+        }
 
-        navGroups.push({
-            title: 'Konten',
-            items: [
-                {
-                    title: 'Menu Mingguan',
-                    href: '/admin/menu-mingguan',
-                    icon: UtensilsCrossed,
-                },
-                {
-                    title: 'Rencana Pembelajaran',
-                    href: '/admin/rencana-pembelajaran',
-                    icon: GraduationCap,
-                },
-                {
-                    title: 'Berita',
-                    href: '/admin/news',
-                    icon: Newspaper,
-                },
-            ],
-        });
+        if (platformItems.length > 0) {
+            navGroups.push({
+                title: 'Platform',
+                items: platformItems,
+            });
+        }
+
+        if (isIT || userPermissions.includes('users.manage')) {
+            masterDataItems.push({
+                title: 'Manajemen User',
+                href: '/admin/users',
+                icon: Users,
+            });
+        }
+
+        if (isIT || userPermissions.includes('guru.manage')) {
+            masterDataItems.push({
+                title: 'Data Guru',
+                href: '/admin/guru',
+                icon: UserCog,
+            });
+        }
+
+        if (isIT || userPermissions.includes('kelas.manage')) {
+            masterDataItems.push({
+                title: 'Kelas',
+                href: '/admin/kelas',
+                icon: School,
+            });
+        }
+
+        if (isIT || userPermissions.includes('emosi.manage')) {
+            masterDataItems.push({
+                title: 'Emosi',
+                href: '/admin/emosi',
+                icon: Smile,
+            });
+        }
+
+        if (masterDataItems.length > 0) {
+            navGroups.push({
+                title: 'Master Data',
+                items: masterDataItems,
+            });
+        }
+
+        if (isIT || userPermissions.includes('siswa.pending')) {
+            transaksiItems.push({
+                title: 'Pendaftaran Siswa',
+                href: '/admin/siswa',
+                icon: UserCheck,
+            });
+        }
+
+        if (isIT || userPermissions.includes('siswa.approved')) {
+            transaksiItems.push({
+                title: 'Data Siswa',
+                href: '/admin/siswa/approved/list',
+                icon: CheckCircle2,
+            });
+        }
+
+        if (isIT || userPermissions.includes('pembayaran.manage')) {
+            transaksiItems.push({
+                title: 'Pembayaran SPP',
+                href: '/admin/pembayaran',
+                icon: CreditCard,
+            });
+        }
+
+        if (isIT || userPermissions.includes('daily-report.view')) {
+            transaksiItems.push({
+                title: 'Daily Report',
+                href: '/admin/daily-report',
+                icon: FileText,
+            });
+        }
+
+        if (transaksiItems.length > 0) {
+            navGroups.push({
+                title: 'Transaksi',
+                items: transaksiItems,
+            });
+        }
+
+        if (isIT || userPermissions.includes('menu-mingguan.manage')) {
+            kontenItems.push({
+                title: 'Menu Mingguan',
+                href: '/admin/menu-mingguan',
+                icon: UtensilsCrossed,
+            });
+        }
+
+        if (isIT || userPermissions.includes('rencana-pembelajaran.manage')) {
+            kontenItems.push({
+                title: 'Rencana Pembelajaran',
+                href: '/admin/rencana-pembelajaran',
+                icon: GraduationCap,
+            });
+        }
+
+        if (isIT || userPermissions.includes('news.manage')) {
+            kontenItems.push({
+                title: 'Berita',
+                href: '/admin/news',
+                icon: Newspaper,
+            });
+        }
+
+        if (kontenItems.length > 0) {
+            navGroups.push({
+                title: 'Konten',
+                items: kontenItems,
+            });
+        }
+
+        if (isIT) {
+            itItems.push({
+                title: 'Permissions',
+                href: '/admin/permissions',
+                icon: Users,
+            });
+
+            navGroups.push({
+                title: 'IT',
+                items: itItems,
+            });
+        }
     } else {
         navGroups.push({
             title: 'Platform',
