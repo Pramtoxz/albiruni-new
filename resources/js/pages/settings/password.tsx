@@ -10,12 +10,11 @@ import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { edit, update } from '@/actions/App/Http/Controllers/Settings/PasswordController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Password settings',
-        href: edit.url(),
+        href: '/settings/password',
     },
 ];
 
@@ -36,7 +35,7 @@ export default function Password() {
 
                     <Form
                         method="put"
-                        action={update.url()}
+                        action="/settings/password"
                         options={{
                             preserveScroll: true,
                         }}

@@ -21,25 +21,25 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, Search } from 'lucide-react';
 import { useState } from 'react';
 
-interface Siswa {
-    id: number;
+interface DataItem {
+    number: number;
+    siswa_id: number;
     nama_lengkap: string;
     nama_panggilan: string;
-    kelas?: {
+    kelas: string;
+    cabang: string;
+    status: 'ada_laporan' | 'hadir_tanpa_laporan' | 'tidak_hadir';
+    daily_report: {
         id: number;
-        nama_kelas: string;
-    };
-}
-
-interface DailyReport {
-    id: number;
-    tanggal: string;
-    mood: string;
-    is_final: boolean;
-    siswa: Siswa;
-    user: {
-        name: string;
-    };
+        tanggal: string;
+        rating: number;
+        is_final: boolean;
+        created_by: string;
+    } | null;
+    kehadiran: {
+        tanggal_hadir: string;
+        jenis_interaksi: string;
+    } | null;
 }
 
 interface Kelas {
@@ -47,31 +47,39 @@ interface Kelas {
     nama_kelas: string;
 }
 
+interface Summary {
+    total: number;
+    ada_laporan: number;
+    hadir_tanpa_laporan: number;
+    tidak_hadir: number;
+}
+
 interface Props {
-    reports: {
-        data: DailyReport[];
-        links: any[];
-        current_page: number;
-        last_page: number;
-    };
+    data: DataItem[];
     kelasList: Kelas[];
     filters: {
         tanggal: string;
         kelas_id?: number;
+        cabang?: string;
         search?: string;
+        status?: string;
     };
+    summary: Summary;
 }
 
 export default function AdminDailyReportIndex({
-    reports,
+    data,
     kelasList,
     filters,
+    summary,
 }: Props) {
     const [search, setSearch] = useState(filters.search || '');
     const [selectedKelas, setSelectedKelas] = useState(
         filters.kelas_id?.toString() || 'all',
     );
+    const [selectedCabang, setSelectedCabang] = useState(filters.cabang || 'all');
     const [selectedDate, setSelectedDate] = useState(filters.tanggal);
+    const [selectedStatus, setSelectedStatus] = useState(filters.status || 'all');
 
     const months = [
         { value: '1', label: 'Januari' },
@@ -97,7 +105,9 @@ export default function AdminDailyReportIndex({
             {
                 tanggal: selectedDate,
                 kelas_id: selectedKelas === 'all' ? undefined : selectedKelas,
+                cabang: selectedCabang === 'all' ? undefined : selectedCabang,
                 search: search || undefined,
+                status: selectedStatus === 'all' ? undefined : selectedStatus,
             },
             {
                 preserveState: true,
@@ -109,6 +119,8 @@ export default function AdminDailyReportIndex({
     const handleReset = () => {
         setSearch('');
         setSelectedKelas('all');
+        setSelectedCabang('all');
+        setSelectedStatus('all');
         const today = new Date().toISOString().split('T')[0];
         setSelectedDate(today);
         router.get('/admin/daily-report');
@@ -137,7 +149,26 @@ export default function AdminDailyReportIndex({
                 </div>
 
                 <div className="rounded-lg border bg-card p-4">
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="mb-4 grid grid-cols-4 gap-4">
+                        <div className="rounded-lg bg-blue-50 p-4">
+                            <div className="text-sm text-blue-600">Total Siswa</div>
+                            <div className="text-2xl font-bold text-blue-700">{summary.total}</div>
+                        </div>
+                        <div className="rounded-lg bg-green-50 p-4">
+                            <div className="text-sm text-green-600">Ada Laporan</div>
+                            <div className="text-2xl font-bold text-green-700">{summary.ada_laporan}</div>
+                        </div>
+                        <div className="rounded-lg bg-yellow-50 p-4">
+                            <div className="text-sm text-yellow-600">Hadir Tanpa Laporan</div>
+                            <div className="text-2xl font-bold text-yellow-700">{summary.hadir_tanpa_laporan}</div>
+                        </div>
+                        <div className="rounded-lg bg-red-50 p-4">
+                            <div className="text-sm text-red-600">Tidak Hadir</div>
+                            <div className="text-2xl font-bold text-red-700">{summary.tidak_hadir}</div>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
                         <div>
                             <label className="mb-2 block text-sm font-medium">
                                 Tanggal
@@ -147,6 +178,25 @@ export default function AdminDailyReportIndex({
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
                             />
+                        </div>
+
+                        <div>
+                            <label className="mb-2 block text-sm font-medium">
+                                Cabang
+                            </label>
+                            <Select
+                                value={selectedCabang}
+                                onValueChange={setSelectedCabang}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Cabang</SelectItem>
+                                    <SelectItem value="Ulak Karang">Ulak Karang</SelectItem>
+                                    <SelectItem value="Marapalam">Marapalam</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div>
@@ -196,6 +246,26 @@ export default function AdminDailyReportIndex({
                             </div>
                         </div>
 
+                        <div>
+                            <label className="mb-2 block text-sm font-medium">
+                                Status
+                            </label>
+                            <Select
+                                value={selectedStatus}
+                                onValueChange={setSelectedStatus}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Status</SelectItem>
+                                    <SelectItem value="ada_laporan">Ada Laporan</SelectItem>
+                                    <SelectItem value="hadir_tanpa_laporan">Hadir Tanpa Laporan</SelectItem>
+                                    <SelectItem value="tidak_hadir">Tidak Hadir</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                         <div className="flex items-end gap-2">
                             <Button onClick={handleFilter} className="flex-1">
                                 Terapkan
@@ -216,85 +286,113 @@ export default function AdminDailyReportIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Tanggal</TableHead>
-                                    <TableHead>Siswa</TableHead>
+                                    <TableHead className="w-16">No</TableHead>
+                                    <TableHead>Nama Siswa</TableHead>
                                     <TableHead>Kelas</TableHead>
-                                    <TableHead>Mood</TableHead>
-                                    <TableHead>Dibuat Oleh</TableHead>
+                                    <TableHead>Cabang</TableHead>
                                     <TableHead>Status</TableHead>
+                                    <TableHead>Tanggal</TableHead>
+                                    <TableHead>Status Kirim</TableHead>
+                                    <TableHead>Dibuat Oleh</TableHead>
                                     <TableHead className="text-center">
                                         Aksi
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {reports.data.length === 0 ? (
+                                {data.length === 0 ? (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={7}
+                                            colSpan={9}
                                             className="p-8 text-center text-muted-foreground"
                                         >
-                                            Tidak ada data daily report
+                                            Tidak ada data siswa
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    reports.data.map((report) => (
+                                    data.map((item) => (
                                         <TableRow
-                                            key={report.id}
+                                            key={item.siswa_id}
                                             className="hover:bg-muted/50"
                                         >
-                                            <TableCell>
-                                                {formatDate(report.tanggal)}
+                                            <TableCell className="font-medium">
+                                                {item.number}
                                             </TableCell>
                                             <TableCell>
                                                 <div>
                                                     <div className="font-medium">
-                                                        {
-                                                            report.siswa
-                                                                .nama_lengkap
-                                                        }
+                                                        {item.nama_lengkap}
                                                     </div>
                                                     <div className="text-sm text-muted-foreground">
-                                                        {
-                                                            report.siswa
-                                                                .nama_panggilan
-                                                        }
+                                                        {item.nama_panggilan}
                                                     </div>
                                                 </div>
                                             </TableCell>
+                                            <TableCell>{item.kelas}</TableCell>
                                             <TableCell>
-                                                {report.siswa.kelas
-                                                    ?.nama_kelas || '-'}
+                                                <Badge variant="outline">{item.cabang}</Badge>
                                             </TableCell>
                                             <TableCell>
-                                                {report.mood || '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                {report.user.name}
-                                            </TableCell>
-                                            <TableCell>
-                                                {report.is_final ? (
-                                                    <Badge variant="default">
-                                                        Terkirim
+                                                {item.status === 'ada_laporan' && (
+                                                    <Badge variant="default" className="bg-green-600">
+                                                        Ada Laporan
                                                     </Badge>
-                                                ) : (
-                                                    <Badge variant="secondary">
-                                                        Draft
+                                                )}
+                                                {item.status === 'hadir_tanpa_laporan' && (
+                                                    <Badge variant="default" className="bg-yellow-600">
+                                                        Hadir Tanpa Laporan
+                                                    </Badge>
+                                                )}
+                                                {item.status === 'tidak_hadir' && (
+                                                    <Badge variant="destructive">
+                                                        Tidak Hadir
                                                     </Badge>
                                                 )}
                                             </TableCell>
                                             <TableCell>
+                                                {item.kehadiran ? (
+                                                    <div className="text-sm">
+                                                        <div className="font-medium">{item.kehadiran.tanggal_hadir}</div>
+                                                        <div className="text-muted-foreground capitalize">
+                                                            {item.kehadiran.jenis_interaksi}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-muted-foreground">-</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.daily_report ? (
+                                                    item.daily_report.is_final ? (
+                                                        <Badge variant="default">Terkirim</Badge>
+                                                    ) : (
+                                                        <Badge variant="secondary">Draft</Badge>
+                                                    )
+                                                ) : (
+                                                    <span className="text-muted-foreground">-</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.daily_report?.created_by || '-'}
+                                            </TableCell>
+                                            <TableCell>
                                                 <div className="flex items-center justify-center">
-                                                    <Link
-                                                        href={`/admin/daily-report/${report.id}`}
-                                                    >
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
+                                                    {item.daily_report ? (
+                                                        <Link
+                                                            href={`/admin/daily-report/${item.daily_report.id}`}
                                                         >
-                                                            <Eye className="h-4 w-4" />
-                                                        </Button>
-                                                    </Link>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                            </Button>
+                                                        </Link>
+                                                    ) : (
+                                                        <span className="text-sm text-muted-foreground">
+                                                            Tidak ada laporan
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -303,29 +401,6 @@ export default function AdminDailyReportIndex({
                             </TableBody>
                         </Table>
                     </div>
-
-                    {reports.last_page > 1 && (
-                        <div className="flex justify-center gap-2 border-t p-4">
-                            {reports.links.map((link, index) => (
-                                <Button
-                                    key={index}
-                                    size="sm"
-                                    variant={
-                                        link.active ? 'default' : 'outline'
-                                    }
-                                    disabled={!link.url}
-                                    onClick={() => {
-                                        if (link.url) {
-                                            router.get(link.url);
-                                        }
-                                    }}
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    )}
                 </div>
             </div>
         </AppLayout>

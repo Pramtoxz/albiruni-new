@@ -565,39 +565,95 @@ class DailyReportController extends Controller
     {
         $tanggal = $request->input('tanggal', now()->toDateString());
         $kelasId = $request->input('kelas_id');
+        $cabang = $request->input('cabang');
         $search = $request->input('search');
+        $status = $request->input('status');
 
-        $reportsQuery = DailyReport::with(['siswa.kelas', 'user'])
-            ->whereDate('tanggal', $tanggal);
+        $siswaQuery = Siswa::with(['kelas', 'user'])
+            ->where('is_active', true);
 
         if ($kelasId) {
-            $reportsQuery->whereHas('siswa', function ($query) use ($kelasId) {
-                $query->where('kelas_id', $kelasId);
-            });
+            $siswaQuery->where('kelas_id', $kelasId);
+        }
+
+        if ($cabang) {
+            $siswaQuery->where('lokasi_pendaftaran', $cabang);
         }
 
         if ($search) {
-            $reportsQuery->whereHas('siswa', function ($query) use ($search) {
+            $siswaQuery->where(function ($query) use ($search) {
                 $query->where('nama_lengkap', 'like', "%{$search}%")
                     ->orWhere('nama_panggilan', 'like', "%{$search}%");
             });
         }
 
-        $reports = $reportsQuery
-            ->orderBy('tanggal', 'desc')
-            ->paginate(15)
-            ->withQueryString();
+        $siswaList = $siswaQuery->orderBy('nama_lengkap')->get();
+
+        $data = $siswaList->map(function ($siswa, $index) use ($tanggal) {
+            $dailyReport = DailyReport::with(['user', 'emosis'])
+                ->where('siswa_id', $siswa->id)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+
+            $kehadiran = \App\Models\Kehadiran::where('siswa_id', $siswa->id)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+
+            $status = 'tidak_hadir';
+            if ($dailyReport) {
+                $status = 'ada_laporan';
+            } elseif ($kehadiran) {
+                $status = 'hadir_tanpa_laporan';
+            }
+
+            return [
+                'number' => $index + 1,
+                'siswa_id' => $siswa->id,
+                'nama_lengkap' => $siswa->nama_lengkap,
+                'nama_panggilan' => $siswa->nama_panggilan,
+                'kelas' => $siswa->kelas ? $siswa->kelas->nama_kelas : '-',
+                'cabang' => $siswa->lokasi_pendaftaran ?? '-',
+                'status' => $status,
+                'daily_report' => $dailyReport ? [
+                    'id' => $dailyReport->id,
+                    'tanggal' => $dailyReport->tanggal->format('Y-m-d'),
+                    'rating' => $dailyReport->rating,
+                    'is_final' => $dailyReport->is_final,
+                    'created_by' => $dailyReport->user->name ?? '-',
+                ] : null,
+                'kehadiran' => $kehadiran ? [
+                    'tanggal_hadir' => \Carbon\Carbon::parse($kehadiran->tanggal)->format('d-m-Y'),
+                    'jenis_interaksi' => $kehadiran->jenis_interaksi,
+                ] : null,
+            ];
+        });
+
+        if ($status) {
+            $data = $data->filter(function ($item) use ($status) {
+                return $item['status'] === $status;
+            })->values();
+        }
 
         $kelasList = \App\Models\Kelas::orderBy('nama_kelas')->get();
 
+        $summary = [
+            'total' => $siswaList->count(),
+            'ada_laporan' => $data->where('status', 'ada_laporan')->count(),
+            'hadir_tanpa_laporan' => $data->where('status', 'hadir_tanpa_laporan')->count(),
+            'tidak_hadir' => $data->where('status', 'tidak_hadir')->count(),
+        ];
+
         return Inertia::render('admin/daily-report/index', [
-            'reports' => $reports,
+            'data' => $data,
             'kelasList' => $kelasList,
             'filters' => [
                 'tanggal' => $tanggal,
                 'kelas_id' => $kelasId,
+                'cabang' => $cabang,
                 'search' => $search,
+                'status' => $status,
             ],
+            'summary' => $summary,
         ]);
     }
 
