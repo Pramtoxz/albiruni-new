@@ -10,6 +10,7 @@ use App\Http\Controllers\OrangtuaNewsController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     $latestNews = \App\Models\News::where('is_published', true)
@@ -136,7 +137,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('check.siswa')->group(function () {
         Route::get('dashboard', function () {
-            $user = auth()->user();
+            $user = Auth::user();
             if ($user->role === 'admin') {
                 return app(\App\Http\Controllers\AdminDashboardController::class)->index();
             }
