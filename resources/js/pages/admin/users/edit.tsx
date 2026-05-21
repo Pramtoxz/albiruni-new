@@ -50,7 +50,7 @@ export default function EditUser({ user }: Props) {
         <AppLayout>
             <Head title="Edit User" />
 
-            <div className="max-w-2xl space-y-6">
+            <div className="max-w-2xl space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div>
                     <Link href="/admin/users">

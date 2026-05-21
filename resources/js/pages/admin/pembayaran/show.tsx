@@ -146,7 +146,7 @@ export default function PembayaranShow({ pembayaran }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Detail Pembayaran" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4 md:p-6">
                 <div className="flex items-center gap-3">
                     <Button variant="outline" size="icon" onClick={() => window.history.back()}>
                         <ArrowLeft className="h-4 w-4" />

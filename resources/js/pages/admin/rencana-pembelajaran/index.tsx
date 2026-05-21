@@ -75,7 +75,7 @@ export default function RencanaPembelajaranIndex({ rencanaPembelajaran }: Props)
         <AppLayout>
             <Head title="Rencana Pembelajaran" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex justify-between items-center">
                     <div>

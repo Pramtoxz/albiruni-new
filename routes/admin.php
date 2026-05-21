@@ -74,6 +74,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('daily-report', [\App\Http\Controllers\DailyReportController::class, 'adminIndex'])->name('daily-report.index');
     Route::get('daily-report/{dailyReport}', [\App\Http\Controllers\DailyReportController::class, 'adminShow'])->name('daily-report.show');
 
+    // Rapor Digital
+    Route::get('rapor', [\App\Http\Controllers\Admin\RaporController::class, 'index'])->name('rapor.index');
+    Route::get('rapor/{rapor}', [\App\Http\Controllers\Admin\RaporController::class, 'show'])->name('rapor.show');
+
     // User Activity Management
     Route::get('user-activity', [UserActivityController::class, 'index'])->name('user-activity.index');
 

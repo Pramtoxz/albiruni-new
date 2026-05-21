@@ -195,7 +195,7 @@ export default function RencanaPembelajaranEdit({ rencanaPembelajaran, kelas }: 
         <AppLayout>
             <Head title={`Edit - ${rencanaPembelajaran.nama_rencana}`} />
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <Link href="/admin/rencana-pembelajaran">

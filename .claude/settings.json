@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.who.int)",
+      "PowerShell(cd \"c:\\\\laragon\\\\www\\\\schalbiruni\\\\srcp\"; $env:PYTHONIOENCODING=\"utf-8\"; python 01_download_who_data.py)",
+      "PowerShell(cd \"c:\\\\laragon\\\\www\\\\schalbiruni\\\\srcp\"; $env:PYTHONIOENCODING=\"utf-8\"; python 02_process_who_data.py)",
+      "PowerShell(cd \"c:\\\\laragon\\\\www\\\\schalbiruni\\\\srcp\"; $env:PYTHONIOENCODING=\"utf-8\"; python test_calculator.py)",
+      "PowerShell(cd \"c:\\\\laragon\\\\www\\\\schalbiruni\\\\srcp\"; $env:PYTHONIOENCODING=\"utf-8\"; python 04_export_constants.py)"
+    ]
+  }
+}

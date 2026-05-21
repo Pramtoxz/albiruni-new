@@ -38,7 +38,7 @@ export default function CreateUser() {
         <AppLayout>
             <Head title="Tambah User" />
 
-            <div className="max-w-2xl space-y-6">
+            <div className="max-w-2xl space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div>
                     <Link href="/admin/users">

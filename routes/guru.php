@@ -23,6 +23,24 @@ Route::get('rencana-pembelajaran', [RencanaPembelajaranController::class, 'index
 Route::get('rencana-pembelajaran/{rencanaPembelajaran}', [RencanaPembelajaranController::class, 'show'])
     ->name('rencana-pembelajaran.show');
 
+// Rapor Digital
+Route::get('rapor', [\App\Http\Controllers\Guru\RaporController::class, 'index'])
+    ->name('rapor.index');
+Route::get('rapor/create', [\App\Http\Controllers\Guru\RaporController::class, 'create'])
+    ->name('rapor.create');
+Route::post('rapor', [\App\Http\Controllers\Guru\RaporController::class, 'store'])
+    ->name('rapor.store');
+Route::get('rapor/{rapor}', [\App\Http\Controllers\Guru\RaporController::class, 'show'])
+    ->name('rapor.show');
+Route::get('rapor/{rapor}/edit', [\App\Http\Controllers\Guru\RaporController::class, 'edit'])
+    ->name('rapor.edit');
+Route::put('rapor/{rapor}', [\App\Http\Controllers\Guru\RaporController::class, 'update'])
+    ->name('rapor.update');
+Route::post('rapor/{rapor}/finalize', [\App\Http\Controllers\Guru\RaporController::class, 'finalize'])
+    ->name('rapor.finalize');
+Route::get('rapor/{rapor}/pdf', [\App\Http\Controllers\Guru\RaporController::class, 'pdf'])
+    ->name('rapor.pdf');
+
 Route::get('absensi', [\App\Http\Controllers\Guru\KehadiranController::class, 'index'])
     ->name('absensi.index');
 Route::post('absensi/check-in', [\App\Http\Controllers\Guru\KehadiranController::class, 'checkIn'])

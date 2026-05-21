@@ -5,6 +5,7 @@ import {
     BookOpen,
     Calendar,
     CheckSquare,
+    FileText,
     PenTool,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -76,6 +77,7 @@ export default function GuruDashboard() {
         { icon: BookOpen, label: 'Materi', color: 'from-orange-400 to-orange-600', imageSrc: IconMateri, href: '/guru/rencana-pembelajaran' },
         { icon: CheckSquare, label: 'Absensi', color: 'from-blue-400 to-blue-600', imageSrc: IconAbsen, href: '/guru/absensi' },
         { icon: Calendar, label: 'Jadwal', color: 'from-purple-400 to-purple-600', imageSrc: IconGaleri, href: '/guru/jadwal' },
+        { icon: FileText, label: 'Rapor', color: 'from-indigo-400 to-indigo-600', imageSrc: IconReport, href: '/guru/rapor' },
     ];
 
     const statsCards = [

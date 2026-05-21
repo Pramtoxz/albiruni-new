@@ -138,7 +138,7 @@ export default function AdminDailyReportIndex({
         <AppLayout>
             <Head title="Daily Report" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold">Daily Report</h1>
