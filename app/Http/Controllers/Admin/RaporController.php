@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Constants\WhoGrowthStandards;
 use App\Http\Controllers\Controller;
+use App\Models\AppSetting;
 use App\Models\Kelas;
 use App\Models\Rapor;
 use App\Models\RaporPerkembangan;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -64,10 +66,13 @@ class RaporController extends Controller
         $tahunAjaranList = Rapor::distinct()->orderByDesc('tahun_ajaran')->pluck('tahun_ajaran');
 
         return Inertia::render('admin/rapor/index', [
-            'rapors'         => $rapors,
-            'kelasList'      => $kelasList,
-            'tahunAjaranList' => $tahunAjaranList,
-            'filters'        => [
+            'rapors'           => $rapors,
+            'kelasList'        => $kelasList,
+            'tahunAjaranList'  => $tahunAjaranList,
+            'raporAktif'       => AppSetting::get('rapor_aktif', '0') === '1',
+            'raporSemester'    => AppSetting::get('rapor_semester', '1'),
+            'raporTahunAjaran' => AppSetting::get('rapor_tahun_ajaran', $this->currentTahunAjaran()),
+            'filters'          => [
                 'tahun_ajaran' => $tahunAjaran,
                 'semester'     => $semester,
                 'kelas_id'     => $kelasId,
@@ -107,6 +112,40 @@ class RaporController extends Controller
             'usiaAwalSemester' => $usiaAwal,
             'sex'              => $sex,
         ]);
+    }
+
+    public function updateSetting(Request $request): RedirectResponse
+    {
+        $this->checkAdmin('daily-report.view');
+
+        $validated = $request->validate([
+            'semester'     => 'required|in:1,2',
+            'tahun_ajaran' => 'required|string|max:20|regex:/^\d{4}\/\d{4}$/',
+        ]);
+
+        AppSetting::set('rapor_semester', $validated['semester']);
+        AppSetting::set('rapor_tahun_ajaran', $validated['tahun_ajaran']);
+
+        return back()->with('success', "Setting rapor Semester {$validated['semester']} TA {$validated['tahun_ajaran']} berhasil disimpan.");
+    }
+
+    public function toggleAktif(): RedirectResponse
+    {
+        $this->checkAdmin('daily-report.view');
+
+        $current = AppSetting::get('rapor_aktif', '0');
+        AppSetting::set('rapor_aktif', $current === '1' ? '0' : '1');
+
+        $status = $current === '1' ? 'dinonaktifkan' : 'diaktifkan';
+
+        return back()->with('success', "Pengisian rapor berhasil {$status}.");
+    }
+
+    private function currentTahunAjaran(): string
+    {
+        $now  = now();
+        $year = $now->month >= 7 ? $now->year : $now->year - 1;
+        return "{$year}/" . ($year + 1);
     }
 
     private function checkAdmin(string $permission): void

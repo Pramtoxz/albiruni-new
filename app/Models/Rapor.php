@@ -15,7 +15,9 @@ class Rapor extends Model
         'tahun_ajaran',
         'status',
         'guru_kelas',
-        'penutup',
+        'penutup_umum',
+        'penutup_motivasi_orangtua',
+        'penutup_penguatan_positif',
     ];
 
     protected $casts = [

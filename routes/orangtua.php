@@ -26,3 +26,10 @@ Route::post('pembayaran/{pembayaran}/upload', [PembayaranSppController::class, '
 
 Route::get('absensi', [KehadiranController::class, 'orangtuaIndex'])
     ->name('absensi.index');
+
+Route::get('rapor', [\App\Http\Controllers\Orangtua\RaporController::class, 'index'])
+    ->name('rapor.index');
+Route::get('rapor/{rapor}', [\App\Http\Controllers\Orangtua\RaporController::class, 'show'])
+    ->name('rapor.show');
+Route::get('rapor/{rapor}/pdf', [\App\Http\Controllers\Orangtua\RaporController::class, 'pdf'])
+    ->name('rapor.pdf');

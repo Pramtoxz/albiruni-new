@@ -7,23 +7,37 @@ import {
     Select, SelectContent, SelectItem,
     SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { ArrowLeft, BookOpen } from 'lucide-react';
+import { FormEventHandler, useEffect } from 'react';
 
 interface Siswa {
     id: number;
     nama_lengkap: string;
     nama_panggilan: string;
+    kelas_id: number | null;
     kelas: { nama_kelas: string } | null;
     jenis_kelamin: string;
     tanggal_lahir: string;
+}
+
+interface PerkembanganTemplate {
+    aspek: string; indikator: string | null; contoh_narasi: string | null;
+    narasi_bsb: string | null; narasi_bsh: string | null; narasi_mb: string | null; narasi_bb: string | null;
+}
+
+interface PenutupTemplate {
+    kategori: string; narasi_template: string | null;
 }
 
 interface Props {
     siswaList: Siswa[];
     aspekList: Record<string, string>;
     statusList: Record<string, string>;
-    tahunAjaran: string;
+    raporSemester: string;
+    raporTahunAjaran: string;
+    guruNama: string;
+    perkembanganTemplates: Record<string, PerkembanganTemplate[]>;
+    penutupTemplates: Record<string, PenutupTemplate[]>;
 }
 
 const BULAN_SEMESTER: Record<string, { label: string; bulan: number }[]> = {
@@ -39,17 +53,36 @@ const BULAN_SEMESTER: Record<string, { label: string; bulan: number }[]> = {
     ],
 };
 
+const STATUS_COLORS: Record<string, string> = {
+    BSB: 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200',
+    BSH: 'bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200',
+    MB:  'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200',
+    BB:  'bg-red-100 text-red-800 border-red-300 hover:bg-red-200',
+};
+const STATUS_ACTIVE: Record<string, string> = {
+    BSB: 'bg-green-500 text-white border-green-500',
+    BSH: 'bg-blue-500 text-white border-blue-500',
+    MB:  'bg-yellow-500 text-white border-yellow-500',
+    BB:  'bg-red-500 text-white border-red-500',
+};
+
 type PertumbuhanItem = { bulan: number; berat_badan: string; tinggi_badan: string; lingkar_kepala: string };
 type PerkembanganItem = { aspek: string; status: string; narasi: string };
 
-export default function GuruRaporCreate({ siswaList, aspekList, statusList, tahunAjaran }: Props) {
+export default function GuruRaporCreate({
+    siswaList, aspekList, statusList,
+    raporSemester, raporTahunAjaran, guruNama,
+    perkembanganTemplates, penutupTemplates,
+}: Props) {
     const { data, setData, post, processing, errors } = useForm({
-        siswa_id:    '',
-        semester:    '1',
-        tahun_ajaran: tahunAjaran,
-        guru_kelas:  '',
-        penutup:     '',
-        pertumbuhan: BULAN_SEMESTER['1'].map((b) => ({
+        siswa_id:                   '',
+        semester:                   raporSemester,
+        tahun_ajaran:               raporTahunAjaran,
+        guru_kelas:                 guruNama,
+        penutup_umum:               '',
+        penutup_motivasi_orangtua:  '',
+        penutup_penguatan_positif:  '',
+        pertumbuhan: BULAN_SEMESTER[raporSemester]?.map((b) => ({
             bulan: b.bulan, berat_badan: '', tinggi_badan: '', lingkar_kepala: '',
         })) as PertumbuhanItem[],
         perkembangan: Object.keys(aspekList).map((aspek) => ({
@@ -57,15 +90,39 @@ export default function GuruRaporCreate({ siswaList, aspekList, statusList, tahu
         })) as PerkembanganItem[],
     });
 
-    const handleSemesterChange = (val: string) => {
-        setData({
-            ...data,
-            semester: val,
-            pertumbuhan: BULAN_SEMESTER[val].map((b) => ({
-                bulan: b.bulan, berat_badan: '', tinggi_badan: '', lingkar_kepala: '',
-            })),
-        });
+    const selectedSiswa = siswaList.find((s) => String(s.id) === data.siswa_id);
+    const kelasId = selectedSiswa?.kelas_id ? String(selectedSiswa.kelas_id) : null;
+
+    const hasTemplate = kelasId ? !!perkembanganTemplates[kelasId] : false;
+
+    const replacePlaceholders = (text: string): string =>
+        text
+            .replace(/{nama_anak}/g, selectedSiswa?.nama_panggilan ?? '')
+            .replace(/{nama_lengkap}/g, selectedSiswa?.nama_lengkap ?? '');
+
+    const getPerkembanganTemplate = (aspek: string): PerkembanganTemplate | null => {
+        if (!kelasId || !perkembanganTemplates[kelasId]) return null;
+        const list = perkembanganTemplates[kelasId];
+        return Array.isArray(list) ? (list.find((t) => t.aspek === aspek) ?? null) : null;
     };
+
+    const getPenutupTemplate = (kategori: string): string => {
+        if (!kelasId || !penutupTemplates[kelasId]) return '';
+        const list = penutupTemplates[kelasId];
+        const item = Array.isArray(list) ? list.find((t) => t.kategori === kategori) : null;
+        return replacePlaceholders(item?.narasi_template ?? '');
+    };
+
+    useEffect(() => {
+        if (!data.siswa_id) return;
+        setData((prev) => ({
+            ...prev,
+            penutup_umum:              getPenutupTemplate('penutup_umum'),
+            penutup_motivasi_orangtua: getPenutupTemplate('motivasi_orangtua'),
+            penutup_penguatan_positif: getPenutupTemplate('penguatan_positif'),
+            perkembangan: prev.perkembangan.map((item) => ({ ...item, status: '', narasi: '' })),
+        }));
+    }, [data.siswa_id]);
 
     const updatePertumbuhan = (idx: number, field: keyof PertumbuhanItem, value: string) => {
         const updated = [...data.pertumbuhan];
@@ -73,9 +130,26 @@ export default function GuruRaporCreate({ siswaList, aspekList, statusList, tahu
         setData('pertumbuhan', updated);
     };
 
-    const updatePerkembangan = (idx: number, field: keyof PerkembanganItem, value: string) => {
+    const updatePerkembanganStatus = (idx: number, status: string) => {
+        const aspek = data.perkembangan[idx].aspek;
+        const template = getPerkembanganTemplate(aspek);
+let narasi = data.perkembangan[idx].narasi;
+        if (template) {
+            const raw = status === 'BSB' ? template.narasi_bsb
+                      : status === 'BSH' ? template.narasi_bsh
+                      : status === 'MB'  ? template.narasi_mb
+                      : status === 'BB'  ? template.narasi_bb
+                      : null;
+            narasi = replacePlaceholders(raw ?? '');
+        }
         const updated = [...data.perkembangan];
-        updated[idx] = { ...updated[idx], [field]: value };
+        updated[idx] = { ...updated[idx], status, narasi };
+        setData('perkembangan', updated);
+    };
+
+    const updatePerkembanganNarasi = (idx: number, narasi: string) => {
+        const updated = [...data.perkembangan];
+        updated[idx] = { ...updated[idx], narasi };
         setData('perkembangan', updated);
     };
 
@@ -84,7 +158,7 @@ export default function GuruRaporCreate({ siswaList, aspekList, statusList, tahu
         post('/guru/rapor');
     };
 
-    const bulanList = BULAN_SEMESTER[data.semester];
+    const bulanList = BULAN_SEMESTER[data.semester] ?? BULAN_SEMESTER['1'];
 
     return (
         <>
@@ -94,7 +168,6 @@ export default function GuruRaporCreate({ siswaList, aspekList, statusList, tahu
                 <div className="absolute top-20 right-0 w-24 h-24 bg-pink-300 rounded-full opacity-20 translate-x-12" />
 
                 <div className="pt-12 pb-4 px-4 space-y-4 relative z-10">
-                    {/* Header */}
                     <div className="flex items-center gap-3">
                         <button onClick={() => window.history.back()} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
                             <ArrowLeft className="h-5 w-5 text-gray-700" />
@@ -109,6 +182,16 @@ export default function GuruRaporCreate({ siswaList, aspekList, statusList, tahu
                         {/* Info Dasar */}
                         <div className="shadow-lg rounded-3xl bg-white p-5 space-y-4">
                             <h2 className="font-bold text-gray-800">Informasi Dasar</h2>
+
+                            {/* Periode dari admin — read-only */}
+                            <div className="flex items-center gap-2 rounded-2xl bg-blue-50 border border-blue-100 px-4 py-3">
+                                <BookOpen className="h-4 w-4 text-blue-500 shrink-0" />
+                                <p className="text-sm text-blue-700">
+                                    Semester <span className="font-semibold">{raporSemester}</span>
+                                    {' · '}
+                                    TA <span className="font-semibold">{raporTahunAjaran}</span>
+                                </p>
+                            </div>
 
                             <div className="space-y-1">
                                 <Label className="text-sm text-gray-600">Siswa</Label>
@@ -127,38 +210,11 @@ export default function GuruRaporCreate({ siswaList, aspekList, statusList, tahu
                                 {errors.siswa_id && <p className="text-xs text-red-500">{errors.siswa_id}</p>}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                    <Label className="text-sm text-gray-600">Semester</Label>
-                                    <Select value={data.semester} onValueChange={handleSemesterChange}>
-                                        <SelectTrigger className="rounded-xl">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="1">Semester 1</SelectItem>
-                                            <SelectItem value="2">Semester 2</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-1">
-                                    <Label className="text-sm text-gray-600">Tahun Ajaran</Label>
-                                    <Input
-                                        className="rounded-xl"
-                                        value={data.tahun_ajaran}
-                                        onChange={(e) => setData('tahun_ajaran', e.target.value)}
-                                        placeholder="2024/2025"
-                                    />
-                                </div>
-                            </div>
-
                             <div className="space-y-1">
                                 <Label className="text-sm text-gray-600">Nama Guru Kelas</Label>
-                                <Input
-                                    className="rounded-xl"
-                                    value={data.guru_kelas}
+                                <Input className="rounded-xl" value={data.guru_kelas}
                                     onChange={(e) => setData('guru_kelas', e.target.value)}
-                                    placeholder="Nama guru kelas"
-                                />
+                                    placeholder="Nama guru kelas" />
                             </div>
                         </div>
 
@@ -211,40 +267,82 @@ export default function GuruRaporCreate({ siswaList, aspekList, statusList, tahu
                         <div className="shadow-lg rounded-3xl bg-white p-5 space-y-3">
                             <div>
                                 <h2 className="font-bold text-gray-800">B. Perkembangan Anak</h2>
-                                <p className="text-xs text-gray-500">BB | MB | BSH | BSB</p>
+                                <p className="text-xs text-gray-500">
+                                    {!data.siswa_id
+                                        ? 'Pilih siswa terlebih dahulu'
+                                        : hasTemplate
+                                            ? 'Pilih status (BSB/BSH/MB/BB) → narasi otomatis terisi'
+                                            : 'Template kelas ini belum diisi admin — isi narasi secara manual'}
+                                </p>
                             </div>
+                            {data.siswa_id && !hasTemplate && (
+                                <div className="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-700">
+                                    ⚠️ Template narasi untuk kelas <span className="font-semibold">{selectedSiswa?.kelas?.nama_kelas}</span> belum diisi. Hubungi admin untuk mengisi template di menu <span className="font-semibold">Template Rapor</span>.
+                                </div>
+                            )}
                             <div className="space-y-3">
-                                {data.perkembangan.map((item, idx) => (
-                                    <div key={item.aspek} className="rounded-2xl border border-gray-100 p-3 space-y-2 bg-gray-50">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <span className="text-sm font-semibold text-gray-700">{aspekList[item.aspek]}</span>
-                                            <Select value={item.status} onValueChange={(v) => updatePerkembangan(idx, 'status', v)}>
-                                                <SelectTrigger className="w-44 rounded-xl h-8 text-xs">
-                                                    <SelectValue placeholder="Status..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {Object.entries(statusList).map(([k, v]) => (
-                                                        <SelectItem key={k} value={k}>{k} — {v}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                {data.perkembangan.map((item, idx) => {
+                                    const template = getPerkembanganTemplate(item.aspek);
+                                    return (
+                                        <div key={item.aspek} className="rounded-2xl border border-gray-100 p-3 space-y-2 bg-gray-50">
+                                            <div className="space-y-1">
+                                                <span className="text-sm font-semibold text-gray-700">{aspekList[item.aspek]}</span>
+                                                {template?.indikator && (
+                                                    <p className="text-xs text-gray-400">{template.indikator}</p>
+                                                )}
+                                            </div>
+                                            <div className="flex gap-1.5 flex-wrap">
+                                                {Object.keys(statusList).map((status) => (
+                                                    <button key={status} type="button"
+                                                        onClick={() => updatePerkembanganStatus(idx, status)}
+                                                        className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+                                                            item.status === status
+                                                                ? STATUS_ACTIVE[status]
+                                                                : STATUS_COLORS[status]
+                                                        }`}>
+                                                        {status}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <Textarea rows={3} placeholder="Narasi perkembangan..."
+                                                className="rounded-xl text-xs resize-none"
+                                                value={item.narasi}
+                                                onChange={(e) => updatePerkembanganNarasi(idx, e.target.value)} />
                                         </div>
-                                        <Textarea rows={2} placeholder="Narasi perkembangan (opsional)..."
-                                            className="rounded-xl text-xs resize-none"
-                                            value={item.narasi}
-                                            onChange={(e) => updatePerkembangan(idx, 'narasi', e.target.value)} />
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
 
-                        {/* Penutup */}
-                        <div className="shadow-lg rounded-3xl bg-white p-5 space-y-2">
-                            <h2 className="font-bold text-gray-800">D. Penutup</h2>
-                            <Textarea rows={4} placeholder="Narasi penutup rapor..."
-                                className="rounded-xl text-sm resize-none"
-                                value={data.penutup}
-                                onChange={(e) => setData('penutup', e.target.value)} />
+                        {/* Section C: Penutup */}
+                        <div className="shadow-lg rounded-3xl bg-white p-5 space-y-3">
+                            <div>
+                                <h2 className="font-bold text-gray-800">C. Narasi Emosional</h2>
+                                <p className="text-xs text-gray-500">Auto-terisi dari template kelas. Bisa diedit.</p>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="space-y-1">
+                                    <Label className="text-sm text-gray-600">Penutup Umum</Label>
+                                    <Textarea rows={4} placeholder="Narasi penutup umum..."
+                                        className="rounded-xl text-sm resize-none"
+                                        value={data.penutup_umum}
+                                        onChange={(e) => setData('penutup_umum', e.target.value)} />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-sm text-gray-600">Motivasi untuk Orang Tua</Label>
+                                    <Textarea rows={4} placeholder="Narasi motivasi orang tua..."
+                                        className="rounded-xl text-sm resize-none"
+                                        value={data.penutup_motivasi_orangtua}
+                                        onChange={(e) => setData('penutup_motivasi_orangtua', e.target.value)} />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-sm text-gray-600">Penguatan Positif</Label>
+                                    <Textarea rows={4} placeholder="Narasi penguatan positif..."
+                                        className="rounded-xl text-sm resize-none"
+                                        value={data.penutup_penguatan_positif}
+                                        onChange={(e) => setData('penutup_penguatan_positif', e.target.value)} />
+                                </div>
+                            </div>
                         </div>
 
                         <Button type="submit" disabled={processing}

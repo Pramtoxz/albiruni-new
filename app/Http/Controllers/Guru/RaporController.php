@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Guru;
 
 use App\Constants\WhoGrowthStandards;
 use App\Http\Controllers\Controller;
+use App\Models\AppSetting;
 use App\Models\Rapor;
+use App\Services\NotificationService;
 use App\Models\RaporPerkembangan;
+use App\Models\RaporPerkembanganTemplate;
+use App\Models\RaporPenutupTemplate;
 use App\Models\RaporPertumbuhan;
 use App\Models\Siswa;
 use Illuminate\Http\RedirectResponse;
@@ -59,8 +63,9 @@ class RaporController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(): Response|RedirectResponse
     {
+        if ($redirect = $this->checkRaporAktif()) return $redirect;
         $siswaIds = $this->getAccessibleSiswaIds();
 
         $siswaList = Siswa::with('kelas:id,nama_kelas')
@@ -68,22 +73,43 @@ class RaporController extends Controller
             ->orderBy('nama_lengkap')
             ->get(['id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'jenis_kelamin', 'tanggal_lahir']);
 
+        $kelasIds = $siswaList->pluck('kelas_id')->filter()->unique()->values();
+
+        $perkembanganTemplates = RaporPerkembanganTemplate::whereIn('kelas_id', $kelasIds)
+            ->get(['kelas_id', 'aspek', 'indikator', 'narasi_bsb', 'narasi_bsh', 'narasi_mb', 'narasi_bb'])
+            ->groupBy('kelas_id');
+
+        $penutupTemplates = RaporPenutupTemplate::whereIn('kelas_id', $kelasIds)
+            ->get(['kelas_id', 'kategori', 'narasi_template'])
+            ->groupBy('kelas_id');
+
+        $user     = auth()->user();
+        $guruNama = $user->guru?->nama_lengkap ?? $user->name;
+
         return Inertia::render('guru/rapor/create', [
-            'siswaList'    => $siswaList,
-            'aspekList'    => RaporPerkembangan::ASPEK_LABELS,
-            'statusList'   => RaporPerkembangan::STATUS_LABELS,
-            'tahunAjaran'  => $this->currentTahunAjaran(),
+            'siswaList'             => $siswaList,
+            'aspekList'             => RaporPerkembangan::ASPEK_LABELS,
+            'statusList'            => RaporPerkembangan::STATUS_LABELS,
+            'raporSemester'         => AppSetting::get('rapor_semester', '1'),
+            'raporTahunAjaran'      => AppSetting::get('rapor_tahun_ajaran', $this->currentTahunAjaran()),
+            'guruNama'              => $guruNama,
+            'perkembanganTemplates' => $perkembanganTemplates,
+            'penutupTemplates'      => $penutupTemplates,
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        if ($redirect = $this->checkRaporAktif()) return $redirect;
+
         $validated = $request->validate([
-            'siswa_id'       => 'required|exists:siswa,id',
-            'semester'       => 'required|in:1,2',
-            'tahun_ajaran'   => 'required|string|max:20',
-            'guru_kelas'     => 'nullable|string|max:255',
-            'penutup'        => 'nullable|string',
+            'siswa_id'                    => 'required|exists:siswa,id',
+            'semester'                    => 'required|in:1,2',
+            'tahun_ajaran'                => 'required|string|max:20',
+            'guru_kelas'                  => 'nullable|string|max:255',
+            'penutup_umum'                => 'nullable|string',
+            'penutup_motivasi_orangtua'   => 'nullable|string',
+            'penutup_penguatan_positif'   => 'nullable|string',
             'pertumbuhan'    => 'nullable|array',
             'pertumbuhan.*.bulan'         => 'required|integer|min:1|max:12',
             'pertumbuhan.*.berat_badan'   => 'nullable|numeric|min:0|max:200',
@@ -115,8 +141,10 @@ class RaporController extends Controller
             'semester'     => $validated['semester'],
             'tahun_ajaran' => $validated['tahun_ajaran'],
             'status'       => 'draft',
-            'guru_kelas'   => $validated['guru_kelas'] ?? null,
-            'penutup'      => $validated['penutup'] ?? null,
+            'guru_kelas'                 => $validated['guru_kelas'] ?? null,
+            'penutup_umum'               => $validated['penutup_umum'] ?? null,
+            'penutup_motivasi_orangtua'  => $validated['penutup_motivasi_orangtua'] ?? null,
+            'penutup_penguatan_positif'  => $validated['penutup_penguatan_positif'] ?? null,
         ]);
 
         foreach ($validated['pertumbuhan'] ?? [] as $item) {
@@ -181,6 +209,7 @@ class RaporController extends Controller
 
     public function edit(Rapor $rapor): Response|RedirectResponse
     {
+        if ($redirect = $this->checkRaporAktif()) return $redirect;
         $this->authorizeRapor($rapor);
 
         if ($rapor->isFinal()) {
@@ -188,24 +217,34 @@ class RaporController extends Controller
                 ->with('error', 'Rapor sudah final dan tidak bisa diedit.');
         }
 
-        $rapor->load(['pertumbuhans', 'perkembangans']);
+        $rapor->load(['pertumbuhans', 'perkembangans', 'siswa:id,kelas_id,nama_panggilan,nama_lengkap']);
 
-        $siswaIds = $this->getAccessibleSiswaIds();
-        $siswaList = Siswa::with('kelas:id,nama_kelas')
-            ->whereIn('id', $siswaIds)
-            ->orderBy('nama_lengkap')
-            ->get(['id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'jenis_kelamin', 'tanggal_lahir']);
+        $kelasId = $rapor->siswa?->kelas_id;
+
+        $perkembanganTemplates = $kelasId
+            ? RaporPerkembanganTemplate::where('kelas_id', $kelasId)
+                ->get(['kelas_id', 'aspek', 'indikator', 'narasi_bsb', 'narasi_bsh', 'narasi_mb', 'narasi_bb'])
+                ->keyBy('aspek')
+            : collect();
+
+        $penutupTemplates = $kelasId
+            ? RaporPenutupTemplate::where('kelas_id', $kelasId)
+                ->get(['kelas_id', 'kategori', 'narasi_template'])
+                ->keyBy('kategori')
+            : collect();
 
         return Inertia::render('guru/rapor/edit', [
-            'rapor'       => $rapor,
-            'siswaList'   => $siswaList,
-            'aspekList'   => RaporPerkembangan::ASPEK_LABELS,
-            'statusList'  => RaporPerkembangan::STATUS_LABELS,
+            'rapor'                  => $rapor,
+            'aspekList'              => RaporPerkembangan::ASPEK_LABELS,
+            'statusList'             => RaporPerkembangan::STATUS_LABELS,
+            'perkembanganTemplates'  => $perkembanganTemplates,
+            'penutupTemplates'       => $penutupTemplates,
         ]);
     }
 
     public function update(Request $request, Rapor $rapor): RedirectResponse
     {
+        if ($redirect = $this->checkRaporAktif()) return $redirect;
         $this->authorizeRapor($rapor);
 
         if ($rapor->isFinal()) {
@@ -214,8 +253,10 @@ class RaporController extends Controller
         }
 
         $validated = $request->validate([
-            'guru_kelas'     => 'nullable|string|max:255',
-            'penutup'        => 'nullable|string',
+            'guru_kelas'                  => 'nullable|string|max:255',
+            'penutup_umum'                => 'nullable|string',
+            'penutup_motivasi_orangtua'   => 'nullable|string',
+            'penutup_penguatan_positif'   => 'nullable|string',
             'pertumbuhan'    => 'nullable|array',
             'pertumbuhan.*.bulan'          => 'required|integer|min:1|max:12',
             'pertumbuhan.*.berat_badan'    => 'nullable|numeric|min:0|max:200',
@@ -228,8 +269,10 @@ class RaporController extends Controller
         ]);
 
         $rapor->update([
-            'guru_kelas' => $validated['guru_kelas'] ?? $rapor->guru_kelas,
-            'penutup'    => $validated['penutup'] ?? null,
+            'guru_kelas'                 => $validated['guru_kelas'] ?? $rapor->guru_kelas,
+            'penutup_umum'               => $validated['penutup_umum'] ?? null,
+            'penutup_motivasi_orangtua'  => $validated['penutup_motivasi_orangtua'] ?? null,
+            'penutup_penguatan_positif'  => $validated['penutup_penguatan_positif'] ?? null,
         ]);
 
         $rapor->pertumbuhans()->delete();
@@ -261,6 +304,7 @@ class RaporController extends Controller
 
     public function finalize(Rapor $rapor): RedirectResponse
     {
+        if ($redirect = $this->checkRaporAktif()) return $redirect;
         $this->authorizeRapor($rapor);
 
         if ($rapor->isFinal()) {
@@ -269,6 +313,10 @@ class RaporController extends Controller
         }
 
         $rapor->update(['status' => 'final']);
+
+        dispatch(function () use ($rapor) {
+            app(NotificationService::class)->sendRaporFinalisasi($rapor);
+        })->afterResponse();
 
         return redirect()->route('guru.rapor.show', $rapor)
             ->with('success', 'Rapor berhasil difinalisasi dan siap dicetak.');
@@ -309,6 +357,15 @@ class RaporController extends Controller
         $filename = preg_replace('/[^A-Za-z0-9\-_.]/', '_', $filename);
 
         return $pdf->download($filename);
+    }
+
+    private function checkRaporAktif(): ?RedirectResponse
+    {
+        if (AppSetting::get('rapor_aktif', '0') !== '1') {
+            return redirect()->route('guru.rapor.index')
+                ->with('error', 'Pengisian rapor sedang ditutup oleh admin. Silakan hubungi admin untuk informasi lebih lanjut.');
+        }
+        return null;
     }
 
     private function authorizeRapor(Rapor $rapor): void

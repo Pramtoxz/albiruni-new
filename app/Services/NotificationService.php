@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\DailyReport;
+use App\Models\Rapor;
 use App\Providers\WhatsAppGateway;
 use Illuminate\Support\Facades\Log;
 
@@ -240,6 +241,46 @@ class NotificationService
         $message .= '_Terima kasih atas kepercayaan Anda_ 🙏';
 
         return $message;
+    }
+
+    public function sendRaporFinalisasi(Rapor $rapor): void
+    {
+        try {
+            $rapor->load('siswa.user');
+            $siswa = $rapor->siswa;
+
+            if (! $siswa || ! $siswa->user) {
+                return;
+            }
+
+            $parentPhone = $siswa->user->nohp;
+            $namaSiswa   = $siswa->nama_lengkap;
+
+            $message  = "*📋 RAPOR DIGITAL - {$namaSiswa}*\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "Assalamu'alaikum Ayah/Bunda,\n\n";
+            $message .= "Rapor digital *{$namaSiswa}* untuk Semester {$rapor->semester} ({$rapor->tahun_ajaran}) telah selesai dan siap dilihat.\n\n";
+            $message .= "📱 Silakan buka aplikasi Al-Biruni untuk melihat laporan tumbuh kembang secara lengkap.\n\n";
+            $message .= "_Terima kasih atas kepercayaan Anda_ 🙏";
+
+            $this->gateway->sendText($parentPhone, $message);
+
+            // FCM
+            $fcm = app(FcmService::class);
+            $fcm->sendToUser(
+                $siswa->user->id,
+                '📋 Rapor Digital Tersedia',
+                "Rapor Semester {$rapor->semester} {$namaSiswa} telah selesai",
+                "/orangtua/rapor/{$rapor->id}",
+            );
+
+            Log::info('Rapor finalisasi notification sent', ['rapor_id' => $rapor->id]);
+        } catch (\Throwable $e) {
+            Log::error('Failed to send rapor finalisasi notification', [
+                'rapor_id' => $rapor->id,
+                'exception' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function sendSppNotificationToParent($pembayaran): void

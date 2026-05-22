@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kelas extends Model
 {
@@ -19,11 +20,18 @@ class Kelas extends Model
         'spp' => 'decimal:2',
     ];
 
-    /**
-     * Get kategori menu - now directly from database field
-     */
     public function getKategoriMenuAttribute(): string
     {
         return $this->kategori ?? 'anak';
+    }
+
+    public function raporPerkembanganTemplates(): HasMany
+    {
+        return $this->hasMany(RaporPerkembanganTemplate::class);
+    }
+
+    public function raporPenutupTemplates(): HasMany
+    {
+        return $this->hasMany(RaporPenutupTemplate::class);
     }
 }

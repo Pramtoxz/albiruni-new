@@ -223,6 +223,8 @@ private function checkAdmin(string $permission): void
 | `Rapor` | `rapors` | Rapor semester anak |
 | `RaporPertumbuhan` | `rapor_pertumbuhans` | Data BB/TB/LK per bulan; punya `$appends=['nama_bulan']` |
 | `RaporPerkembangan` | `rapor_perkembangans` | Perkembangan per aspek (BB/MB/BSH/BSB) |
+| `RaporPerkembanganTemplate` | `rapor_perkembangan_templates` | Template narasi Section B per kelas |
+| `RaporPenutupTemplate` | `rapor_penutup_templates` | Template narasi Section C per kelas (3 kategori) |
 
 ---
 
@@ -384,22 +386,26 @@ FIREBASE_CREDENTIALS=app/Providers/albiruni-pre-school-firebase-adminsdk-*.json
 
 ---
 
-## Fitur Rapor Digital — STATUS: SELESAI (kecuali halaman orangtua & notifikasi)
+## Fitur Rapor Digital — STATUS: SELESAI (kecuali Template Rapor admin, halaman orangtua & notifikasi)
 
 Fitur laporan tumbuh kembang anak semester (pengganti rapor Word manual).
 
 ### Semua Yang Sudah Selesai
 - **Pipeline WHO data** di `srcp/` + konstanta `app/Constants/WhoGrowthStandards.php` + `resources/js/lib/whoGrowthStandards.ts`
-- **Migration:** `2026_05_21_000001_create_rapors_table`, `_000002_create_rapor_pertumbuhans_table`, `_000003_create_rapor_perkembangans_table`
-- **Models:** `Rapor`, `RaporPertumbuhan` (dengan `$appends=['nama_bulan']`), `RaporPerkembangan`
+- **Migration:** `2026_05_21_000001_create_rapors_table` (3 kolom Section C), `_000002_create_rapor_pertumbuhans_table`, `_000003_create_rapor_perkembangans_table`, `2026_05_22_000002_create_rapor_perkembangan_templates_table`, `2026_05_22_000003_create_rapor_penutup_templates_table`
+- **Models:** `Rapor`, `RaporPertumbuhan` (dengan `$appends=['nama_bulan']`), `RaporPerkembangan`, `RaporPerkembanganTemplate`, `RaporPenutupTemplate`
 - **Controller Guru:** `app/Http/Controllers/Guru/RaporController` — index, create, store, show, edit, update, finalize, pdf
-- **Controller Admin:** `app/Http/Controllers/Admin/RaporController` — index (filter+paginate), show
-- **Routes:** `guru/rapor/*` (8 routes) + `admin/rapor/*` (2 routes)
+- **Controller Admin:** `app/Http/Controllers/Admin/RaporController` — index (filter+paginate+setting rapor aktif), show, updateSetting
+- **Routes:** `guru/rapor/*` (8 routes) + `admin/rapor/*` (3 routes termasuk `POST rapor/setting`)
 - **React Pages Guru:** `resources/js/pages/guru/rapor/{index,create,edit,show}.tsx` — mobile-first layout (NO AppLayout)
+  - `create.tsx`: semester + TA otomatis dari setting admin, guru_kelas otomatis dari auth user, Section B pill buttons + auto-fill narasi dari template
+  - `edit.tsx`: Section B pill buttons + auto-fill narasi dari template, warning jika template belum diisi
+  - `show.tsx`: tampilkan usia anak (fixed di awal semester, format "X thn Y bln")
 - **React Pages Admin:** `resources/js/pages/admin/rapor/{index,show}.tsx` — AppLayout dengan WHO chart overlay
+  - `index.tsx`: toggle aktif/nonaktif + setting periode rapor (semester + tahun ajaran) dalam satu card
 - **PDF Template:** `resources/views/pdf/rapor.blade.php` — SVG grafik WHO server-side + tanda tangan
 - **Sidebar:** menu "Rapor Digital" di grup Transaksi (admin) + grup Akademik (guru)
-- **Seeder:** `database/seeders/RaporSeeder.php` — 47 siswa, mix draft/final, data pertumbuhan + perkembangan
+- **Seeder:** `database/seeders/RaporSeeder.php` — siswa aktif, mix draft/final, data pertumbuhan + perkembangan + 3 kolom Section C
 
 ### WHO Growth Chart Images (SUDAH DIINTEGRASIKAN & DIKALIBRASI)
 - **6 PNG** chart resmi WHO tersimpan di `public/assets/who-charts/`:
@@ -422,6 +428,8 @@ Fitur laporan tumbuh kembang anak semester (pengganti rapor Word manual).
 - **Guru layout salah:** halaman guru rapor pakai `AppLayout`. **Fix:** rewrite 4 halaman dengan mobile-first pattern.
 - **`nama_bulan` tidak muncul:** accessor tidak di-serialize ke JSON. **Fix:** `$appends = ['nama_bulan']` di `RaporPertumbuhan`.
 - **UTC date di show page:** `$rapor->created_at = string` lalu pass model ke Inertia → Eloquent re-cast ke UTC saat `toArray()`. **Fix:** `array_merge($rapor->toArray(), ['created_at' => $createdAt])` di kedua controller show().
+- **Auto-fill Section B tidak muncul:** Template hanya ada untuk `kelas_id=4` (TK) di DB. Semua siswa yang ditest dari kelas lain → `perkembanganTemplates[kelasId]` = undefined. **Fix:** Tambahkan indikator `hasTemplate` + amber warning banner jika template belum diisi untuk kelas tersebut.
+- **Placeholder `{nama_lengkap}` tidak terganti:** Template di DB memakai `{nama_lengkap}` tapi kode hanya handle `{nama_anak}`. **Fix:** `replacePlaceholders()` support keduanya di `create.tsx` dan `edit.tsx`.
 
 ### Database Schema Aktif
 ```
@@ -429,8 +437,13 @@ rapors
   id, siswa_id (FK→siswa), created_by (unsignedBigInteger, no FK karena users=MyISAM)
   semester (tinyint: 1|2), tahun_ajaran (varchar 20)
   status: draft | final
-  guru_kelas (string, nullable), penutup (text, nullable)
+  guru_kelas (string, nullable)
+  penutup_umum (text, nullable)           ← Section C: Penutup Umum
+  penutup_motivasi_orangtua (text, nullable) ← Section C: Motivasi untuk Orang Tua
+  penutup_penguatan_positif (text, nullable) ← Section C: Penguatan Positif
   UNIQUE: (siswa_id, semester, tahun_ajaran)
+  CATATAN: kolom `penutup` lama dihapus dari migration (belum deploy ke production)
+           Digantikan 3 kolom Section C di atas
 
 rapor_pertumbuhans
   id, rapor_id (FK→rapors cascade), bulan (tinyint)
@@ -442,6 +455,25 @@ rapor_perkembangans
   aspek (enum: agama_moral|motorik_kasar|motorik_halus|kognitif|bahasa|sosial_emosional|kemandirian)
   status (enum: BB|MB|BSH|BSB, nullable), narasi (text, nullable)
   UNIQUE: (rapor_id, aspek)
+
+rapor_perkembangan_templates  ← Template Section B per kelas
+  id
+  kelas_id (FK→kelas cascade)
+  aspek (string — 7 aspek seperti di rapor_perkembangans)
+  indikator (string, nullable)          ← "Hafalan doa, perilaku sopan"
+  contoh_narasi (text, nullable)        ← Narasi singkat contoh
+  narasi_bsb (text, nullable)           ← Template narasi status BSB
+  narasi_bsh (text, nullable)           ← Template narasi status BSH
+  narasi_mb (text, nullable)            ← Template narasi status MB
+  narasi_bb (text, nullable)            ← Template narasi status BB
+  UNIQUE: (kelas_id, aspek)
+
+rapor_penutup_templates  ← Template Section C per kelas
+  id
+  kelas_id (FK→kelas cascade)
+  kategori (enum: penutup_umum|motivasi_orangtua|penguatan_positif)
+  narasi_template (text, nullable)      ← Boleh pakai placeholder {nama_anak}
+  UNIQUE: (kelas_id, kategori)
 ```
 
 ### Catatan Teknis Penting
@@ -451,11 +483,63 @@ rapor_perkembangans
 - Permission admin: reuse `daily-report.view`
 - `WhoGrowthStandards::get()` → raw indexed array (dipakai di PDF Blade template)
 - `WhoGrowthStandards::getObjects()` → associative array (dipakai di Inertia controller untuk frontend)
+- **Setting rapor aktif** disimpan via `AppSetting` model: key `rapor_aktif`, `rapor_semester`, `rapor_tahun_ajaran`. Route `POST admin/rapor/setting` harus di-declare **sebelum** `admin/rapor/{rapor}` agar tidak terinterferensi.
+- **Placeholder template:** DB bisa pakai `{nama_anak}` (→ `nama_panggilan`) atau `{nama_lengkap}` (→ `nama_lengkap`). Keduanya di-replace oleh `replacePlaceholders()` di `create.tsx` dan `edit.tsx` client-side.
+- **Template auto-fill Section B:** lookup via `perkembanganTemplates[String(siswa.kelas_id)]` di create, atau `perkembanganTemplates[aspek]` di edit (sudah di-group per aspek oleh controller). Jika template belum diisi → amber warning, narasi tetap kosong, guru isi manual.
+- **Migration rapor DIEDIT LANGSUNG** (bukan migrasi baru) karena belum deploy ke production:
+  - `2026_05_21_000001_create_rapors_table.php` — hapus `penutup`, tambah 3 kolom penutup
+  - `2026_05_22_000002_create_rapor_perkembangan_templates_table.php` — table baru
+  - `2026_05_22_000003_create_rapor_penutup_templates_table.php` — table baru
+
+### Struktur Section Rapor
+
+| Section | Nama | Isi |
+|---------|------|-----|
+| A | Pertumbuhan Anak | Data BB/TB/LK per bulan + grafik WHO |
+| B | Tumbuh Kembang Anak | 7 aspek × 4 status (BB/MB/BSH/BSB) + narasi |
+| C | Narasi Emosional | 3 kategori: Penutup Umum, Motivasi Orang Tua, Penguatan Positif |
+
+### Sistem Template Rapor (Admin → Guru)
+
+Admin menyediakan template narasi per kelas lewat menu **"Template Rapor"** (menu terpisah dari "Rapor Digital" di sidebar admin).
+
+**Placeholder `{nama_anak}`** — admin tulis `{nama_anak}` di template, diganti client-side dengan `siswa.nama_panggilan` di React saat guru mengisi form.
+
+**Section B — Tumbuh Kembang (rapor_perkembangan_templates):**
+- UI guru: 4 pill button per aspek (`BB | MB | BSH | BSB`) — bukan dropdown
+- Tap pill → status ter-set + narasi auto-fill dari template kelas siswa
+- Jika template belum diisi admin → narasi tetap kosong, guru isi manual
+- Guru **boleh edit** narasi setelah auto-fill
+- Ganti status → narasi di-overwrite dengan template status baru
+
+**Section C — Narasi Emosional (rapor_penutup_templates):**
+- 3 kategori fixed: `penutup_umum`, `motivasi_orangtua`, `penguatan_positif`
+- Auto-fill otomatis saat form dibuka (kelas siswa sudah diketahui dari siswa yang dipilih)
+- Guru **boleh edit** setelah auto-fill
+- Data disimpan di 3 kolom rapors: `penutup_umum`, `penutup_motivasi_orangtua`, `penutup_penguatan_positif`
+
+**Admin pages "Template Rapor" (menu terpisah dari Rapor Digital):**
+- Index: daftar kelas + status kelengkapan template (berapa aspek sudah terisi)
+- Klik kelas → halaman edit template kelas tersebut (Section B + Section C dalam satu halaman)
+- **Export Excel**: download 1 file `.xlsx` per kelas, 2 sheet (Sheet 1: Section B, Sheet 2: Section C)
+  - Jika template kosong → export hanya header saja (sebagai panduan format untuk admin)
+  - Format Sheet 1: `Aspek | Indikator | Contoh Narasi | BSB | BSH | MB | BB`
+  - Format Sheet 2: `Kategori | Narasi Template`
+- **Import Excel**: upload file `.xlsx` → replace semua template kelas tersebut
+- Routes: GET `admin/template-rapor`, GET `admin/template-rapor/{kelas}`, PUT `admin/template-rapor/{kelas}`, GET `admin/template-rapor/{kelas}/export`, POST `admin/template-rapor/{kelas}/import`
+- Permission: reuse `daily-report.view`
+- Package Excel: `maatwebsite/excel` (cek dulu apakah sudah terinstall)
 
 ### Yang Belum Dibuat (Next Session)
-1. **Halaman orangtua** — `resources/js/pages/orangtua/rapor/` (index + show read-only, mobile-first seperti guru)
-2. **Route orangtua** — tambah di `routes/orangtua.php`
-3. **Notifikasi finalisasi** — FCM + WhatsApp ke orangtua saat rapor difinalisasi
+1. **Install maatwebsite/excel** — `composer require maatwebsite/excel` (belum terinstall)
+2. **Admin: Template Rapor** — Controller + Routes + Pages (index daftar kelas, edit template per kelas, export Excel, import Excel)
+   - Routes: `GET admin/template-rapor`, `GET/PUT admin/template-rapor/{kelas}`, `GET admin/template-rapor/{kelas}/export`, `POST admin/template-rapor/{kelas}/import`
+   - Permission: reuse `daily-report.view`
+   - Export format Sheet 1: `Aspek | Indikator | Contoh Narasi | BSB | BSH | MB | BB`; Sheet 2: `Kategori | Narasi Template`
+3. **Guru create/edit Section C** — auto-fill 3 narasi (`penutup_umum`, `penutup_motivasi_orangtua`, `penutup_penguatan_positif`) dari `rapor_penutup_templates` saat siswa dipilih (create) atau saat form dibuka (edit, jika field masih kosong)
+4. **Halaman orangtua** — `resources/js/pages/orangtua/rapor/` (index + show read-only, mobile-first seperti guru)
+5. **Route orangtua** — tambah di `routes/orangtua.php`
+6. **Notifikasi finalisasi** — FCM + WhatsApp ke orangtua saat rapor difinalisasi
 
 ---
 

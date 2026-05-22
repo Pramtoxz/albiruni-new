@@ -16,7 +16,9 @@ return new class extends Migration
             $table->string('tahun_ajaran', 20)->comment('e.g. 2025/2026');
             $table->enum('status', ['draft', 'final'])->default('draft');
             $table->string('guru_kelas')->nullable();
-            $table->text('penutup')->nullable();
+            $table->text('penutup_umum')->nullable();
+            $table->text('penutup_motivasi_orangtua')->nullable();
+            $table->text('penutup_penguatan_positif')->nullable();
             $table->timestamps();
 
             $table->unique(['siswa_id', 'semester', 'tahun_ajaran']);

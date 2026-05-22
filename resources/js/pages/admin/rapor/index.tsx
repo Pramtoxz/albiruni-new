@@ -11,7 +11,7 @@ import {
     Table, TableBody, TableCell, TableHead,
     TableHeader, TableRow,
 } from '@/components/ui/table';
-import { Eye, Search } from 'lucide-react';
+import { Eye, Search, BookOpen, Lock, Save } from 'lucide-react';
 import { useState } from 'react';
 
 interface Rapor {
@@ -44,6 +44,9 @@ interface Props {
     rapors: PaginatedRapors;
     kelasList: Kelas[];
     tahunAjaranList: string[];
+    raporAktif: boolean;
+    raporSemester: string;
+    raporTahunAjaran: string;
     filters: {
         tahun_ajaran?: string;
         semester?: string;
@@ -52,11 +55,15 @@ interface Props {
     };
 }
 
-export default function AdminRaporIndex({ rapors, kelasList, tahunAjaranList, filters }: Props) {
-    const [search, setSearch]               = useState(filters.search ?? '');
-    const [tahunAjaran, setTahunAjaran]     = useState(filters.tahun_ajaran ?? 'all');
-    const [semester, setSemester]           = useState(filters.semester ?? 'all');
-    const [kelasId, setKelasId]             = useState(filters.kelas_id ?? 'all');
+export default function AdminRaporIndex({ rapors, kelasList, tahunAjaranList, raporAktif, raporSemester, raporTahunAjaran, filters }: Props) {
+    const [search, setSearch]                   = useState(filters.search ?? '');
+    const [tahunAjaran, setTahunAjaran]         = useState(filters.tahun_ajaran ?? 'all');
+    const [semester, setSemester]               = useState(filters.semester ?? 'all');
+    const [kelasId, setKelasId]                 = useState(filters.kelas_id ?? 'all');
+    const [toggling, setToggling]               = useState(false);
+    const [settingSemester, setSettingSemester] = useState(raporSemester);
+    const [settingTA, setSettingTA]             = useState(raporTahunAjaran);
+    const [savingSetting, setSavingSetting]     = useState(false);
 
     const applyFilter = () => {
         router.get('/admin/rapor', {
@@ -71,16 +78,99 @@ export default function AdminRaporIndex({ rapors, kelasList, tahunAjaranList, fi
         if (e.key === 'Enter') applyFilter();
     };
 
+    const handleToggle = () => {
+        setToggling(true);
+        router.post('/admin/rapor/toggle-aktif', {}, {
+            onFinish: () => setToggling(false),
+        });
+    };
+
+    const handleSaveSetting = () => {
+        setSavingSetting(true);
+        router.post('/admin/rapor/setting', { semester: settingSemester, tahun_ajaran: settingTA }, {
+            onFinish: () => setSavingSetting(false),
+        });
+    };
+
     return (
         <AppLayout>
             <Head title="Rapor Digital" />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4 md:p-6">
-                <div>
-                    <h1 className="text-2xl font-bold">Rapor Digital</h1>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        Daftar laporan tumbuh kembang anak semester
-                    </p>
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl font-bold">Rapor Digital</h1>
+                        <p className="text-muted-foreground text-sm mt-1">
+                            Daftar laporan tumbuh kembang anak semester
+                        </p>
+                    </div>
+
+                    {/* Settings rapor */}
+                    <div className="flex flex-col gap-3 rounded-xl border bg-card px-4 py-3 shadow-sm shrink-0 min-w-[280px]">
+                        {/* Toggle aktif */}
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                                {raporAktif
+                                    ? <BookOpen className="h-4 w-4 text-green-600" />
+                                    : <Lock className="h-4 w-4 text-muted-foreground" />
+                                }
+                                <div>
+                                    <p className="text-sm font-medium leading-none">Pengisian Rapor</p>
+                                    <p className={`text-xs mt-0.5 ${raporAktif ? 'text-green-600' : 'text-muted-foreground'}`}>
+                                        {raporAktif ? 'Aktif' : 'Nonaktif'}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleToggle}
+                                disabled={toggling}
+                                aria-label="Toggle pengisian rapor"
+                                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed ${
+                                    raporAktif ? 'bg-green-600' : 'bg-input'
+                                }`}
+                            >
+                                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                                    raporAktif ? 'translate-x-5' : 'translate-x-0'
+                                }`} />
+                            </button>
+                        </div>
+
+                        <div className="border-t pt-3 space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">Periode Rapor Aktif</p>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1">
+                                    <p className="text-xs text-muted-foreground">Semester</p>
+                                    <Select value={settingSemester} onValueChange={setSettingSemester}>
+                                        <SelectTrigger className="h-8 text-xs">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="1">Semester 1</SelectItem>
+                                            <SelectItem value="2">Semester 2</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-xs text-muted-foreground">Tahun Ajaran</p>
+                                    <Input
+                                        className="h-8 text-xs"
+                                        value={settingTA}
+                                        onChange={(e) => setSettingTA(e.target.value)}
+                                        placeholder="2024/2025"
+                                    />
+                                </div>
+                            </div>
+                            <Button
+                                size="sm"
+                                className="w-full h-8 text-xs"
+                                onClick={handleSaveSetting}
+                                disabled={savingSetting}
+                            >
+                                <Save className="h-3 w-3 mr-1" />
+                                {savingSetting ? 'Menyimpan...' : 'Simpan Periode'}
+                            </Button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Filter */}

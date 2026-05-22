@@ -81,11 +81,9 @@ class RaporSeeder extends Seeder
         $this->command->info("Membuat rapor untuk {$siswaList->count()} siswa...");
 
         foreach ($siswaList as $index => $siswa) {
-            $status   = $index % 3 === 0 ? 'draft' : 'final';
+            $status    = $index % 3 === 0 ? 'draft' : 'final';
             $guruKelas = $creator->name;
-            $penutup  = $status === 'final'
-                ? "Demikian laporan tumbuh kembang {$siswa->nama_panggilan} untuk Semester 1 Tahun Ajaran " . self::TAHUN_AJARAN . ". Semoga anak terus tumbuh sehat dan bahagia. Kami berharap kerja sama yang baik antara sekolah dan orang tua dapat terus terjalin demi mendukung perkembangan anak secara optimal."
-                : null;
+            $nama      = $siswa->nama_panggilan;
 
             $rapor = Rapor::firstOrCreate(
                 [
@@ -94,10 +92,18 @@ class RaporSeeder extends Seeder
                     'tahun_ajaran' => self::TAHUN_AJARAN,
                 ],
                 [
-                    'created_by' => $creator->id,
-                    'status'     => $status,
-                    'guru_kelas' => $guruKelas,
-                    'penutup'    => $penutup,
+                    'created_by'                   => $creator->id,
+                    'status'                       => $status,
+                    'guru_kelas'                   => $guruKelas,
+                    'penutup_umum'                 => $status === 'final'
+                        ? "Demikian laporan tumbuh kembang {$nama} untuk Semester 1 Tahun Ajaran " . self::TAHUN_AJARAN . ". Semoga {$nama} terus tumbuh sehat, cerdas, dan berkarakter. Terima kasih atas kepercayaan Bapak/Ibu menitipkan putra-putri terbaik di Al-Biruni."
+                        : null,
+                    'penutup_motivasi_orangtua'    => $status === 'final'
+                        ? "Kami mengajak Bapak/Ibu untuk terus mendukung tumbuh kembang {$nama} di rumah dengan memberikan stimulasi bermain, membaca buku cerita, dan menjaga rutinitas tidur yang cukup. Keterlibatan aktif orang tua adalah kunci keberhasilan anak."
+                        : null,
+                    'penutup_penguatan_positif'    => $status === 'final'
+                        ? "{$nama} adalah anak yang memiliki potensi luar biasa. Kami melihat perkembangan positif setiap harinya. Tetaplah semangat dan terus eksplorasi dunia dengan rasa ingin tahu yang besar, ya {$nama}!"
+                        : null,
                 ]
             );
 

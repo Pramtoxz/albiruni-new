@@ -125,6 +125,7 @@ export default function OrangtuaDashboard() {
         { icon: CreditCard, label: 'Pembayaran', color: 'from-orange-400 to-orange-600', imageSrc: IconSpp, href: '/orangtua/pembayaran' },
         { icon: BookOpen, label: 'Kegiatan', color: 'from-green-400 to-green-600', imageSrc: IconKegiatan, href: '/orangtua/kegiatan-harian' },
         { icon: Calendar, label: 'Absensi', color: 'from-purple-400 to-purple-600', imageSrc: IconGaleri, href: '/orangtua/absensi' },
+        { icon: BookOpen, label: 'Rapor Digital', color: 'from-indigo-400 to-blue-600', imageSrc: null, href: '/orangtua/rapor' },
     ];
 
     return (

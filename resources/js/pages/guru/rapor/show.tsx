@@ -37,7 +37,9 @@ interface Rapor {
     tahun_ajaran: string;
     status: 'draft' | 'final';
     guru_kelas: string | null;
-    penutup: string | null;
+    penutup_umum: string | null;
+    penutup_motivasi_orangtua: string | null;
+    penutup_penguatan_positif: string | null;
     pertumbuhans: Pertumbuhan[];
     perkembangans: Perkembangan[];
     creator: { name: string };
@@ -130,6 +132,12 @@ export default function GuruRaporShow({ rapor, aspekLabels, statusLabels, whoDat
                                 <p className="font-medium text-gray-800">{rapor.siswa.kelas?.nama_kelas ?? '-'}</p>
                             </div>
                             <div>
+                                <p className="text-xs text-gray-500">Usia Awal Semester</p>
+                                <p className="font-medium text-gray-800">
+                                    {Math.floor(usiaAwalSemester / 12)} thn {usiaAwalSemester % 12} bln
+                                </p>
+                            </div>
+                            <div>
                                 <p className="text-xs text-gray-500">Jenis Kelamin</p>
                                 <p className="font-medium text-gray-800 capitalize">{rapor.siswa.jenis_kelamin}</p>
                             </div>
@@ -137,7 +145,7 @@ export default function GuruRaporShow({ rapor, aspekLabels, statusLabels, whoDat
                                 <p className="text-xs text-gray-500">Guru Kelas</p>
                                 <p className="font-medium text-gray-800">{rapor.guru_kelas ?? '-'}</p>
                             </div>
-                            <div>
+                            <div className="col-span-2">
                                 <p className="text-xs text-gray-500">Dibuat Oleh</p>
                                 <p className="font-medium text-gray-800">{rapor.creator.name}</p>
                                 <p className="text-xs text-gray-400">{rapor.created_at}</p>
@@ -237,11 +245,28 @@ export default function GuruRaporShow({ rapor, aspekLabels, statusLabels, whoDat
                         )}
                     </div>
 
-                    {/* D. Penutup */}
-                    {rapor.penutup && (
-                        <div className="shadow-lg rounded-3xl bg-white p-5 space-y-2">
-                            <h2 className="font-bold text-gray-800">D. Penutup</h2>
-                            <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{rapor.penutup}</p>
+                    {/* C. Narasi Emosional */}
+                    {(rapor.penutup_umum || rapor.penutup_motivasi_orangtua || rapor.penutup_penguatan_positif) && (
+                        <div className="shadow-lg rounded-3xl bg-white p-5 space-y-3">
+                            <h2 className="font-bold text-gray-800">C. Narasi Emosional</h2>
+                            {rapor.penutup_umum && (
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium mb-1">Penutup Umum</p>
+                                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{rapor.penutup_umum}</p>
+                                </div>
+                            )}
+                            {rapor.penutup_motivasi_orangtua && (
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium mb-1">Motivasi untuk Orang Tua</p>
+                                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{rapor.penutup_motivasi_orangtua}</p>
+                                </div>
+                            )}
+                            {rapor.penutup_penguatan_positif && (
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium mb-1">Penguatan Positif</p>
+                                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{rapor.penutup_penguatan_positif}</p>
+                                </div>
+                            )}
                         </div>
                     )}
 

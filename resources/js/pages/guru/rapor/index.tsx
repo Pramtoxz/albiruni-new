@@ -1,6 +1,8 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Plus, BookOpen, Eye, Pencil, CheckCircle2 } from 'lucide-react';
+import { useEffect } from 'react';
+import Swal from 'sweetalert2';
 
 interface Rapor {
     id: number;
@@ -17,6 +19,20 @@ interface Props {
 }
 
 export default function GuruRaporIndex({ rapors }: Props) {
+    const { flash } = usePage<{ flash: { error?: string; success?: string } }>().props;
+
+    useEffect(() => {
+        if (flash?.error) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Rapor Ditutup',
+                text: flash.error,
+                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#6366f1',
+            });
+        }
+    }, [flash?.error]);
+
     return (
         <>
             <Head title="Rapor Digital" />

@@ -146,6 +146,11 @@ export function AppSidebar() {
                 href: '/admin/rapor',
                 icon: BookOpen,
             });
+            transaksiItems.push({
+                title: 'Template Rapor',
+                href: '/admin/template-rapor',
+                icon: FileText,
+            });
         }
 
         if (transaksiItems.length > 0) {
