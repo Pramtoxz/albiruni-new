@@ -1,5 +1,5 @@
-import { Head } from '@inertiajs/react';
-import { ArrowLeft, FileDown } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, FileDown, Images } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WhoChartOverlay, { type WhoDataPoint } from '@/components/who-chart-overlay';
 import type { WhoZScorePoint } from '@/lib/whoGrowthStandards';
@@ -198,6 +198,13 @@ export default function OrangtuaRaporShow({ rapor, aspekLabels, statusLabels, wh
                             )}
                         </div>
                     )}
+
+                    {/* Galeri Foto */}
+                    <Link href={`/orangtua/galeri?siswa_id=${rapor.siswa.id}&semester=${rapor.semester}&tahun_ajaran=${encodeURIComponent(rapor.tahun_ajaran)}`}>
+                        <Button variant="outline" className="w-full h-12 rounded-2xl font-semibold border-pink-200 text-pink-600 hover:bg-pink-50">
+                            <Images className="mr-2 h-4 w-4" /> Galeri Foto Kegiatan
+                        </Button>
+                    </Link>
 
                     {/* Download PDF */}
                     <a href={`/orangtua/rapor/${rapor.id}/pdf`} target="_blank" rel="noreferrer">

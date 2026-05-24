@@ -8,6 +8,7 @@ import {
     Calendar,
     CreditCard,
     FileText,
+    Images,
     LogOut,
     Users,
     Sparkles,
@@ -124,8 +125,9 @@ export default function OrangtuaDashboard() {
         { icon: FileText, label: 'Daily Report', color: 'from-blue-400 to-blue-600', imageSrc: IconDaily, href: '/orangtua/daily-report' },
         { icon: CreditCard, label: 'Pembayaran', color: 'from-orange-400 to-orange-600', imageSrc: IconSpp, href: '/orangtua/pembayaran' },
         { icon: BookOpen, label: 'Kegiatan', color: 'from-green-400 to-green-600', imageSrc: IconKegiatan, href: '/orangtua/kegiatan-harian' },
-        { icon: Calendar, label: 'Absensi', color: 'from-purple-400 to-purple-600', imageSrc: IconGaleri, href: '/orangtua/absensi' },
+        { icon: Calendar, label: 'Absensi', color: 'from-purple-400 to-purple-600', imageSrc: null, href: '/orangtua/absensi' },
         { icon: BookOpen, label: 'Rapor Digital', color: 'from-indigo-400 to-blue-600', imageSrc: null, href: '/orangtua/rapor' },
+        { icon: Images, label: 'Galeri Foto', color: 'from-pink-400 to-rose-500', imageSrc: IconGaleri, href: '/orangtua/galeri' },
     ];
 
     return (

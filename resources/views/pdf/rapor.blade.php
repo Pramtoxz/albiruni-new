@@ -1,405 +1,670 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Rapor {{ $siswa->nama_lengkap }} - Semester {{ $rapor->semester }}</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; font-size: 9px; padding: 15px; color: #1e293b; }
-
-        .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
-        .header h1 { font-size: 14px; color: #1e40af; margin-bottom: 2px; }
-        .header h2 { font-size: 11px; color: #475569; font-weight: normal; }
-        .logo { width: 70px; height: 70px; margin: 0 auto 5px; }
-
-        .section { margin-bottom: 10px; }
-        .section-title {
-            background: #2563eb; color: white; padding: 3px 6px;
-            font-size: 9px; font-weight: bold; margin-bottom: 5px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
-        th { background: #dbeafe; color: #1e40af; padding: 3px 5px; border: 1px solid #93c5fd; font-size: 8px; }
-        td { padding: 3px 5px; border: 1px solid #cbd5e1; font-size: 8px; line-height: 1.4; }
-        .info-label { color: #64748b; width: 30%; }
-        .info-value { font-weight: bold; }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            padding: 20px;
+            color: #1e293b;
+        }
 
-        .growth-charts { display: table; width: 100%; margin-bottom: 8px; }
-        .chart-cell { display: table-cell; width: 33%; padding-right: 4px; vertical-align: top; }
-        .chart-title { font-size: 7px; font-weight: bold; color: #1e40af; margin-bottom: 2px; text-align: center; }
+        /* ── Kop Surat ───────────────────────────── */
+        .kop {
+            display: table;
+            width: 100%;
+            margin-bottom: 0;
+        }
 
-        .aspek-row { margin-bottom: 4px; }
-        .aspek-name { font-weight: bold; font-size: 8px; color: #1e293b; }
-        .aspek-status { font-size: 7px; padding: 1px 5px; border-radius: 3px; display: inline-block; }
-        .status-BB { background: #fee2e2; color: #991b1b; }
-        .status-MB { background: #fef9c3; color: #92400e; }
-        .status-BSH { background: #dbeafe; color: #1e40af; }
-        .status-BSB { background: #dcfce7; color: #166534; }
-        .aspek-narasi { font-size: 7.5px; color: #475569; margin-top: 1px; }
+        .kop-logo-cell {
+            display: table-cell;
+            width: 85px;
+            vertical-align: middle;
+            text-align: center;
+        }
 
-        .penutup { font-size: 8px; line-height: 1.6; }
+        .kop-logo-cell img {
+            width: 75px;
+            height: 75px;
+        }
 
-        .signature-section { display: table; width: 100%; margin-top: 12px; }
-        .signature-box { display: table-cell; text-align: center; width: 33%; font-size: 8px; }
-        .signature-line { margin-top: 30px; border-top: 1px solid #333; padding-top: 3px; display: inline-block; min-width: 110px; }
+        .kop-info {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            padding: 0 10px;
+        }
 
-        .chart-legend { font-size: 6px; }
-        .legend-item { display: inline-block; margin-right: 6px; }
+        .kop-sekolah {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3a8a;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .kop-tagline {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 3px;
+            font-style: italic;
+        }
+
+        .kop-alamat {
+            font-size: 8.5px;
+            color: #475569;
+            margin-top: 5px;
+            line-height: 1.9;
+        }
+
+        .kop-spacer {
+            display: table-cell;
+            width: 85px;
+        }
+
+        .kop-divider-top {
+            border-top: 3px solid #1e3a8a;
+            margin-top: 10px;
+        }
+
+        .kop-divider-bottom {
+            border-top: 1px solid #1e3a8a;
+            margin-top: 2px;
+            margin-bottom: 12px;
+        }
+
+        .doc-title {
+            text-align: center;
+            margin: 8px 0 4px;
+        }
+
+        .doc-title h1 {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .doc-title p {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 2px;
+        }
+
+        /* ── Section ─────────────────────────────── */
+        .section {
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            background: #1e3a8a;
+            color: white;
+            padding: 5px 10px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        /* ── Identitas vertikal ──────────────────── */
+        .id-row {
+            display: table;
+            width: 100%;
+            padding: 5px 2px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .id-label {
+            display: table-cell;
+            width: 36%;
+            font-size: 9.5px;
+            color: #64748b;
+        }
+
+        .id-sep {
+            display: table-cell;
+            width: 3%;
+            font-size: 9.5px;
+            color: #94a3b8;
+        }
+
+        .id-value {
+            display: table-cell;
+            font-size: 9.5px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        /* ── Tabel ───────────────────────────────── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+
+        th {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 5px 6px;
+            border: 1px solid #93c5fd;
+            font-size: 9px;
+        }
+
+        td {
+            padding: 5px 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        /* ── Grafik WHO ──────────────────────────── */
+        .growth-charts {
+            display: table;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .chart-cell {
+            display: table-cell;
+            width: 33%;
+            padding-right: 5px;
+            vertical-align: top;
+        }
+
+        .chart-cell:last-child {
+            padding-right: 0;
+        }
+
+        .chart-title {
+            font-size: 8px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 3px;
+            text-align: center;
+        }
+
+        /* ── Perkembangan ────────────────────────── */
+        .aspek-name {
+            font-weight: bold;
+            font-size: 9px;
+        }
+
+        .aspek-status {
+            font-size: 8px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .status-BB {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-MB {
+            background: #fef9c3;
+            color: #92400e;
+        }
+
+        .status-BSH {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-BSB {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* ── Penutup ─────────────────────────────── */
+        .penutup-label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #475569;
+            margin-bottom: 3px;
+        }
+
+        .penutup-text {
+            font-size: 9px;
+            color: #1e293b;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        /* ── Tanda Tangan ────────────────────────── */
+        .signature-wrap {
+            display: table;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .sig-left {
+            display: table-cell;
+            width: 48%;
+            vertical-align: middle;
+            padding-right: 10px;
+        }
+
+        .sig-right {
+            display: table-cell;
+            width: 52%;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .galeri-qr-box {
+            border: 1px dashed #93c5fd;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            background: #f0f9ff;
+        }
+
+        .galeri-qr-title {
+            font-size: 8px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 3px;
+        }
+
+        .galeri-qr-sub {
+            font-size: 7px;
+            color: #64748b;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        .kepsek-date {
+            font-size: 9px;
+            color: #475569;
+            margin-bottom: 3px;
+        }
+
+        .kepsek-title {
+            font-size: 9px;
+            margin-bottom: 5px;
+        }
+
+        .qr-label {
+            font-size: 7px;
+            color: #64748b;
+            margin-bottom: 3px;
+        }
+
+        .qr-note {
+            font-size: 6.5px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        .kepsek-line {
+            border-top: 1px solid #333;
+            padding-top: 4px;
+            display: inline-block;
+            min-width: 130px;
+            font-size: 9px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* ── Page break ──────────────────────────── */
+        .page-break {
+            page-break-after: always;
+        }
     </style>
 </head>
+
 <body>
 
-{{-- Header --}}
-<div class="header">
+    {{-- ═══════════════════════════════════════════ HALAMAN 1 ═══ --}}
+
+    {{-- Kop Surat Resmi --}}
     @php
         $logoPath = public_path('assets/images/albiruni/logoalbiruni.webp');
-        $logoSrc  = '';
-        if (file_exists($logoPath)) {
-            $logoSrc = 'data:image/webp;base64,' . base64_encode(file_get_contents($logoPath));
-        }
+        $logoSrc = file_exists($logoPath)
+            ? 'data:image/webp;base64,' . base64_encode(file_get_contents($logoPath))
+            : '';
     @endphp
-    @if ($logoSrc)
-        <img src="{{ $logoSrc }}" alt="Logo Al-Biruni" class="logo">
-    @endif
-    <h1>Laporan Perkembangan Anak</h1>
-    <h2>Al-Biruni Preschool &amp; Daycare — Semester {{ $rapor->semester }} Tahun Ajaran {{ $rapor->tahun_ajaran }}</h2>
-</div>
+    <div class="kop">
+        <div class="kop-logo-cell">
+            @if ($logoSrc)
+                <img src="{{ $logoSrc }}" alt="Logo Al-Biruni" />
+            @endif
+        </div>
+        <div class="kop-info">
+            <div class="kop-sekolah">Al-Biruni Preschool &amp; Daycare</div>
+            <div class="kop-tagline">Tumbuh Bersama, Berkembang Berkarakter Di Rumah Al-Biruni</div>
+            <div class="kop-alamat">
+                Jl. S. Parman No. 5, Ulak Karang, Padang &nbsp;&bull;&nbsp; Jl. Marapalam Raya, Marapalam, Padang<br>
+                Sumatera Barat 25000 &nbsp;&bull;&nbsp; Telp/WA: 08116689022 &nbsp;&bull;&nbsp;
+                www.albiruni.sch.id
+            </div>
+        </div>
+        <div class="kop-spacer"></div>
+    </div>
+    <div class="kop-divider-top"></div>
+    <div class="kop-divider-bottom"></div>
 
-{{-- Identitas Siswa --}}
-<div class="section">
-    <div class="section-title">Identitas Anak</div>
-    <table>
-        <tr>
-            <td class="info-label">Nama Lengkap</td>
-            <td class="info-value">{{ $siswa->nama_lengkap }}</td>
-            <td class="info-label">Nama Panggilan</td>
-            <td class="info-value">{{ $siswa->nama_panggilan ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="info-label">Kelas</td>
-            <td class="info-value">{{ $siswa->kelas->nama_kelas ?? '-' }}</td>
-            <td class="info-label">Jenis Kelamin</td>
-            <td class="info-value">{{ ucfirst($siswa->jenis_kelamin) }}</td>
-        </tr>
-        <tr>
-            <td class="info-label">Tanggal Lahir</td>
-            <td class="info-value">
-                {{ $siswa->tanggal_lahir ? \Carbon\Carbon::parse($siswa->tanggal_lahir)->locale('id')->isoFormat('D MMMM Y') : '-' }}
-            </td>
-            <td class="info-label">Guru Kelas</td>
-            <td class="info-value">{{ $rapor->guru_kelas ?? '-' }}</td>
-        </tr>
-    </table>
-</div>
+    {{-- Judul Dokumen --}}
+    <div class="doc-title">
+        <h1>Laporan Perkembangan Anak</h1>
+        <p>Semester {{ $rapor->semester }} &bull; Tahun Ajaran {{ $rapor->tahun_ajaran }}</p>
+    </div>
+    <div style="border-bottom: 1px solid #e2e8f0; margin: 6px 0 10px;"></div>
 
-{{-- Bagian A: Grafik Pertumbuhan --}}
-<div class="section">
-    <div class="section-title">A. Grafik Pertumbuhan (Kurva WHO)</div>
-
+    {{-- Identitas (vertikal + foto 3x4) --}}
     @php
-        // ------------------------------------------------------------------
-        // Kalibrasi pixel WHO chart images.
-        // Update nilai ini dengan hasil python srcp/06_calibrate_who_charts.py
-        // ------------------------------------------------------------------
-        $whoCalibration = [
-            'wfa'  => [
-                'boys'  => ['imgW' => 2339, 'imgH' => 1654, 'plotX0' => 157, 'plotX1' => 1989, 'plotY0' => 138, 'plotY1' => 1519, 'xMin' => 0, 'xMax' => 60, 'yMin' => 0,  'yMax' => 32],
-                'girls' => ['imgW' => 2339, 'imgH' => 1654, 'plotX0' => 157, 'plotX1' => 1989, 'plotY0' => 138, 'plotY1' => 1519, 'xMin' => 0, 'xMax' => 60, 'yMin' => 0,  'yMax' => 28],
-            ],
-            'lhfa' => [
-                'boys'  => ['imgW' => 2339, 'imgH' => 1654, 'plotX0' => 157, 'plotX1' => 1989, 'plotY0' => 138, 'plotY1' => 1519, 'xMin' => 0, 'xMax' => 60, 'yMin' => 40, 'yMax' => 120],
-                'girls' => ['imgW' => 2339, 'imgH' => 1654, 'plotX0' => 157, 'plotX1' => 1989, 'plotY0' => 138, 'plotY1' => 1519, 'xMin' => 0, 'xMax' => 60, 'yMin' => 40, 'yMax' => 120],
-            ],
-            'hcfa' => [
-                'boys'  => ['imgW' => 2198, 'imgH' => 1550, 'plotX0' => 136, 'plotX1' => 2058, 'plotY0' => 115, 'plotY1' => 1479, 'xMin' => 0, 'xMax' => 60, 'yMin' => 30, 'yMax' => 57],
-                'girls' => ['imgW' => 2198, 'imgH' => 1550, 'plotX0' => 136, 'plotX1' => 2058, 'plotY0' => 115, 'plotY1' => 1479, 'xMin' => 0, 'xMax' => 60, 'yMin' => 30, 'yMax' => 56],
-            ],
-        ];
-
-        // ------------------------------------------------------------------
-        // Fungsi: SVG dengan WHO PNG asli + overlay titik data anak
-        // ------------------------------------------------------------------
-        if (!function_exists('buildWhoChartSvg')) {
-            function buildWhoChartSvg(string $imgData, array $cal, array $pertumbuhans, int $usiaAwal, string $indicator, float $svgW): string
-            {
-                $imgW = $cal['imgW'];
-                $imgH = $cal['imgH'];
-                $svgH = round($svgW * $imgH / $imgW);
-
-                $xRange = $cal['xMax'] - $cal['xMin'];
-                $yRange = $cal['yMax'] - $cal['yMin'];
-
-                $toX = fn($month) => $cal['plotX0'] + ($month - $cal['xMin']) / $xRange * ($cal['plotX1'] - $cal['plotX0']);
-                $toY = fn($value) => $cal['plotY0'] + (1 - ($value - $cal['yMin']) / $yRange) * ($cal['plotY1'] - $cal['plotY0']);
-
-                // Build data points dari pertumbuhan array
-                $points = [];
-                foreach ($pertumbuhans as $i => $pt) {
-                    $val = $pt[$indicator];
-                    if ($val !== null) {
-                        $age  = $usiaAwal + $i;
-                        $points[] = ['px' => $toX($age), 'py' => $toY((float)$val)];
-                    }
-                }
-
-                // Ukuran elemen SVG dalam pixel gambar:
-                // scale ≈ svgW/imgW ≈ 0.079 → r=30 ≈ 2.4px display
-                $r  = 30;
-                $sw = 14;
-
-                $svg  = "<svg width=\"{$svgW}\" height=\"{$svgH}\" viewBox=\"0 0 {$imgW} {$imgH}\"";
-                $svg .= " preserveAspectRatio=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n";
-
-                // Gambar WHO asli
-                $svg .= "  <image href=\"{$imgData}\" x=\"0\" y=\"0\" width=\"{$imgW}\" height=\"{$imgH}\" />\n";
-
-                // Highlight semester window
-                $winX0 = $toX($usiaAwal);
-                $winX1 = $toX(min($usiaAwal + 6, $cal['xMax']));
-                $winH  = $cal['plotY1'] - $cal['plotY0'];
-                $svg .= "  <rect x=\"{$winX0}\" y=\"{$cal['plotY0']}\" width=\"" . ($winX1 - $winX0) . "\" height=\"{$winH}\"";
-                $svg .= "  fill=\"#3b82f6\" fill-opacity=\"0.07\" stroke=\"#3b82f6\" stroke-width=\"8\" stroke-dasharray=\"24 12\" />\n";
-
-                // Garis penghubung
-                if (count($points) > 1) {
-                    $pts = implode(' ', array_map(fn($p) => "{$p['px']},{$p['py']}", $points));
-                    $svg .= "  <polyline points=\"{$pts}\" fill=\"none\" stroke=\"#1d4ed8\" stroke-width=\"{$sw}\"";
-                    $svg .= "  stroke-linejoin=\"round\" stroke-linecap=\"round\" />\n";
-                }
-
-                // Titik data
-                foreach ($points as $p) {
-                    $svg .= "  <circle cx=\"{$p['px']}\" cy=\"{$p['py']}\" r=\"" . ($r + 5) . "\" fill=\"white\" fill-opacity=\"0.75\" />\n";
-                    $svg .= "  <circle cx=\"{$p['px']}\" cy=\"{$p['py']}\" r=\"{$r}\" fill=\"#2563eb\" stroke=\"white\" stroke-width=\"7\" />\n";
-                }
-
-                $svg .= "</svg>\n";
-                return $svg;
-            }
-        }
-
-        // ------------------------------------------------------------------
-        // Fungsi fallback: SVG custom (tanpa gambar WHO)
-        // ------------------------------------------------------------------
-        if (!function_exists('buildSvgChart')) {
-            function buildSvgChart(array $whoData, array $pertumbuhans, int $usiaAwal, string $indicator): string
-            {
-                $W = 195; $H = 130;
-                $ml = 28; $mr = 8; $mt = 8; $mb = 22;
-                $cw = $W - $ml - $mr;
-                $ch = $H - $mt - $mb;
-                $months = range($usiaAwal, $usiaAwal + 5);
-                $whoFiltered = array_values(array_filter($whoData, fn($p) => in_array($p[0], $months)));
-                if (empty($whoFiltered)) {
-                    return "<svg width=\"{$W}\" height=\"{$H}\"><text x=\"10\" y=\"50\" font-size=\"8\" fill=\"#94a3b8\">Data tidak tersedia</text></svg>";
-                }
-                $allY = [];
-                foreach ($whoFiltered as $p) { $allY[] = $p[1]; $allY[] = $p[4]; }
-                foreach ($pertumbuhans as $pt) { if ($pt[$indicator] !== null) $allY[] = (float)$pt[$indicator]; }
-                $yMin = min($allY) * 0.96;
-                $yMax = max($allY) * 1.04;
-                $toX = fn($m) => $ml + ($m - $usiaAwal) / 5 * $cw;
-                $toY = fn($v) => $mt + (1 - ($v - $yMin) / ($yMax - $yMin)) * $ch;
-                $svg = "<svg width=\"{$W}\" height=\"{$H}\" xmlns=\"http://www.w3.org/2000/svg\">\n";
-                $svg .= "<rect x=\"{$ml}\" y=\"{$mt}\" width=\"{$cw}\" height=\"{$ch}\" fill=\"#f8fafc\" />\n";
-                $steps = 4;
-                for ($i = 0; $i <= $steps; $i++) {
-                    $y = $toY($yMin + ($yMax - $yMin) * $i / $steps);
-                    $svg .= "<line x1=\"{$ml}\" y1=\"{$y}\" x2=\"" . ($W - $mr) . "\" y2=\"{$y}\" stroke=\"#e2e8f0\" stroke-width=\"0.5\" />\n";
-                    $label = number_format($yMin + ($yMax - $yMin) * $i / $steps, 1);
-                    $svg .= "<text x=\"" . ($ml - 2) . "\" y=\"" . ($y + 2) . "\" font-size=\"5\" fill=\"#64748b\" text-anchor=\"end\">{$label}</text>\n";
-                }
-                foreach ($months as $m) {
-                    $x = $toX($m);
-                    $svg .= "<line x1=\"{$x}\" y1=\"{$mt}\" x2=\"{$x}\" y2=\"" . ($mt + $ch) . "\" stroke=\"#e2e8f0\" stroke-width=\"0.5\" />\n";
-                    $svg .= "<text x=\"{$x}\" y=\"" . ($H - 6) . "\" font-size=\"5\" fill=\"#64748b\" text-anchor=\"middle\">{$m}</text>\n";
-                }
-                foreach ([[1,'#ef4444','2,1'],[2,'#f97316','2,1'],[3,'#22c55e','0'],[4,'#f97316','2,1'],[5,'#ef4444','2,1']] as [$ci,$color,$dash]) {
-                    $points = [];
-                    foreach ($whoFiltered as $p) { $points[] = $toX($p[0]) . ',' . $toY($p[$ci]); }
-                    $sd = $dash !== '0' ? "stroke-dasharray=\"{$dash}\"" : '';
-                    $svg .= "<polyline points=\"" . implode(' ', $points) . "\" fill=\"none\" stroke=\"{$color}\" stroke-width=\"0.8\" {$sd} />\n";
-                }
-                $pertMap = [];
-                foreach ($pertumbuhans as $i => $pt) { $pertMap[$usiaAwal + $i] = $pt; }
-                $childPts = [];
-                foreach ($months as $m) {
-                    if (isset($pertMap[$m]) && $pertMap[$m][$indicator] !== null) {
-                        $x = $toX($m); $y = $toY((float)$pertMap[$m][$indicator]);
-                        $childPts[] = "{$x},{$y}";
-                        $svg .= "<circle cx=\"{$x}\" cy=\"{$y}\" r=\"2.5\" fill=\"#2563eb\" stroke=\"white\" stroke-width=\"0.5\" />\n";
-                    }
-                }
-                if (count($childPts) > 1) $svg .= "<polyline points=\"" . implode(' ', $childPts) . "\" fill=\"none\" stroke=\"#2563eb\" stroke-width=\"1.2\" />\n";
-                $svg .= "<line x1=\"{$ml}\" y1=\"{$mt}\" x2=\"{$ml}\" y2=\"" . ($mt + $ch) . "\" stroke=\"#475569\" stroke-width=\"0.8\" />\n";
-                $svg .= "<line x1=\"{$ml}\" y1=\"" . ($mt + $ch) . "\" x2=\"" . ($W - $mr) . "\" y2=\"" . ($mt + $ch) . "\" stroke=\"#475569\" stroke-width=\"0.8\" />\n";
-                $svg .= "<text x=\"" . ($ml + $cw / 2) . "\" y=\"" . ($H - 1) . "\" font-size=\"5\" fill=\"#64748b\" text-anchor=\"middle\">Bulan</text>\n";
-                $svg .= "</svg>\n";
-                return $svg;
-            }
-        }
-
-        // ------------------------------------------------------------------
-        // Load WHO PNG sebagai base64 (jika ada)
-        // ------------------------------------------------------------------
-        $whoChartDir  = public_path('assets/who-charts');
-        $pngAvailable = false;
-        $whoBase64    = [];
-        foreach (['wfa', 'lhfa', 'hcfa'] as $_ind) {
-            $_path = "{$whoChartDir}/{$_ind}-{$sex}-zscore.png";
-            if (file_exists($_path)) {
-                $whoBase64[$_ind] = 'data:image/png;base64,' . base64_encode(file_get_contents($_path));
-                $pngAvailable = true;
-            }
-        }
-        unset($_ind, $_path);
-
-        $svgW = 192; // display width per chart (pixel PDF)
-
-        // Build pertumbuhan array
-        $pertumbuhanArr = [];
-        foreach ($rapor->pertumbuhans as $pt) {
-            $pertumbuhanArr[] = [
-                'berat_badan'    => $pt->berat_badan,
-                'tinggi_badan'   => $pt->tinggi_badan,
-                'lingkar_kepala' => $pt->lingkar_kepala,
-            ];
-        }
+        $fotoSiswaPath = $siswa->foto_siswa ? public_path('assets/images/foto_siswa/' . $siswa->foto_siswa) : null;
+        $fotoSiswaSrc =
+            $fotoSiswaPath && file_exists($fotoSiswaPath)
+                ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($fotoSiswaPath))
+                : null;
     @endphp
+    <div class="section" style="margin-bottom: 40px;">
+        <div class="section-title">Identitas Anak</div>
 
-    <div class="growth-charts">
-        <div class="chart-cell">
-            <div class="chart-title">Berat Badan / Umur (BB/U)</div>
-            @if ($pngAvailable && isset($whoBase64['wfa']))
-                {!! buildWhoChartSvg($whoBase64['wfa'], $whoCalibration['wfa'][$sex], $pertumbuhanArr, $usiaAwalSemester, 'berat_badan', $svgW) !!}
-            @else
-                {!! buildSvgChart($whoData['wfa'], $pertumbuhanArr, $usiaAwalSemester, 'berat_badan') !!}
-            @endif
-            <div class="chart-legend">
-                <span class="legend-item" style="color:#ef4444">—— ±3SD</span>
-                <span class="legend-item" style="color:#f97316">—— ±2SD</span>
-                <span class="legend-item" style="color:#22c55e">—— Median</span>
-                <span class="legend-item" style="color:#2563eb">●● Anak</span>
-            </div>
-        </div>
-        <div class="chart-cell">
-            <div class="chart-title">Tinggi Badan / Umur (TB/U)</div>
-            @if ($pngAvailable && isset($whoBase64['lhfa']))
-                {!! buildWhoChartSvg($whoBase64['lhfa'], $whoCalibration['lhfa'][$sex], $pertumbuhanArr, $usiaAwalSemester, 'tinggi_badan', $svgW) !!}
-            @else
-                {!! buildSvgChart($whoData['lhfa'], $pertumbuhanArr, $usiaAwalSemester, 'tinggi_badan') !!}
-            @endif
-            <div class="chart-legend">
-                <span class="legend-item" style="color:#ef4444">—— ±3SD</span>
-                <span class="legend-item" style="color:#f97316">—— ±2SD</span>
-                <span class="legend-item" style="color:#22c55e">—— Median</span>
-                <span class="legend-item" style="color:#2563eb">●● Anak</span>
-            </div>
-        </div>
-        <div class="chart-cell" style="padding-right: 0;">
-            <div class="chart-title">Lingkar Kepala / Umur (LK/U)</div>
-            @if ($pngAvailable && isset($whoBase64['hcfa']))
-                {!! buildWhoChartSvg($whoBase64['hcfa'], $whoCalibration['hcfa'][$sex], $pertumbuhanArr, $usiaAwalSemester, 'lingkar_kepala', $svgW) !!}
-            @else
-                {!! buildSvgChart($whoData['hcfa'], $pertumbuhanArr, $usiaAwalSemester, 'lingkar_kepala') !!}
-            @endif
-            <div class="chart-legend">
-                <span class="legend-item" style="color:#ef4444">—— ±3SD</span>
-                <span class="legend-item" style="color:#f97316">—— ±2SD</span>
-                <span class="legend-item" style="color:#22c55e">—— Median</span>
-                <span class="legend-item" style="color:#2563eb">●● Anak</span>
-            </div>
-        </div>
+        <div style="display:table; width:100%;">
+
+            {{-- Kolom kiri: data identitas --}}
+            <div style="display:table-cell; vertical-align:top; padding-right:10px;">
+
+                <div class="id-row">
+                    <span class="id-label">Nama Lengkap</span><span class="id-sep">:</span>
+                    <span class="id-value">{{ $siswa->nama_lengkap }}</span>
+                </div>
+                <div class="id-row">
+                    <span class="id-label">Nama Panggilan</span><span class="id-sep">:</span>
+                    <span class="id-value">{{ $siswa->nama_panggilan ?? '-' }}</span>
+                </div>
+                <div class="id-row">
+                    <span class="id-label">Kelas</span><span class="id-sep">:</span>
+                    <span class="id-value">{{ $siswa->kelas->nama_kelas ?? '-' }}</span>
+                </div>
+                <div class="id-row">
+                    <span class="id-label">Jenis Kelamin</span><span class="id-sep">:</span>
+                    <span class="id-value">{{ ucfirst($siswa->jenis_kelamin) }}</span>
+                </div>
+                <div class="id-row">
+                    <span class="id-label">Tanggal Lahir</span><span class="id-sep">:</span>
+                    <span class="id-value">
+                        {{ $siswa->tanggal_lahir ? \Carbon\Carbon::parse($siswa->tanggal_lahir)->locale('id')->isoFormat('D MMMM Y') : '-' }}
+                    </span>
+                </div>
+                <div class="id-row">
+                    <span class="id-label">Guru Kelas</span><span class="id-sep">:</span>
+                    <span class="id-value">{{ $rapor->guru_kelas ?? '-' }}</span>
+                </div>
+
+                {{-- Pemisah orang tua --}}
+                <div
+                    style="background:#f1f5f9; padding:4px 8px; margin-top:8px; margin-bottom:2px; font-size:9px; font-weight:bold; color:#475569; letter-spacing:0.03em;">
+                    Data Orang Tua
+                </div>
+
+                {{-- Ayah --}}
+                @if ($siswa->ayah_nama_lengkap)
+                    <div class="id-row">
+                        <span class="id-label">Nama Ayah</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ayah_nama_lengkap }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ayah_pekerjaan)
+                    <div class="id-row">
+                        <span class="id-label">Pekerjaan Ayah</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ayah_pekerjaan }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ayah_no_hp)
+                    <div class="id-row">
+                        <span class="id-label">No. HP Ayah</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ayah_no_hp }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ayah_telepon_rumah)
+                    <div class="id-row">
+                        <span class="id-label">Telp. Rumah</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ayah_telepon_rumah }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ayah_alamat_rumah)
+                    <div class="id-row">
+                        <span class="id-label">Alamat Rumah</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ayah_alamat_rumah }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ayah_alamat_kantor)
+                    <div class="id-row">
+                        <span class="id-label">Alamat Kantor Ayah</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ayah_alamat_kantor }}</span>
+                    </div>
+                @endif
+
+                {{-- Ibu --}}
+                @if ($siswa->ibu_nama_lengkap)
+                    <div class="id-row">
+                        <span class="id-label">Nama Ibu</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ibu_nama_lengkap }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ibu_pekerjaan)
+                    <div class="id-row">
+                        <span class="id-label">Pekerjaan Ibu</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ibu_pekerjaan }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ibu_no_hp)
+                    <div class="id-row">
+                        <span class="id-label">No. HP Ibu</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ibu_no_hp }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ibu_telepon_rumah)
+                    <div class="id-row">
+                        <span class="id-label">Telp. Rumah Ibu</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ibu_telepon_rumah }}</span>
+                    </div>
+                @endif
+                @if ($siswa->ibu_alamat_kantor)
+                    <div class="id-row">
+                        <span class="id-label">Alamat Kantor Ibu</span><span class="id-sep">:</span>
+                        <span class="id-value">{{ $siswa->ibu_alamat_kantor }}</span>
+                    </div>
+                @endif
+
+            </div>{{-- /kolom kiri --}}
+
+            {{-- Kolom kanan: foto 3x4 --}}
+            <div
+                style="display:table-cell; width:96px; vertical-align:top; text-align:center; padding-left:4px; padding-top:2px;">
+                <div style="width:90px; height:120px; border:1px solid #cbd5e1; background:#f8fafc; overflow:hidden;">
+                    @if ($fotoSiswaSrc)
+                        <img src="{{ $fotoSiswaSrc }}" style="width:90px; height:120px;" />
+                    @else
+                        <div style="display:table; width:90px; height:120px;">
+                            <div style="display:table-cell; vertical-align:middle; text-align:center;">
+                                <p style="font-size:8px; color:#94a3b8; line-height:1.8;">Foto<br>3×4</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                <p style="font-size:7px; color:#64748b; margin-top:3px; text-align:center;">Foto</p>
+            </div>{{-- /kolom kanan --}}
+
+        </div>{{-- /display:table --}}
+        <div style="height:2px;"></div>
     </div>
 
-    {{-- Tabel data pertumbuhan --}}
-    <table>
-        <thead>
-            <tr>
-                <th>Bulan</th>
-                <th>Berat Badan (kg)</th>
-                <th>Tinggi Badan (cm)</th>
-                <th>Lingkar Kepala (cm)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($rapor->pertumbuhans as $pt)
-            <tr>
-                <td>{{ $pt->nama_bulan }}</td>
-                <td style="text-align:center;">{{ $pt->berat_badan ?? '-' }}</td>
-                <td style="text-align:center;">{{ $pt->tinggi_badan ?? '-' }}</td>
-                <td style="text-align:center;">{{ $pt->lingkar_kepala ?? '-' }}</td>
-            </tr>
-            @empty
-            <tr><td colspan="4" style="text-align:center;color:#94a3b8;">Belum ada data</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+    {{-- A. Grafik Pertumbuhan --}}
+    <div class="section">
+        <div class="section-title">A. Grafik Pertumbuhan (Kurva WHO)</div>
 
-{{-- Bagian B: Perkembangan --}}
-<div class="section">
-    <div class="section-title">B. Perkembangan Anak</div>
-    <table>
-        <thead>
-            <tr>
-                <th style="width:30%;">Aspek</th>
-                <th style="width:15%;">Status</th>
-                <th>Narasi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($aspekLabels as $key => $label)
-                @php $p = $rapor->perkembangans->firstWhere('aspek', $key); @endphp
+        @php
+            $whoChartDir = public_path('assets/who-charts');
+            $whoImgs = [];
+            foreach (['wfa', 'lhfa', 'hcfa'] as $_ind) {
+                $_path = "{$whoChartDir}/{$_ind}-{$sex}-zscore.png";
+                $whoImgs[$_ind] = file_exists($_path)
+                    ? 'data:image/png;base64,' . base64_encode(file_get_contents($_path))
+                    : null;
+            }
+        @endphp
+
+        <div class="growth-charts">
+            <div class="chart-cell">
+                <div class="chart-title">Berat Badan / Umur (BB/U)</div>
+                @if ($whoImgs['wfa'])
+                    <img src="{{ $whoImgs['wfa'] }}" style="width:100%;display:block;" />
+                @else
+                    <p style="font-size:7px;color:#94a3b8;text-align:center;">Tidak tersedia</p>
+                @endif
+            </div>
+            <div class="chart-cell">
+                <div class="chart-title">Tinggi Badan / Umur (TB/U)</div>
+                @if ($whoImgs['lhfa'])
+                    <img src="{{ $whoImgs['lhfa'] }}" style="width:100%;display:block;" />
+                @else
+                    <p style="font-size:7px;color:#94a3b8;text-align:center;">Tidak tersedia</p>
+                @endif
+            </div>
+            <div class="chart-cell">
+                <div class="chart-title">Lingkar Kepala / Umur (LK/U)</div>
+                @if ($whoImgs['hcfa'])
+                    <img src="{{ $whoImgs['hcfa'] }}" style="width:100%;display:block;" />
+                @else
+                    <p style="font-size:7px;color:#94a3b8;text-align:center;">Tidak tersedia</p>
+                @endif
+            </div>
+        </div>
+
+        <table>
+            <thead>
                 <tr>
-                    <td class="aspek-name">{{ $label }}</td>
-                    <td style="text-align:center;">
-                        @if ($p && $p->status)
-                            <span class="aspek-status status-{{ $p->status }}">{{ $p->status }}</span>
-                        @else
-                            <span style="color:#94a3b8;">-</span>
-                        @endif
-                    </td>
-                    <td>{{ $p->narasi ?? '' }}</td>
+                    <th>Bulan</th>
+                    <th>Berat Badan (kg)</th>
+                    <th>Tinggi Badan (cm)</th>
+                    <th>Lingkar Kepala (cm)</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($rapor->pertumbuhans as $pt)
+                    <tr>
+                        <td>{{ $pt->nama_bulan }}</td>
+                        <td style="text-align:center;">{{ $pt->berat_badan ?? '-' }}</td>
+                        <td style="text-align:center;">{{ $pt->tinggi_badan ?? '-' }}</td>
+                        <td style="text-align:center;">{{ $pt->lingkar_kepala ?? '-' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" style="text-align:center;color:#94a3b8;">Belum ada data</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
-    {{-- Keterangan status --}}
-    <div style="font-size:7px; color:#64748b; margin-top:2px;">
-        <strong>Keterangan:</strong>
-        BB = Belum Berkembang &nbsp;|&nbsp;
-        MB = Mulai Berkembang &nbsp;|&nbsp;
-        BSH = Berkembang Sesuai Harapan &nbsp;|&nbsp;
-        BSB = Berkembang Sangat Baik
-    </div>
-</div>
+    {{-- ═══════════════ PAGE BREAK ═══════════════ --}}
+    <div class="page-break"></div>
 
-{{-- Bagian D: Penutup --}}
-@if ($rapor->penutup)
-<div class="section">
-    <div class="section-title">D. Penutup</div>
-    <p class="penutup">{{ $rapor->penutup }}</p>
-</div>
-@endif
+    {{-- ═══════════════════════════════════════════ HALAMAN 2 ═══ --}}
+    <div style="height:18px;"></div>
 
-{{-- Tanda Tangan --}}
-<div class="signature-section">
-    <div class="signature-box">
-        <div>Mengetahui,<br>Orang Tua/Wali</div>
-        <div class="signature-line">( _________________ )</div>
+    {{-- B. Perkembangan --}}
+    <div class="section">
+        <div class="section-title">B. Perkembangan Anak</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:28%;">Aspek</th>
+                    <th style="width:13%;">Status</th>
+                    <th>Narasi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($aspekLabels as $key => $label)
+                    @php $p = $rapor->perkembangans->firstWhere('aspek', $key); @endphp
+                    <tr>
+                        <td class="aspek-name">{{ $label }}</td>
+                        <td style="text-align:center;">
+                            @if ($p && $p->status)
+                                <span class="aspek-status status-{{ $p->status }}">{{ $p->status }}</span>
+                            @else
+                                <span style="color:#94a3b8;">-</span>
+                            @endif
+                        </td>
+                        <td>{{ $p->narasi ?? '' }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div style="font-size:7px;color:#64748b;margin-top:2px;">
+            <strong>Keterangan:</strong>
+            BB = Belum Berkembang &nbsp;|&nbsp;
+            MB = Mulai Berkembang &nbsp;|&nbsp;
+            BSH = Berkembang Sesuai Harapan &nbsp;|&nbsp;
+            BSB = Berkembang Sangat Baik
+        </div>
     </div>
-    <div class="signature-box">
-        <div>Padang, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</div>
-        <div style="margin-top:4px;">Guru Kelas,</div>
-        <div class="signature-line">{{ $rapor->guru_kelas ?? '( _________________ )' }}</div>
+
+    {{-- C. Narasi Emosional --}}
+    @if ($rapor->penutup_umum || $rapor->penutup_motivasi_orangtua || $rapor->penutup_penguatan_positif)
+        <div class="section">
+            <div class="section-title">C. Narasi Emosional</div>
+            @if ($rapor->penutup_umum)
+                <p class="penutup-label">Penutup Umum</p>
+                <p class="penutup-text">{{ $rapor->penutup_umum }}</p>
+            @endif
+            @if ($rapor->penutup_motivasi_orangtua)
+                <p class="penutup-label">Motivasi untuk Orang Tua</p>
+                <p class="penutup-text">{{ $rapor->penutup_motivasi_orangtua }}</p>
+            @endif
+            @if ($rapor->penutup_penguatan_positif)
+                <p class="penutup-label">Penguatan Positif</p>
+                <p class="penutup-text">{{ $rapor->penutup_penguatan_positif }}</p>
+            @endif
+        </div>
+    @endif
+
+    {{-- Tanda Tangan: kiri = QR Galeri | kanan = Kepsek + QR Verifikasi --}}
+    <div class="signature-wrap">
+
+        {{-- Kiri: QR Galeri Foto --}}
+        <div class="sig-left">
+            <div class="galeri-qr-box">
+                <p class="galeri-qr-title">Galeri Foto Kegiatan</p>
+                <p class="galeri-qr-sub">{{ $rapor->siswa->nama_panggilan ?: $rapor->siswa->nama_lengkap }}</p>
+                @if (!empty($galeriQrPng))
+                    <img src="{{ $galeriQrPng }}" style="width:90px;height:90px;display:block;margin:4px auto;" />
+                @endif
+                <p class="galeri-qr-sub">
+                    Semester {{ $rapor->semester }} &bull; {{ $rapor->tahun_ajaran }}<br>
+                    Scan untuk lihat foto kegiatan anak
+                </p>
+            </div>
+        </div>
+
+        {{-- Kanan: Kepala Sekolah + QR Verifikasi TTD --}}
+        <div class="sig-right">
+            <p class="kepsek-date">Padang, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}</p>
+            <p class="kepsek-title">Kepala Sekolah,</p>
+            @if (!empty($qrCodePng))
+                <p class="qr-label">Scan untuk verifikasi keaslian tanda tangan</p>
+                <img src="{{ $qrCodePng }}" style="width:90px;height:90px;display:block;margin:2px auto;" />
+                <p class="qr-note">albiruni.sch.id</p>
+            @endif
+            <div class="kepsek-line">{{ $namaKepsek }}</div>
+        </div>
+
     </div>
-    <div class="signature-box">
-        <div>Kepala Sekolah,</div>
-        <div class="signature-line">( _________________ )</div>
-    </div>
-</div>
 
 </body>
+
 </html>

@@ -26,6 +26,7 @@ interface DataItem {
     siswa_id: number;
     nama_lengkap: string;
     nama_panggilan: string;
+    guru_nama: string;
     kelas: string;
     cabang: string;
     status: 'ada_laporan' | 'hadir_tanpa_laporan' | 'tidak_hadir';
@@ -324,7 +325,7 @@ export default function AdminDailyReportIndex({
                                                         {item.nama_lengkap}
                                                     </div>
                                                     <div className="text-sm text-muted-foreground">
-                                                        {item.nama_panggilan}
+                                                        {item.guru_nama}
                                                     </div>
                                                 </div>
                                             </TableCell>

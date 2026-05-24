@@ -88,10 +88,11 @@ export default function GuruRaporShow({ rapor, aspekLabels, statusLabels, whoDat
         });
     };
 
-    // Mapping pertumbuhan index → usia anak dalam bulan
+    // Mapping pertumbuhan → usia anak dalam bulan berdasarkan bulan kalender
+    const startBulan = rapor.semester === 1 ? 7 : 1;
     const buildPoints = (key: 'berat_badan' | 'tinggi_badan' | 'lingkar_kepala'): WhoDataPoint[] =>
-        rapor.pertumbuhans.map((p, i) => ({
-            month: usiaAwalSemester + i,
+        rapor.pertumbuhans.map((p) => ({
+            month: usiaAwalSemester + (p.bulan - startBulan),
             value: p[key] !== null ? parseFloat(p[key] as string) : null,
         }));
 

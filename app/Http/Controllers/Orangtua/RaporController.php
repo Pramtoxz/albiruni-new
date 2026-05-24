@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Orangtua;
 
-use App\Constants\WhoGrowthStandards;
 use App\Http\Controllers\Controller;
+use App\Models\AppSetting;
 use App\Models\Rapor;
 use App\Models\RaporPerkembangan;
 use App\Models\Siswa;
@@ -67,9 +67,9 @@ class RaporController extends Controller
             ->isoFormat('D MMMM Y, HH:mm');
 
         $whoData = [
-            'wfa'  => WhoGrowthStandards::getObjects('wfa', $sex),
-            'lhfa' => WhoGrowthStandards::getObjects('lhfa', $sex),
-            'hcfa' => WhoGrowthStandards::getObjects('hcfa', $sex),
+            'wfa'  => \App\Constants\WhoGrowthStandards::getObjects('wfa', $sex),
+            'lhfa' => \App\Constants\WhoGrowthStandards::getObjects('lhfa', $sex),
+            'hcfa' => \App\Constants\WhoGrowthStandards::getObjects('hcfa', $sex),
         ];
 
         return Inertia::render('orangtua/rapor/show', [
@@ -100,20 +100,17 @@ class RaporController extends Controller
         $sex      = strtolower($siswa->jenis_kelamin ?? '') === 'laki-laki' ? 'boys' : 'girls';
         $usiaAwal = $this->hitungUsiaAwalSemester($siswa->tanggal_lahir, $rapor->semester, $rapor->tahun_ajaran);
 
-        $whoData = [
-            'wfa'  => WhoGrowthStandards::get('wfa', $sex),
-            'lhfa' => WhoGrowthStandards::get('lhfa', $sex),
-            'hcfa' => WhoGrowthStandards::get('hcfa', $sex),
-        ];
-
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.rapor', [
             'rapor'            => $rapor,
             'siswa'            => $siswa,
-            'whoData'          => $whoData,
             'usiaAwalSemester' => $usiaAwal,
             'sex'              => $sex,
             'aspekLabels'      => RaporPerkembangan::ASPEK_LABELS,
             'statusLabels'     => RaporPerkembangan::STATUS_LABELS,
+            'qrCodePng'        => $this->buildQrPng(route('rapor.verify', $rapor->id)),
+            'galeriQrPng'      => $this->buildQrPng(\Illuminate\Support\Facades\URL::signedRoute('rapor.galeri.publik', ['rapor' => $rapor->id])),
+            'kepsekSrc'        => $this->buildKepsekSrc(),
+            'namaKepsek'       => AppSetting::get('nama_kepala_sekolah', '_______________'),
         ])->setPaper('a4', 'portrait');
 
         $filename = "Rapor-{$siswa->nama_lengkap}-Sem{$rapor->semester}-{$rapor->tahun_ajaran}.pdf";
@@ -131,5 +128,48 @@ class RaporController extends Controller
         $tahunBulan = $semester === 1 ? $tahunMulai : $tahunMulai + 1;
 
         return (int) $tanggalLahir->diffInMonths(\Carbon\Carbon::create($tahunBulan, $bulanMulai, 1));
+    }
+
+    private function buildQrPng(string $url): string
+    {
+        $qr     = \BaconQrCode\Encoder\Encoder::encode($url, \BaconQrCode\Common\ErrorCorrectionLevel::M());
+        $matrix = $qr->getMatrix();
+        $size   = $matrix->getWidth();
+
+        $mod    = 4;
+        $margin = 10;
+        $dim    = $size * $mod + 2 * $margin;
+        $img    = imagecreatetruecolor($dim, $dim);
+        $white  = imagecolorallocate($img, 255, 255, 255);
+        $black  = imagecolorallocate($img, 0, 0, 0);
+        imagefill($img, 0, 0, $white);
+
+        for ($y = 0; $y < $size; $y++) {
+            for ($x = 0; $x < $size; $x++) {
+                if ($matrix->get($x, $y) === 1) {
+                    imagefilledrectangle(
+                        $img,
+                        $margin + $x * $mod, $margin + $y * $mod,
+                        $margin + ($x + 1) * $mod - 1, $margin + ($y + 1) * $mod - 1,
+                        $black
+                    );
+                }
+            }
+        }
+
+        ob_start();
+        imagepng($img);
+        $png = ob_get_clean();
+        imagedestroy($img);
+
+        return 'data:image/png;base64,' . base64_encode($png);
+    }
+
+    private function buildKepsekSrc(): ?string
+    {
+        $path = public_path('assets/images/ttd/kepsek.png');
+        return file_exists($path)
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($path))
+            : null;
     }
 }

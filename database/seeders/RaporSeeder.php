@@ -11,30 +11,30 @@ use Illuminate\Database\Seeder;
 
 class RaporSeeder extends Seeder
 {
-    private const TAHUN_AJARAN = '2024/2025';
-    private const SEMESTER = 1;
+    private const TAHUN_AJARAN = '2025/2026';
+    private const SEMESTER = 2;
 
-    // Semester 1: Juli–Desember
-    private const BULAN_SEMESTER_1 = [7, 8, 9, 10, 11, 12];
+    // Semester 2: Januari–Juni
+    private const BULAN_SEMESTER_2 = [1, 2, 3, 4, 5, 6];
 
-    // Sample growth data per bulan (incremental realistis untuk bayi/batita)
+    // Sample growth data per bulan — realistis untuk anak usia 5–6 tahun (prasekolah)
     private const PERTUMBUHAN_TEMPLATES = [
         // [berat_badan, tinggi_badan, lingkar_kepala]
         'laki_laki' => [
-            7  => [8.50, 68.0, 44.5],
-            8  => [8.80, 69.5, 44.8],
-            9  => [9.10, 71.0, 45.1],
-            10 => [9.40, 72.5, 45.3],
-            11 => [9.60, 74.0, 45.5],
-            12 => [9.80, 75.5, 45.8],
+            1 => [18.50, 109.0, 50.5],
+            2 => [18.70, 109.5, 50.6],
+            3 => [18.90, 110.0, 50.7],
+            4 => [19.10, 110.5, 50.8],
+            5 => [19.30, 111.0, 50.9],
+            6 => [19.50, 111.5, 51.0],
         ],
         'perempuan' => [
-            7  => [7.90, 66.0, 43.5],
-            8  => [8.20, 67.5, 43.8],
-            9  => [8.50, 69.0, 44.1],
-            10 => [8.70, 70.5, 44.3],
-            11 => [8.90, 72.0, 44.5],
-            12 => [9.10, 73.5, 44.8],
+            1 => [17.80, 107.5, 49.5],
+            2 => [18.00, 108.0, 49.6],
+            3 => [18.20, 108.5, 49.7],
+            4 => [18.40, 109.0, 49.8],
+            5 => [18.60, 109.5, 49.9],
+            6 => [18.80, 110.0, 50.0],
         ],
     ];
 
@@ -113,7 +113,7 @@ class RaporSeeder extends Seeder
 
             $template = self::PERTUMBUHAN_TEMPLATES[$jenisKelamin];
 
-            foreach (self::BULAN_SEMESTER_1 as $bulan) {
+            foreach (self::BULAN_SEMESTER_2 as $bulan) {
                 [$bb, $tb, $lk] = $template[$bulan];
 
                 // Variasi kecil agar data tidak identik semua siswa

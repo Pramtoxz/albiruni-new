@@ -37,6 +37,7 @@ class KehadiranController extends Controller
 
         // Filter siswa berdasarkan lokasi_pendaftaran (nama_cabang), lalu ambil kelas unik
         $kelasIds = Siswa::where('lokasi_pendaftaran', $cabang->nama_cabang)
+            ->where('is_active', true)
             ->distinct()
             ->pluck('kelas_id');
 
@@ -56,7 +57,8 @@ class KehadiranController extends Controller
         $onlyHadir = $request->query('only_hadir');
 
         $query = Siswa::where('kelas_id', $kelasId)
-            ->where('lokasi_pendaftaran', $cabang->nama_cabang);
+            ->where('lokasi_pendaftaran', $cabang->nama_cabang)
+            ->where('is_active', true);
 
         // Exclude siswa yang sudah hadir hari ini (untuk check-in)
         if ($excludeHadir) {
@@ -153,6 +155,30 @@ class KehadiranController extends Controller
             'waktu_pulang' => now()->timezone('Asia/Jakarta')->toTimeString(),
             'rating' => $request->rating,
         ]);
+
+        // Kirim notifikasi jika daily report sudah final
+        $dailyReport = \App\Models\DailyReport::where('siswa_id', $request->siswa_id)
+            ->whereDate('tanggal', now()->toDateString())
+            ->where('is_final', true)
+            ->first();
+
+        if ($dailyReport) {
+            $siswa = Siswa::find($request->siswa_id);
+
+            app(\App\Services\NotificationService::class)->sendDailyReportToParent($dailyReport);
+
+            app(\App\Services\FcmService::class)->sendToUser(
+                userId: $siswa->user_id,
+                title: 'Daily Report Tersedia',
+                body: "Laporan harian {$siswa->nama_lengkap} sudah siap untuk dilihat",
+                url: "/orangtua/daily-report/{$dailyReport->id}",
+                extraData: [
+                    'type' => 'daily_report_final',
+                    'siswa_id' => $siswa->id,
+                    'report_id' => $dailyReport->id,
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,
