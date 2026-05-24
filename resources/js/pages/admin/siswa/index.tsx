@@ -40,7 +40,7 @@ export default function SiswaIndex({ pendingSiswa }: Props) {
         <AppLayout>
             <Head title="Pendaftaran Siswa Baru" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>

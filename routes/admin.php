@@ -74,6 +74,19 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('daily-report', [\App\Http\Controllers\DailyReportController::class, 'adminIndex'])->name('daily-report.index');
     Route::get('daily-report/{dailyReport}', [\App\Http\Controllers\DailyReportController::class, 'adminShow'])->name('daily-report.show');
 
+    // Rapor Digital
+    Route::get('rapor', [\App\Http\Controllers\Admin\RaporController::class, 'index'])->name('rapor.index');
+    Route::post('rapor/toggle-aktif', [\App\Http\Controllers\Admin\RaporController::class, 'toggleAktif'])->name('rapor.toggle-aktif');
+    Route::post('rapor/setting', [\App\Http\Controllers\Admin\RaporController::class, 'updateSetting'])->name('rapor.setting');
+    Route::get('rapor/{rapor}', [\App\Http\Controllers\Admin\RaporController::class, 'show'])->name('rapor.show');
+
+    // Template Rapor
+    Route::get('template-rapor', [\App\Http\Controllers\Admin\TemplateRaporController::class, 'index'])->name('template-rapor.index');
+    Route::get('template-rapor/{kelas}', [\App\Http\Controllers\Admin\TemplateRaporController::class, 'edit'])->name('template-rapor.edit');
+    Route::put('template-rapor/{kelas}', [\App\Http\Controllers\Admin\TemplateRaporController::class, 'update'])->name('template-rapor.update');
+    Route::get('template-rapor/{kelas}/export', [\App\Http\Controllers\Admin\TemplateRaporController::class, 'export'])->name('template-rapor.export');
+    Route::post('template-rapor/{kelas}/import', [\App\Http\Controllers\Admin\TemplateRaporController::class, 'import'])->name('template-rapor.import');
+
     // User Activity Management
     Route::get('user-activity', [UserActivityController::class, 'index'])->name('user-activity.index');
 

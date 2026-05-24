@@ -57,5 +57,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $this->call([
+            RaporSeeder::class,
+        ]);
     }
 }

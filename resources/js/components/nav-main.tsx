@@ -4,12 +4,15 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { type NavItem, type NavGroup } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
 export function NavMain({ items = [], groups = [] }: { items?: NavItem[]; groups?: NavGroup[] }) {
     const page = usePage();
+    const { state, isMobile } = useSidebar();
+    const showTooltip = state === 'collapsed' && !isMobile;
     
     const isActive = (itemHref: string | { url: string }) => {
         const href = typeof itemHref === 'string' ? itemHref : itemHref.url;
@@ -46,9 +49,9 @@ export function NavMain({ items = [], groups = [] }: { items?: NavItem[]; groups
                                     <SidebarMenuButton
                                         asChild
                                         isActive={isActive(item.href)}
-                                        tooltip={{ children: item.title }}
+                                        tooltip={showTooltip ? { children: item.title } : undefined}
                                     >
-                                        <Link href={item.href} prefetch>
+                                        <Link href={item.href}>
                                             {item.icon && <item.icon />}
                                             <span>{item.title}</span>
                                         </Link>
@@ -71,9 +74,9 @@ export function NavMain({ items = [], groups = [] }: { items?: NavItem[]; groups
                         <SidebarMenuButton
                             asChild
                             isActive={isActive(item.href)}
-                            tooltip={{ children: item.title }}
+                            tooltip={showTooltip ? { children: item.title } : undefined}
                         >
-                            <Link href={item.href} prefetch>
+                            <Link href={item.href}>
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
                             </Link>

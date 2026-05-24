@@ -54,7 +54,8 @@ class DailyReportController extends Controller
 
         // Filter siswa based on guru_id directly
         $siswaQuery = Siswa::with('kelas')
-            ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id');
+            ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id')
+            ->where('is_active', true);
 
         // If guru exists, show accessible students (guru utama or guru pendamping)
         if ($guru) {
@@ -256,7 +257,8 @@ class DailyReportController extends Controller
 
         // Filter siswa based on guru_id directly
         $siswaQuery = Siswa::with('kelas')
-            ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id');
+            ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id')
+            ->where('is_active', true);
 
         // If guru exists, show accessible students (guru utama or guru pendamping)
         if ($guru) {
@@ -464,26 +466,32 @@ class DailyReportController extends Controller
         $dailyReport->load('siswa');
         $siswa = $dailyReport->siswa;
 
-        // Send notification to parent
-        $notificationService = app(NotificationService::class);
-        $notificationService->sendDailyReportToParent($dailyReport);
+        // Kirim notifikasi hanya jika siswa sudah checkout hari ini
+        $sudahCheckout = \App\Models\Kehadiran::where('siswa_id', $siswa->id)
+            ->whereDate('tanggal', now()->toDateString())
+            ->whereNotNull('waktu_pulang')
+            ->exists();
 
-        // Send FCM push notification
-        $fcmService = app(\App\Services\FcmService::class);
-        $fcmService->sendToUser(
-            userId: $siswa->user_id,
-            title: 'Daily Report Tersedia',
-            body: "Laporan harian {$siswa->nama_lengkap} sudah siap untuk dilihat",
-            url: "/orangtua/daily-report/{$dailyReport->id}",
-            extraData: [
-                'type' => 'daily_report_final',
-                'siswa_id' => $siswa->id,
-                'report_id' => $dailyReport->id,
-            ]
-        );
+        if ($sudahCheckout) {
+            app(NotificationService::class)->sendDailyReportToParent($dailyReport);
+
+            app(\App\Services\FcmService::class)->sendToUser(
+                userId: $siswa->user_id,
+                title: 'Daily Report Tersedia',
+                body: "Laporan harian {$siswa->nama_lengkap} sudah siap untuk dilihat",
+                url: "/orangtua/daily-report/{$dailyReport->id}",
+                extraData: [
+                    'type' => 'daily_report_final',
+                    'siswa_id' => $siswa->id,
+                    'report_id' => $dailyReport->id,
+                ]
+            );
+        }
 
         return redirect()->route('guru.daily-report.index')
-            ->with('success', 'Daily report berhasil dikirim ke orang tua!');
+            ->with('success', $sudahCheckout
+                ? 'Daily report berhasil dikirim ke orang tua!'
+                : 'Daily report difinalisasi. Notifikasi akan dikirim saat siswa checkout.');
     }
 
     public function orangtuaIndex(Request $request): Response
@@ -569,7 +577,7 @@ class DailyReportController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $siswaQuery = Siswa::with(['kelas', 'user'])
+        $siswaQuery = Siswa::with(['kelas', 'user', 'guru'])
             ->where('is_active', true);
 
         if ($kelasId) {
@@ -611,6 +619,7 @@ class DailyReportController extends Controller
                 'siswa_id' => $siswa->id,
                 'nama_lengkap' => $siswa->nama_lengkap,
                 'nama_panggilan' => $siswa->nama_panggilan,
+                'guru_nama' => $siswa->guru?->nama_lengkap ?? '-',
                 'kelas' => $siswa->kelas ? $siswa->kelas->nama_kelas : '-',
                 'cabang' => $siswa->lokasi_pendaftaran ?? '-',
                 'status' => $status,

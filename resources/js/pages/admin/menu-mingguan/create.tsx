@@ -96,7 +96,7 @@ export default function MenuMingguanCreate() {
         <AppLayout>
             <Head title="Tambah Menu Mingguan" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <Link href="/admin/menu-mingguan">

@@ -59,7 +59,7 @@ export default function EventsIndex({ events }: Props) {
         <AppLayout>
             <Head title="Kelola Event" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold">Kelola Event</h1>

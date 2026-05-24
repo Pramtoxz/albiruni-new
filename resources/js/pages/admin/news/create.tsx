@@ -34,7 +34,7 @@ export default function CreateNews() {
         <AppLayout>
             <Head title="Tambah Berita" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 <div>
                     <h1 className="text-3xl font-bold">Tambah Berita Baru</h1>
                     <p className="text-muted-foreground mt-1">Buat berita atau artikel baru</p>

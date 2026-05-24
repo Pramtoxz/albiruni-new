@@ -129,7 +129,7 @@ export default function SiswaEdit({ siswa, kelasList, guruList }: Props) {
         <AppLayout>
             <Head title={`Edit Siswa - ${siswa.nama_lengkap}`} />
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">

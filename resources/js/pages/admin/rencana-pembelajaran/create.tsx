@@ -146,7 +146,7 @@ export default function RencanaPembelajaranCreate({ kelas }: Props) {
         <AppLayout>
             <Head title="Tambah Rencana Pembelajaran" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <Link href="/admin/rencana-pembelajaran">

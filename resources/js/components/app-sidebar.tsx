@@ -28,6 +28,7 @@ import {
     FileText,
     Activity,
     Calendar,
+    BookOpen,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -140,6 +141,16 @@ export function AppSidebar() {
                 href: '/admin/daily-report',
                 icon: FileText,
             });
+            transaksiItems.push({
+                title: 'Rapor Digital',
+                href: '/admin/rapor',
+                icon: BookOpen,
+            });
+            transaksiItems.push({
+                title: 'Template Rapor',
+                href: '/admin/template-rapor',
+                icon: FileText,
+            });
         }
 
         if (transaksiItems.length > 0) {
@@ -211,6 +222,19 @@ export function AppSidebar() {
                 },
             ],
         });
+
+        if (userRole === 'guru') {
+            navGroups.push({
+                title: 'Akademik',
+                items: [
+                    {
+                        title: 'Rapor Digital',
+                        href: '/guru/rapor',
+                        icon: BookOpen,
+                    },
+                ],
+            });
+        }
     }
 
     return (

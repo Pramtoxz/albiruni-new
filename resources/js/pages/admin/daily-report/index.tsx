@@ -26,6 +26,7 @@ interface DataItem {
     siswa_id: number;
     nama_lengkap: string;
     nama_panggilan: string;
+    guru_nama: string;
     kelas: string;
     cabang: string;
     status: 'ada_laporan' | 'hadir_tanpa_laporan' | 'tidak_hadir';
@@ -138,7 +139,7 @@ export default function AdminDailyReportIndex({
         <AppLayout>
             <Head title="Daily Report" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold">Daily Report</h1>
@@ -324,7 +325,7 @@ export default function AdminDailyReportIndex({
                                                         {item.nama_lengkap}
                                                     </div>
                                                     <div className="text-sm text-muted-foreground">
-                                                        {item.nama_panggilan}
+                                                        {item.guru_nama}
                                                     </div>
                                                 </div>
                                             </TableCell>

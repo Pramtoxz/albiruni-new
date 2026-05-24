@@ -82,6 +82,15 @@ Route::get('/', function () {
 Route::get('/berita', [NewsController::class, 'index'])->name('berita.index');
 Route::get('/berita/{slug}', [NewsController::class, 'show'])->name('berita.show');
 
+// Public rapor signature verification (no auth required)
+Route::get('/verify/rapor/{rapor}', [\App\Http\Controllers\RaporVerifyController::class, 'show'])
+    ->name('rapor.verify');
+
+// Public rapor gallery (signed URL only — cannot be guessed or tampered)
+Route::get('/rapor/galeri/{rapor}', [\App\Http\Controllers\RaporGaleriPublikController::class, 'show'])
+    ->name('rapor.galeri.publik')
+    ->middleware('signed');
+
 // Sitemap Route
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 

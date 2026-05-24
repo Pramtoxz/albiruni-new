@@ -104,7 +104,7 @@ export default function CreateSiswa({ orangtuaList }: Props) {
     return (
         <AppLayout>
             <Head title="Tambah Siswa Baru" />
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 <div>
                     <h1 className="text-3xl font-bold">Tambah Siswa Baru</h1>
                     <p className="text-muted-foreground mt-1">Daftarkan siswa baru oleh admin</p>

@@ -58,7 +58,7 @@ export default function EmosiEdit({ emosi }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit ${emosi.nama_emosi}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4 md:p-6">
                 <div className="flex items-center gap-3">
                     <Button
                         variant="outline"
