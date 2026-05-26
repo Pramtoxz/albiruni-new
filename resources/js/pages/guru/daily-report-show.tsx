@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StarRating } from '@/components/star-rating';
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Check, X, Send } from 'lucide-react';
-import Swal from 'sweetalert2';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Calendar, Check, X } from 'lucide-react';
 
 interface DailyReport {
     id: number;
@@ -40,9 +39,10 @@ interface DailyReport {
 
 interface Props {
     report: DailyReport;
+    sudahCheckout: boolean;
 }
 
-export default function DailyReportShow({ report }: Props) {
+export default function DailyReportShow({ report, sudahCheckout }: Props) {
     const getMoodEmoji = (mood: string) => {
         const moods: { [key: string]: string } = {
             Happy: '😊',
@@ -71,45 +71,6 @@ export default function DailyReportShow({ report }: Props) {
         ];
 
         return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-    };
-
-    const handleFinalize = () => {
-        Swal.fire({
-            title: 'Kirim Notifikasi?',
-            text: `Daily report untuk ${report.siswa.nama_lengkap} akan dikirim ke orang tua dan tidak bisa diedit lagi.`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, Kirim!',
-            cancelButtonText: 'Batal',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.post(
-                    `/guru/daily-report/${report.id}/finalize`,
-                    {},
-                    {
-                        preserveScroll: true,
-                        onSuccess: () => {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: 'Daily report berhasil dikirim ke orang tua',
-                                confirmButtonColor: '#3085d6',
-                            });
-                        },
-                        onError: () => {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: 'Terjadi kesalahan saat mengirim notifikasi',
-                                confirmButtonColor: '#d33',
-                            });
-                        },
-                    }
-                );
-            }
-        });
     };
 
     return (
@@ -335,36 +296,48 @@ export default function DailyReportShow({ report }: Props) {
                         </CardContent>
                     </Card>
 
-                    {/* Action Buttons */}
-                    {!report.is_final && (
-                        <div className="grid grid-cols-2 gap-3 pb-4">
-                            <Link href={`/guru/daily-report/${report.id}/edit`}>
-                                <Button variant="outline" className="w-full border-2 shadow-md">
-                                    Edit
-                                </Button>
-                            </Link>
-                            <Button
-                                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-md"
-                                onClick={handleFinalize}
-                            >
-                                <Send className="mr-2 h-4 w-4" />
-                                Kirim Notifikasi
-                            </Button>
-                        </div>
-                    )}
+                    {/* Action & Status */}
+                    <div className="pb-4 space-y-3">
+                        {!report.is_final && (
+                            <>
+                                <Link href={`/guru/daily-report/${report.id}/edit`}>
+                                    <Button variant="outline" className="w-full border-2 shadow-md">
+                                        Edit Laporan
+                                    </Button>
+                                </Link>
+                                {sudahCheckout ? (
+                                    <div className="rounded-2xl bg-orange-50 border border-orange-200 p-4 text-center">
+                                        <p className="text-sm font-medium text-orange-800">
+                                            ⚠️ {report.siswa.nama_panggilan} sudah pulang
+                                        </p>
+                                        <p className="text-xs text-orange-600 mt-1">
+                                            Laporan belum terkirim. Admin dapat mengirimkan laporan ini.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-center">
+                                        <p className="text-sm font-medium text-blue-800">
+                                            🕐 Menunggu {report.siswa.nama_panggilan} checkout pulang
+                                        </p>
+                                        <p className="text-xs text-blue-600 mt-1">
+                                            Laporan akan otomatis terkirim ke orang tua saat siswa pulang.
+                                        </p>
+                                    </div>
+                                )}
+                            </>
+                        )}
 
-                    {report.is_final && (
-                        <div className="pb-4">
+                        {report.is_final && (
                             <div className="rounded-2xl bg-green-50 border border-green-200 p-4 text-center">
                                 <p className="text-sm font-medium text-green-800">
                                     ✓ Daily report sudah dikirim ke orang tua
                                 </p>
                                 <p className="text-xs text-green-600 mt-1">
-                                    Report tidak bisa diedit lagi
+                                    Laporan tidak bisa diedit lagi
                                 </p>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </>

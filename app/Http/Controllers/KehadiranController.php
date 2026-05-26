@@ -156,28 +156,15 @@ class KehadiranController extends Controller
             'rating' => $request->rating,
         ]);
 
-        // Kirim notifikasi jika daily report sudah final
+        // Kirim notifikasi hanya jika daily report sudah final sebelum checkout
+        // Draft tetap draft — admin yang kirim via tombol "Kirim Terlambat"
         $dailyReport = \App\Models\DailyReport::where('siswa_id', $request->siswa_id)
             ->whereDate('tanggal', now()->toDateString())
             ->where('is_final', true)
             ->first();
 
         if ($dailyReport) {
-            $siswa = Siswa::find($request->siswa_id);
-
-            app(\App\Services\NotificationService::class)->sendDailyReportToParent($dailyReport);
-
-            app(\App\Services\FcmService::class)->sendToUser(
-                userId: $siswa->user_id,
-                title: 'Daily Report Tersedia',
-                body: "Laporan harian {$siswa->nama_lengkap} sudah siap untuk dilihat",
-                url: "/orangtua/daily-report/{$dailyReport->id}",
-                extraData: [
-                    'type' => 'daily_report_final',
-                    'siswa_id' => $siswa->id,
-                    'report_id' => $dailyReport->id,
-                ]
-            );
+            \App\Jobs\SendDailyReportNotification::dispatch($dailyReport->id);
         }
 
         return response()->json([

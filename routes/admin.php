@@ -73,6 +73,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // Daily Report Management
     Route::get('daily-report', [\App\Http\Controllers\DailyReportController::class, 'adminIndex'])->name('daily-report.index');
     Route::get('daily-report/{dailyReport}', [\App\Http\Controllers\DailyReportController::class, 'adminShow'])->name('daily-report.show');
+    Route::post('daily-report/{dailyReport}/send-terlambat', [\App\Http\Controllers\DailyReportController::class, 'adminSendTerlambat'])->name('daily-report.send-terlambat');
 
     // Rapor Digital
     Route::get('rapor', [\App\Http\Controllers\Admin\RaporController::class, 'index'])->name('rapor.index');

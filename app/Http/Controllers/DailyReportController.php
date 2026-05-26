@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendDailyReportNotification;
 use App\Models\DailyReport;
 use App\Models\Siswa;
 use App\Services\NotificationService;
@@ -236,8 +237,14 @@ class DailyReportController extends Controller
     {
         $dailyReport->load(['siswa', 'user', 'emosis']);
 
+        $sudahCheckout = \App\Models\Kehadiran::where('siswa_id', $dailyReport->siswa_id)
+            ->whereDate('tanggal', $dailyReport->tanggal)
+            ->whereNotNull('waktu_pulang')
+            ->exists();
+
         return Inertia::render('guru/daily-report-show', [
-            'report' => $dailyReport,
+            'report'        => $dailyReport,
+            'sudahCheckout' => $sudahCheckout,
         ]);
     }
 
@@ -473,24 +480,12 @@ class DailyReportController extends Controller
             ->exists();
 
         if ($sudahCheckout) {
-            app(NotificationService::class)->sendDailyReportToParent($dailyReport);
-
-            app(\App\Services\FcmService::class)->sendToUser(
-                userId: $siswa->user_id,
-                title: 'Daily Report Tersedia',
-                body: "Laporan harian {$siswa->nama_lengkap} sudah siap untuk dilihat",
-                url: "/orangtua/daily-report/{$dailyReport->id}",
-                extraData: [
-                    'type' => 'daily_report_final',
-                    'siswa_id' => $siswa->id,
-                    'report_id' => $dailyReport->id,
-                ]
-            );
+            SendDailyReportNotification::dispatch($dailyReport->id);
         }
 
         return redirect()->route('guru.daily-report.index')
             ->with('success', $sudahCheckout
-                ? 'Daily report berhasil dikirim ke orang tua!'
+                ? 'Daily report difinalisasi. Notifikasi sedang dikirim ke orang tua.'
                 : 'Daily report difinalisasi. Notifikasi akan dikirim saat siswa checkout.');
     }
 
@@ -596,16 +591,23 @@ class DailyReportController extends Controller
         }
 
         $siswaList = $siswaQuery->orderBy('nama_lengkap')->get();
+        $siswaIds  = $siswaList->pluck('id');
 
-        $data = $siswaList->map(function ($siswa, $index) use ($tanggal) {
-            $dailyReport = DailyReport::with(['user', 'emosis'])
-                ->where('siswa_id', $siswa->id)
-                ->whereDate('tanggal', $tanggal)
-                ->first();
+        // Pre-fetch semua daily report + kehadiran untuk tanggal ini — hindari N+1
+        $dailyReports = DailyReport::with(['user', 'emosis'])
+            ->whereIn('siswa_id', $siswaIds)
+            ->whereDate('tanggal', $tanggal)
+            ->get()
+            ->keyBy('siswa_id');
 
-            $kehadiran = \App\Models\Kehadiran::where('siswa_id', $siswa->id)
-                ->whereDate('tanggal', $tanggal)
-                ->first();
+        $kehadirans = \App\Models\Kehadiran::whereIn('siswa_id', $siswaIds)
+            ->whereDate('tanggal', $tanggal)
+            ->get()
+            ->keyBy('siswa_id');
+
+        $data = $siswaList->map(function ($siswa, $index) use ($dailyReports, $kehadirans) {
+            $dailyReport = $dailyReports->get($siswa->id);
+            $kehadiran   = $kehadirans->get($siswa->id);
 
             $status = 'tidak_hadir';
             if ($dailyReport) {
@@ -670,8 +672,27 @@ class DailyReportController extends Controller
     {
         $dailyReport->load(['siswa.kelas', 'user', 'emosis']);
 
+        $sudahCheckout = \App\Models\Kehadiran::where('siswa_id', $dailyReport->siswa_id)
+            ->whereDate('tanggal', $dailyReport->tanggal)
+            ->whereNotNull('waktu_pulang')
+            ->exists();
+
         return Inertia::render('admin/daily-report/show', [
-            'report' => $dailyReport,
+            'report'        => $dailyReport,
+            'sudahCheckout' => $sudahCheckout,
         ]);
+    }
+
+    public function adminSendTerlambat(DailyReport $dailyReport): RedirectResponse
+    {
+        if ($dailyReport->is_final) {
+            return back()->with('info', 'Daily report sudah terkirim sebelumnya.');
+        }
+
+        $dailyReport->update(['is_final' => true]);
+
+        SendDailyReportNotification::dispatch($dailyReport->id);
+
+        return back()->with('success', "Daily report {$dailyReport->siswa->nama_lengkap} sedang dikirim ke orang tua.");
     }
 }

@@ -2,9 +2,10 @@ import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StarRating } from '@/components/star-rating';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Check, X } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Calendar, Check, X, Send } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import Swal from 'sweetalert2';
 
 interface Emosi {
     id: number;
@@ -51,9 +52,10 @@ interface DailyReport {
 
 interface Props {
     report: DailyReport;
+    sudahCheckout: boolean;
 }
 
-export default function AdminDailyReportShow({ report }: Props) {
+export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const days = [
@@ -83,6 +85,25 @@ export default function AdminDailyReportShow({ report }: Props) {
         return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
     };
 
+    const handleSendTerlambat = () => {
+        Swal.fire({
+            title: 'Kirim Terlambat?',
+            text: `Laporan ${report.siswa.nama_lengkap} akan difinalisasi dan dikirim ke orang tua sekarang.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Kirim!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(`/admin/daily-report/${report.id}/send-terlambat`, {}, {
+                    onSuccess: () => Swal.fire({ icon: 'success', title: 'Terkirim!', text: 'Laporan berhasil dikirim ke orang tua.', confirmButtonColor: '#2563eb' }),
+                });
+            }
+        });
+    };
+
     return (
         <AppLayout>
             <Head title={`Daily Report - ${report.siswa.nama_lengkap}`} />
@@ -105,11 +126,23 @@ export default function AdminDailyReportShow({ report }: Props) {
                             </p>
                         </div>
                     </div>
-                    {report.is_final ? (
-                        <Badge variant="default">Terkirim</Badge>
-                    ) : (
-                        <Badge variant="secondary">Draft</Badge>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {!report.is_final && sudahCheckout && (
+                            <Button
+                                onClick={handleSendTerlambat}
+                                className="bg-orange-500 hover:bg-orange-600 text-white"
+                                size="sm"
+                            >
+                                <Send className="mr-2 h-4 w-4" />
+                                Kirim Terlambat
+                            </Button>
+                        )}
+                        {report.is_final ? (
+                            <Badge variant="default">Terkirim</Badge>
+                        ) : (
+                            <Badge variant="secondary">Draft</Badge>
+                        )}
+                    </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
