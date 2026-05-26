@@ -1,10 +1,10 @@
-import AppLayout from '@/layouts/app-layout';
+import { StarRating } from '@/components/star-rating';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StarRating } from '@/components/star-rating';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Check, X, Send } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Calendar, Check, Send, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface Emosi {
@@ -53,9 +53,14 @@ interface DailyReport {
 interface Props {
     report: DailyReport;
     sudahCheckout: boolean;
+    missingFields: string[];
 }
 
-export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
+export default function AdminDailyReportShow({
+    report,
+    sudahCheckout,
+    missingFields,
+}: Props) {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const days = [
@@ -97,9 +102,19 @@ export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
             cancelButtonText: 'Batal',
         }).then((result) => {
             if (result.isConfirmed) {
-                router.post(`/admin/daily-report/${report.id}/send-terlambat`, {}, {
-                    onSuccess: () => Swal.fire({ icon: 'success', title: 'Terkirim!', text: 'Laporan berhasil dikirim ke orang tua.', confirmButtonColor: '#2563eb' }),
-                });
+                router.post(
+                    `/admin/daily-report/${report.id}/send-terlambat`,
+                    {},
+                    {
+                        onSuccess: () =>
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Terkirim!',
+                                text: 'Laporan berhasil dikirim ke orang tua.',
+                                confirmButtonColor: '#2563eb',
+                            }),
+                    },
+                );
             }
         });
     };
@@ -130,7 +145,7 @@ export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
                         {!report.is_final && sudahCheckout && (
                             <Button
                                 onClick={handleSendTerlambat}
-                                className="bg-orange-500 hover:bg-orange-600 text-white"
+                                className="bg-orange-500 text-white hover:bg-orange-600"
                                 size="sm"
                             >
                                 <Send className="mr-2 h-4 w-4" />
@@ -144,6 +159,25 @@ export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
                         )}
                     </div>
                 </div>
+
+                {!report.is_final && missingFields.length > 0 && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                        <p className="mb-2 text-sm font-semibold text-red-800">
+                            Data belum lengkap — guru belum dapat memfinalisasi
+                            laporan ini:
+                        </p>
+                        <ul className="flex flex-wrap gap-2">
+                            {missingFields.map((field) => (
+                                <li
+                                    key={field}
+                                    className="rounded-full border border-red-200 bg-red-100 px-3 py-0.5 text-xs font-medium text-red-700"
+                                >
+                                    {field}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
 
                 <div className="grid gap-4 md:grid-cols-2">
                     <Card>
@@ -253,7 +287,7 @@ export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="rounded-lg border p-3 space-y-2">
+                        <div className="space-y-2 rounded-lg border p-3">
                             <div>
                                 <p className="text-sm font-medium">
                                     Sarapan Pagi
@@ -269,7 +303,7 @@ export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
                             />
                         </div>
 
-                        <div className="rounded-lg border p-3 space-y-2">
+                        <div className="space-y-2 rounded-lg border p-3">
                             <div>
                                 <p className="text-sm font-medium">
                                     Makan Siang
@@ -285,7 +319,7 @@ export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
                             />
                         </div>
 
-                        <div className="rounded-lg border p-3 space-y-2">
+                        <div className="space-y-2 rounded-lg border p-3">
                             <div>
                                 <p className="text-sm font-medium">
                                     Snack Sore
@@ -347,7 +381,7 @@ export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="rounded-lg border p-3">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="mb-1 flex items-center justify-between">
                                     <p className="text-sm text-muted-foreground">
                                         BAK
                                     </p>
@@ -362,7 +396,7 @@ export default function AdminDailyReportShow({ report, sudahCheckout }: Props) {
                                 </p>
                             </div>
                             <div className="rounded-lg border p-3">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="mb-1 flex items-center justify-between">
                                     <p className="text-sm text-muted-foreground">
                                         BAB
                                     </p>

@@ -57,4 +57,37 @@ class DailyReport extends Model
     {
         return $this->belongsToMany(Emosi::class, 'daily_report_emosi');
     }
+
+    /**
+     * Daftar field wajib yang belum diisi.
+     * Foto kegiatan sengaja dikecualikan (opsional).
+     */
+    public function getMissingFields(): array
+    {
+        $missing = [];
+
+        if (blank($this->mood))            $missing[] = 'Mood';
+        if (blank($this->activity))        $missing[] = 'Aktivitas';
+        if (blank($this->sarapan_pagi))    $missing[] = 'Menu Sarapan';
+        if (blank($this->makan_siang))     $missing[] = 'Menu Makan Siang';
+        if (blank($this->minum_air_putih)) $missing[] = 'Minum Air Putih';
+        if ($this->bak && blank($this->bak_frekuensi)) $missing[] = 'Frekuensi BAK';
+        if ($this->bab && blank($this->bab_frekuensi)) $missing[] = 'Frekuensi BAB';
+
+        // Rating 0 = belum dinilai, -1 = T/A (valid), 1-5 = valid
+        if ((int) $this->sarapan_status === 0)     $missing[] = 'Rating Sarapan';
+        if ((int) $this->makan_siang_status === 0) $missing[] = 'Rating Makan Siang';
+        if ((int) $this->snack_status === 0)       $missing[] = 'Rating Snack';
+
+        return $missing;
+    }
+
+    public function isComplete(): bool
+    {
+        if (!empty($this->getMissingFields())) {
+            return false;
+        }
+
+        return $this->emosis()->exists();
+    }
 }

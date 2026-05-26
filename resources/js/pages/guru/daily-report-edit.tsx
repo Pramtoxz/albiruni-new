@@ -114,11 +114,11 @@ export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiat
         activity: report.activity || '',
         emosi_ids: report.emosis?.map(e => e.id) || [] as number[],
         sarapan_pagi: report.sarapan_pagi || '',
-        sarapan_status: report.sarapan_status || 0,
+        sarapan_status: report.sarapan_status ?? 0,
         makan_siang: report.makan_siang || '',
-        makan_siang_status: report.makan_siang_status || 0,
+        makan_siang_status: report.makan_siang_status ?? 0,
         snack_sore: report.snack_sore || '',
-        snack_status: report.snack_status || 0,
+        snack_status: report.snack_status ?? 0,
         minum_air_putih: report.minum_air_putih || '',
         minum_susu: report.minum_susu || '',
         tidur_siang: report.tidur_siang || false,
@@ -381,8 +381,10 @@ export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiat
                                         <StarRating
                                             value={data.sarapan_status}
                                             onChange={(value) => setData('sarapan_status', value)}
+                                            allowNull
                                         />
                                         <p className="text-xs text-muted-foreground">
+                                            {data.sarapan_status === -1 && '— Tidak ada sarapan'}
                                             {data.sarapan_status === 0 && 'Belum dinilai'}
                                             {data.sarapan_status === 1 && '⭐ Tidak dimakan'}
                                             {data.sarapan_status === 2 && '⭐⭐ Sedikit'}
@@ -407,8 +409,10 @@ export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiat
                                         <StarRating
                                             value={data.makan_siang_status}
                                             onChange={(value) => setData('makan_siang_status', value)}
+                                            allowNull
                                         />
                                         <p className="text-xs text-muted-foreground">
+                                            {data.makan_siang_status === -1 && '— Tidak ada makan siang'}
                                             {data.makan_siang_status === 0 && 'Belum dinilai'}
                                             {data.makan_siang_status === 1 && '⭐ Tidak dimakan'}
                                             {data.makan_siang_status === 2 && '⭐⭐ Sedikit'}
@@ -433,8 +437,10 @@ export default function DailyReportEdit({ report, siswaList, menuMakanan, kegiat
                                         <StarRating
                                             value={data.snack_status}
                                             onChange={(value) => setData('snack_status', value)}
+                                            allowNull
                                         />
                                         <p className="text-xs text-muted-foreground">
+                                            {data.snack_status === -1 && '— Tidak ada snack'}
                                             {data.snack_status === 0 && 'Belum dinilai'}
                                             {data.snack_status === 1 && '⭐ Tidak dimakan'}
                                             {data.snack_status === 2 && '⭐⭐ Sedikit'}

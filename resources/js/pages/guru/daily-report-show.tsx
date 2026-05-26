@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StarRating } from '@/components/star-rating';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Check, X } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Calendar, Check, CheckCircle, X } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface DailyReport {
     id: number;
@@ -40,9 +41,35 @@ interface DailyReport {
 interface Props {
     report: DailyReport;
     sudahCheckout: boolean;
+    missingFields: string[];
 }
 
-export default function DailyReportShow({ report, sudahCheckout }: Props) {
+export default function DailyReportShow({ report, sudahCheckout, missingFields }: Props) {
+    const isComplete = missingFields.length === 0;
+
+    const handleFinalize = () => {
+        const msg = sudahCheckout
+            ? 'Notifikasi akan langsung dikirim ke orang tua.'
+            : 'Laporan akan otomatis terkirim saat siswa pulang.';
+
+        Swal.fire({
+            title: 'Simpan sebagai Final?',
+            text: msg,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Finalkan',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(`/guru/daily-report/${report.id}/finalize`, {}, {
+                    onError: () => Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }),
+                });
+            }
+        });
+    };
+
     const getMoodEmoji = (mood: string) => {
         const moods: { [key: string]: string } = {
             Happy: '😊',
@@ -305,24 +332,48 @@ export default function DailyReportShow({ report, sudahCheckout }: Props) {
                                         Edit Laporan
                                     </Button>
                                 </Link>
+
                                 {sudahCheckout ? (
                                     <div className="rounded-2xl bg-orange-50 border border-orange-200 p-4 text-center">
                                         <p className="text-sm font-medium text-orange-800">
                                             ⚠️ {report.siswa.nama_panggilan} sudah pulang
                                         </p>
                                         <p className="text-xs text-orange-600 mt-1">
-                                            Laporan belum terkirim. Admin dapat mengirimkan laporan ini.
+                                            Laporan terlambat difinalisasi. Hubungi admin untuk mengirimkan laporan ini.
                                         </p>
                                     </div>
                                 ) : (
-                                    <div className="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-center">
-                                        <p className="text-sm font-medium text-blue-800">
-                                            🕐 Menunggu {report.siswa.nama_panggilan} checkout pulang
-                                        </p>
-                                        <p className="text-xs text-blue-600 mt-1">
-                                            Laporan akan otomatis terkirim ke orang tua saat siswa pulang.
-                                        </p>
-                                    </div>
+                                    <>
+                                        {!isComplete && (
+                                            <div className="rounded-2xl bg-red-50 border border-red-200 p-4">
+                                                <p className="text-sm font-semibold text-red-800 mb-2">⚠️ Data belum lengkap:</p>
+                                                <ul className="space-y-1">
+                                                    {missingFields.map((field) => (
+                                                        <li key={field} className="text-xs text-red-700 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
+                                                            {field}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                        <Button
+                                            onClick={handleFinalize}
+                                            disabled={!isComplete}
+                                            className="w-full bg-green-500 hover:bg-green-600 text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                            Simpan untuk Final
+                                        </Button>
+                                        <div className="rounded-2xl bg-blue-50 border border-blue-200 p-4 text-center">
+                                            <p className="text-sm font-medium text-blue-800">
+                                                🕐 Menunggu {report.siswa.nama_panggilan} checkout pulang
+                                            </p>
+                                            <p className="text-xs text-blue-600 mt-1">
+                                                Finalkan laporan sebelum siswa pulang agar terkirim otomatis.
+                                            </p>
+                                        </div>
+                                    </>
                                 )}
                             </>
                         )}

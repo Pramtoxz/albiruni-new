@@ -18,7 +18,8 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Search } from 'lucide-react';
+import { Eye, Search, Send } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { useState } from 'react';
 
 interface DataItem {
@@ -35,7 +36,8 @@ interface DataItem {
         tanggal: string;
         rating: number;
         is_final: boolean;
-        created_by: string;
+        sudah_checkout: boolean;
+        is_complete: boolean;
     } | null;
     kehadiran: {
         tanggal_hadir: string;
@@ -125,6 +127,26 @@ export default function AdminDailyReportIndex({
         const today = new Date().toISOString().split('T')[0];
         setSelectedDate(today);
         router.get('/admin/daily-report');
+    };
+
+    const handleSendTerlambat = (reportId: number, namaLengkap: string) => {
+        Swal.fire({
+            title: 'Kirim Laporan?',
+            text: `Laporan ${namaLengkap} akan difinalisasi dan dikirim ke orang tua sekarang.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Kirim!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(`/admin/daily-report/${reportId}/send-terlambat`, {}, {
+                    preserveScroll: true,
+                    onSuccess: () => Swal.fire({ icon: 'success', title: 'Terkirim!', text: 'Laporan berhasil dikirim ke orang tua.', confirmButtonColor: '#2563eb' }),
+                });
+            }
+        });
     };
 
     const formatDate = (dateString: string) => {
@@ -294,7 +316,6 @@ export default function AdminDailyReportIndex({
                                     <TableHead>Status</TableHead>
                                     <TableHead>Tanggal</TableHead>
                                     <TableHead>Status Kirim</TableHead>
-                                    <TableHead>Dibuat Oleh</TableHead>
                                     <TableHead className="text-center">
                                         Aksi
                                     </TableHead>
@@ -304,7 +325,7 @@ export default function AdminDailyReportIndex({
                                 {data.length === 0 ? (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={9}
+                                            colSpan={8}
                                             className="p-8 text-center text-muted-foreground"
                                         >
                                             Tidak ada data siswa
@@ -374,21 +395,27 @@ export default function AdminDailyReportIndex({
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                {item.daily_report?.created_by || '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center justify-center">
+                                                <div className="flex items-center justify-center gap-2">
                                                     {item.daily_report ? (
-                                                        <Link
-                                                            href={`/admin/daily-report/${item.daily_report.id}`}
-                                                        >
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                            >
-                                                                <Eye className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
+                                                        <>
+                                                            <Link href={`/admin/daily-report/${item.daily_report.id}`}>
+                                                                <Button size="sm" variant="outline">
+                                                                    <Eye className="h-4 w-4" />
+                                                                </Button>
+                                                            </Link>
+                                                            {!item.daily_report.is_final
+                                                                && item.daily_report.sudah_checkout
+                                                                && item.daily_report.is_complete && (
+                                                                <Button
+                                                                    size="sm"
+                                                                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                                                                    onClick={() => handleSendTerlambat(item.daily_report!.id, item.nama_lengkap)}
+                                                                >
+                                                                    <Send className="h-4 w-4 mr-1" />
+                                                                    Kirim
+                                                                </Button>
+                                                            )}
+                                                        </>
                                                     ) : (
                                                         <span className="text-sm text-muted-foreground">
                                                             Tidak ada laporan

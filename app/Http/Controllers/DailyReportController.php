@@ -39,6 +39,23 @@ class DailyReportController extends Controller
             ->orderBy('tanggal', 'desc')
             ->paginate(10);
 
+        // Pre-fetch checkout status untuk semua report (1 query)
+        $siswaIds = $reports->pluck('siswa_id');
+        $tanggals  = $reports->pluck('tanggal')->map(fn ($t) => \Carbon\Carbon::parse($t)->toDateString());
+
+        $checkoutKeys = \App\Models\Kehadiran::whereIn('siswa_id', $siswaIds)
+            ->whereNotNull('waktu_pulang')
+            ->get(['siswa_id', 'tanggal'])
+            ->mapWithKeys(fn ($k) => [
+                $k->siswa_id . '_' . \Carbon\Carbon::parse($k->tanggal)->toDateString() => true,
+            ]);
+
+        $reports->getCollection()->transform(function ($report) use ($checkoutKeys) {
+            $key = $report->siswa_id . '_' . \Carbon\Carbon::parse($report->tanggal)->toDateString();
+            $report->sudah_checkout = $checkoutKeys->has($key);
+            return $report;
+        });
+
         return Inertia::render('guru/daily-report-list', [
             'reports' => $reports,
             'filters' => [
@@ -187,11 +204,11 @@ class DailyReportController extends Controller
             'activity' => 'nullable|string',
 
             'sarapan_pagi' => 'nullable|string|max:255',
-            'sarapan_status' => 'nullable|integer|min:0|max:5',
+            'sarapan_status' => 'nullable|integer|min:-1|max:5',
             'makan_siang' => 'nullable|string|max:255',
-            'makan_siang_status' => 'nullable|integer|min:0|max:5',
+            'makan_siang_status' => 'nullable|integer|min:-1|max:5',
             'snack_sore' => 'nullable|string|max:255',
-            'snack_status' => 'nullable|integer|min:0|max:5',
+            'snack_status' => 'nullable|integer|min:-1|max:5',
 
             'minum_air_putih' => 'nullable|string|max:50',
             'minum_susu' => 'nullable|string|max:50',
@@ -242,9 +259,15 @@ class DailyReportController extends Controller
             ->whereNotNull('waktu_pulang')
             ->exists();
 
+        $missingFields = $dailyReport->getMissingFields();
+        if ($dailyReport->emosis->isEmpty()) {
+            $missingFields[] = 'Emosi Hari Ini';
+        }
+
         return Inertia::render('guru/daily-report-show', [
             'report'        => $dailyReport,
             'sudahCheckout' => $sudahCheckout,
+            'missingFields' => $missingFields,
         ]);
     }
 
@@ -404,11 +427,11 @@ class DailyReportController extends Controller
             'activity' => 'nullable|string',
 
             'sarapan_pagi' => 'nullable|string|max:255',
-            'sarapan_status' => 'nullable|integer|min:0|max:5',
+            'sarapan_status' => 'nullable|integer|min:-1|max:5',
             'makan_siang' => 'nullable|string|max:255',
-            'makan_siang_status' => 'nullable|integer|min:0|max:5',
+            'makan_siang_status' => 'nullable|integer|min:-1|max:5',
             'snack_sore' => 'nullable|string|max:255',
-            'snack_status' => 'nullable|integer|min:0|max:5',
+            'snack_status' => 'nullable|integer|min:-1|max:5',
 
             'minum_air_putih' => 'nullable|string|max:50',
             'minum_susu' => 'nullable|string|max:50',
@@ -460,33 +483,33 @@ class DailyReportController extends Controller
 
     public function finalize(DailyReport $dailyReport): RedirectResponse
     {
-        // Check if report is already finalized
         if ($dailyReport->is_final) {
-            return redirect()->route('guru.daily-report.show', $dailyReport)
-                ->with('info', 'Daily report sudah final.');
+            return back()->with('info', 'Daily report sudah final.');
         }
 
-        // Set report as final
-        $dailyReport->update(['is_final' => true]);
-
-        // Load siswa relationship
-        $dailyReport->load('siswa');
-        $siswa = $dailyReport->siswa;
-
-        // Kirim notifikasi hanya jika siswa sudah checkout hari ini
-        $sudahCheckout = \App\Models\Kehadiran::where('siswa_id', $siswa->id)
-            ->whereDate('tanggal', now()->toDateString())
+        // Jika siswa sudah pulang, hanya admin yang bisa kirim via "Kirim Terlambat"
+        $sudahCheckout = \App\Models\Kehadiran::where('siswa_id', $dailyReport->siswa_id)
+            ->whereDate('tanggal', $dailyReport->tanggal)
             ->whereNotNull('waktu_pulang')
             ->exists();
 
         if ($sudahCheckout) {
-            SendDailyReportNotification::dispatch($dailyReport->id);
+            return back()->with('error', 'Siswa sudah pulang. Hubungi admin untuk mengirimkan laporan ini.');
         }
 
-        return redirect()->route('guru.daily-report.index')
-            ->with('success', $sudahCheckout
-                ? 'Daily report difinalisasi. Notifikasi sedang dikirim ke orang tua.'
-                : 'Daily report difinalisasi. Notifikasi akan dikirim saat siswa checkout.');
+        // Cek kelengkapan data sebelum finalisasi
+        $missingFields = $dailyReport->getMissingFields();
+        if ($dailyReport->emosis()->doesntExist()) {
+            $missingFields[] = 'Emosi Hari Ini';
+        }
+
+        if (!empty($missingFields)) {
+            return back()->with('error', 'Lengkapi data berikut sebelum finalisasi: ' . implode(', ', $missingFields));
+        }
+
+        $dailyReport->update(['is_final' => true]);
+
+        return back()->with('success', 'Laporan difinalisasi. Notifikasi akan dikirim saat siswa checkout.');
     }
 
     public function orangtuaIndex(Request $request): Response
@@ -626,11 +649,12 @@ class DailyReportController extends Controller
                 'cabang' => $siswa->lokasi_pendaftaran ?? '-',
                 'status' => $status,
                 'daily_report' => $dailyReport ? [
-                    'id' => $dailyReport->id,
-                    'tanggal' => $dailyReport->tanggal->format('Y-m-d'),
-                    'rating' => $dailyReport->rating,
-                    'is_final' => $dailyReport->is_final,
-                    'created_by' => $dailyReport->user->name ?? '-',
+                    'id'            => $dailyReport->id,
+                    'tanggal'       => $dailyReport->tanggal->format('Y-m-d'),
+                    'rating'        => $dailyReport->rating,
+                    'is_final'      => $dailyReport->is_final,
+                    'sudah_checkout' => $kehadiran?->waktu_pulang !== null,
+                    'is_complete'   => $dailyReport->isComplete(),
                 ] : null,
                 'kehadiran' => $kehadiran ? [
                     'tanggal_hadir' => \Carbon\Carbon::parse($kehadiran->tanggal)->format('d-m-Y'),
@@ -677,9 +701,15 @@ class DailyReportController extends Controller
             ->whereNotNull('waktu_pulang')
             ->exists();
 
+        $missingFields = $dailyReport->getMissingFields();
+        if ($dailyReport->emosis->isEmpty()) {
+            $missingFields[] = 'Emosi Hari Ini';
+        }
+
         return Inertia::render('admin/daily-report/show', [
             'report'        => $dailyReport,
             'sudahCheckout' => $sudahCheckout,
+            'missingFields' => $missingFields,
         ]);
     }
 

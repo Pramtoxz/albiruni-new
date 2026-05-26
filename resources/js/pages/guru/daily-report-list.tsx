@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Plus, User, Edit, Send } from 'lucide-react';
+import { ArrowLeft, Calendar, CheckCircle, Edit, Plus, User } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -15,6 +15,7 @@ interface DailyReport {
     };
     activity: string;
     is_final: boolean;
+    sudah_checkout: boolean;
 }
 
 interface Props {
@@ -93,13 +94,13 @@ export default function DailyReportList({ reports, filters }: Props) {
         e.stopPropagation();
 
         Swal.fire({
-            title: 'Kirim Notifikasi?',
-            text: `Daily report untuk ${siswaName} akan dikirim ke orang tua dan tidak bisa diedit lagi.`,
+            title: 'Simpan sebagai Final?',
+            text: `Laporan ${siswaName} akan difinalisasi. Notifikasi otomatis terkirim saat siswa pulang.`,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, Kirim!',
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Finalkan',
             cancelButtonText: 'Batal',
         }).then((result) => {
             if (result.isConfirmed) {
@@ -112,15 +113,15 @@ export default function DailyReportList({ reports, filters }: Props) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: 'Daily report berhasil dikirim ke orang tua',
-                                confirmButtonColor: '#3085d6',
+                                text: 'Laporan difinalisasi.',
+                                confirmButtonColor: '#22c55e',
                             });
                         },
                         onError: () => {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: 'Terjadi kesalahan saat mengirim notifikasi',
+                                text: 'Terjadi kesalahan.',
                                 confirmButtonColor: '#d33',
                             });
                         },
@@ -278,14 +279,21 @@ export default function DailyReportList({ reports, filters }: Props) {
                                                     Edit
                                                 </Button>
                                             </Link>
-                                            <Button
-                                                size="sm"
-                                                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                                                onClick={(e) => handleFinalize(e, report.id, report.siswa.nama_lengkap)}
-                                            >
-                                                <Send className="h-4 w-4 mr-1" />
-                                                Kirim Notifikasi
-                                            </Button>
+                                            {report.sudah_checkout ? (
+                                                <div className="flex-1 rounded-md bg-orange-50 border border-orange-200 px-2 py-1 text-center">
+                                                    <p className="text-xs text-orange-700 font-medium">Sudah pulang</p>
+                                                    <p className="text-xs text-orange-500">Hubungi admin</p>
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    size="sm"
+                                                    className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                                                    onClick={(e) => handleFinalize(e, report.id, report.siswa.nama_lengkap)}
+                                                >
+                                                    <CheckCircle className="h-4 w-4 mr-1" />
+                                                    Simpan Final
+                                                </Button>
+                                            )}
                                         </div>
                                     )}
                                 </CardContent>

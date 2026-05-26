@@ -356,8 +356,10 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                                         <StarRating
                                             value={data.sarapan_status}
                                             onChange={(value) => setData('sarapan_status', value)}
+                                            allowNull
                                         />
                                         <p className="text-xs text-muted-foreground">
+                                            {data.sarapan_status === -1 && '— Tidak ada sarapan'}
                                             {data.sarapan_status === 0 && 'Belum dinilai'}
                                             {data.sarapan_status === 1 && '⭐ Tidak dimakan'}
                                             {data.sarapan_status === 2 && '⭐⭐ Sedikit'}
@@ -387,8 +389,10 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                                         <StarRating
                                             value={data.makan_siang_status}
                                             onChange={(value) => setData('makan_siang_status', value)}
+                                            allowNull
                                         />
                                         <p className="text-xs text-muted-foreground">
+                                            {data.makan_siang_status === -1 && '— Tidak ada makan siang'}
                                             {data.makan_siang_status === 0 && 'Belum dinilai'}
                                             {data.makan_siang_status === 1 && '⭐ Tidak dimakan'}
                                             {data.makan_siang_status === 2 && '⭐⭐ Sedikit'}
@@ -418,8 +422,10 @@ export default function DailyReportCreate({ siswaList, menuMakanan, menuMingguan
                                         <StarRating
                                             value={data.snack_status}
                                             onChange={(value) => setData('snack_status', value)}
+                                            allowNull
                                         />
                                         <p className="text-xs text-muted-foreground">
+                                            {data.snack_status === -1 && '— Tidak ada snack'}
                                             {data.snack_status === 0 && 'Belum dinilai'}
                                             {data.snack_status === 1 && '⭐ Tidak dimakan'}
                                             {data.snack_status === 2 && '⭐⭐ Sedikit'}
