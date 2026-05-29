@@ -16,7 +16,7 @@ class AdminDashboardController extends Controller
 {
     public function index(): Response
     {
-        $totalSiswa = Siswa::where('status_siswa', true)->count();
+        $totalSiswa = Siswa::where('is_active', true)->count();
         $totalGuru = Guru::count();
         $totalUser = User::count();
         
