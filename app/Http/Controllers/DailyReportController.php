@@ -663,9 +663,16 @@ class DailyReportController extends Controller
             ];
         });
 
-        $statusOrder = ['ada_laporan' => 0, 'hadir_tanpa_laporan' => 1, 'tidak_hadir' => 2];
         $data = $data
-            ->sortBy(fn ($item) => $statusOrder[$item['status']] . $item['nama_lengkap'])
+            ->sortBy(function ($item) {
+                if ($item['status'] === 'ada_laporan') {
+                    // draft (belum terkirim) naik ke atas, final tetap di bawahnya
+                    $sub = ($item['daily_report']['is_final'] ?? false) ? 1 : 0;
+                    return $sub . $item['nama_lengkap'];
+                }
+                $order = ['hadir_tanpa_laporan' => 2, 'tidak_hadir' => 3];
+                return ($order[$item['status']] ?? 9) . $item['nama_lengkap'];
+            })
             ->values()
             ->map(function ($item, $index) {
                 $item['number'] = $index + 1;
