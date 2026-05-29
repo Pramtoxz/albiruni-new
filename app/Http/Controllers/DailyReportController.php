@@ -663,6 +663,15 @@ class DailyReportController extends Controller
             ];
         });
 
+        $statusOrder = ['ada_laporan' => 0, 'hadir_tanpa_laporan' => 1, 'tidak_hadir' => 2];
+        $data = $data
+            ->sortBy(fn ($item) => $statusOrder[$item['status']] . $item['nama_lengkap'])
+            ->values()
+            ->map(function ($item, $index) {
+                $item['number'] = $index + 1;
+                return $item;
+            });
+
         if ($status) {
             $data = $data->filter(function ($item) use ($status) {
                 return $item['status'] === $status;
