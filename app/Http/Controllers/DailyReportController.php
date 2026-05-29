@@ -7,6 +7,7 @@ use App\Models\Siswa;
 use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -70,10 +71,25 @@ class DailyReportController extends Controller
         $user = auth()->user();
         $guru = $user->guru;
 
+        $today = \Carbon\Carbon::today()->toDateString();
+
         // Filter siswa based on guru_id directly
         $siswaQuery = Siswa::with('kelas')
             ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id')
-            ->where('is_active', true);
+            ->where('is_active', true)
+            ->whereExists(function ($q) use ($today) {
+                $q->select(\DB::raw(1))
+                    ->from('kehadiran')
+                    ->whereColumn('kehadiran.siswa_id', 'siswa.id')
+                    ->whereDate('kehadiran.tanggal', $today)
+                    ->whereNotNull('kehadiran.waktu_hadir');
+            })
+            ->whereNotExists(function ($q) use ($today) {
+                $q->select(\DB::raw(1))
+                    ->from('daily_reports')
+                    ->whereColumn('daily_reports.siswa_id', 'siswa.id')
+                    ->whereDate('daily_reports.tanggal', $today);
+            });
 
         // If guru exists, show accessible students (guru utama or guru pendamping)
         if ($guru) {
@@ -285,10 +301,29 @@ class DailyReportController extends Controller
         $user = auth()->user();
         $guru = $user->guru;
 
+        $reportTanggal = \Carbon\Carbon::parse($dailyReport->tanggal)->toDateString();
+        $currentSiswaId = $dailyReport->siswa_id;
+
         // Filter siswa based on guru_id directly
         $siswaQuery = Siswa::with('kelas')
             ->select('id', 'nama_lengkap', 'nama_panggilan', 'kelas_id', 'guru_id')
-            ->where('is_active', true);
+            ->where('is_active', true)
+            ->whereExists(function ($q) use ($reportTanggal) {
+                $q->select(\DB::raw(1))
+                    ->from('kehadiran')
+                    ->whereColumn('kehadiran.siswa_id', 'siswa.id')
+                    ->whereDate('kehadiran.tanggal', $reportTanggal)
+                    ->whereNotNull('kehadiran.waktu_hadir');
+            })
+            ->where(function ($q) use ($reportTanggal, $currentSiswaId) {
+                $q->where('id', $currentSiswaId)
+                  ->orWhereNotExists(function ($subQ) use ($reportTanggal) {
+                      $subQ->select(\DB::raw(1))
+                          ->from('daily_reports')
+                          ->whereColumn('daily_reports.siswa_id', 'siswa.id')
+                          ->whereDate('daily_reports.tanggal', $reportTanggal);
+                  });
+            });
 
         // If guru exists, show accessible students (guru utama or guru pendamping)
         if ($guru) {
