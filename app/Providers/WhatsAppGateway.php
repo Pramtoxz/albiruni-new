@@ -3,6 +3,9 @@
 
 namespace App\Providers;
 
+use App\Models\ConfigWa;
+use App\Models\ConfigWaGroup;
+
 class WhatsAppGateway
 {
     private const SUCCESS_STATUSES = [
@@ -21,24 +24,115 @@ class WhatsAppGateway
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(config('services.whatsapp.gateway_url', env('WA_GATEWAY_URL')), '/');
-        $this->token   = config('services.whatsapp.gateway_secret', env('WA_GATEWAY_SECRET'));
-        $this->session = config('services.whatsapp.session_name', env('WA_SESSION_NAME'));
+        $config = ConfigWa::current();
+
+        $this->baseUrl = rtrim($config?->wa_gateway_url ?? env('WA_GATEWAY_URL', ''), '/');
+        $this->token   = $config?->wa_gateway_secret ?? env('WA_GATEWAY_SECRET', '');
+        $this->session = $config?->wa_session_name   ?? env('WA_SESSION_NAME', '');
 
         if (!$this->baseUrl || !$this->token || !$this->session) {
             throw new \RuntimeException('Konfigurasi WhatsApp gateway belum lengkap.');
         }
     }
 
+    // Backward compat — dipanggil oleh NotificationService & OtpService
     public function sendText(string $to, string $message): void
     {
-        $payload = json_encode([
-            'session' => $this->session,
-            'to'      => preg_replace('/\D+/', '', $to),
-            'text'    => $message,
+        $this->sendToPhone($to, $message);
+    }
+
+    public function sendToPhone(string $to, string $message): void
+    {
+        $this->sendRequest('/message/send-text', [
+            'session'  => $this->session,
+            'to'       => preg_replace('/\D+/', '', $to),
+            'text'     => $message,
+            'is_group' => false,
+        ]);
+    }
+
+    /**
+     * Kirim pesan ke grup WA.
+     *
+     * @param string      $message
+     * @param string|null $groupIdOrKeterangan  group_id langsung (xxx@g.us) atau keterangan grup
+     */
+    public function sendToGroup(string $message, ?string $groupIdOrKeterangan = null): void
+    {
+        if ($groupIdOrKeterangan) {
+            if (str_contains($groupIdOrKeterangan, '@g.us') || ctype_digit($groupIdOrKeterangan)) {
+                $target = $groupIdOrKeterangan;
+            } else {
+                $group = ConfigWaGroup::findByKeterangan($groupIdOrKeterangan);
+                if (!$group) {
+                    throw new \RuntimeException("Grup WA dengan keterangan '{$groupIdOrKeterangan}' tidak ditemukan.");
+                }
+                $target = $group->group_id;
+            }
+        } else {
+            $group = ConfigWaGroup::where('is_active', true)->first();
+            if (!$group) {
+                throw new \RuntimeException('Tidak ada grup WA aktif yang tersimpan.');
+            }
+            $target = $group->group_id;
+        }
+
+        if (!str_contains($target, '@g.us')) {
+            $target .= '@g.us';
+        }
+
+        $this->sendRequest('/message/send-text', [
+            'session'  => $this->session,
+            'to'       => $target,
+            'text'     => $message,
+            'is_group' => true,
+        ]);
+    }
+
+    public function getGroups(): array
+    {
+        $url = "{$this->baseUrl}/session/groups?session={$this->session}";
+
+        $ch = curl_init($url);
+
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPHEADER     => [
+                "Authorization: Bearer {$this->token}",
+                'Accept: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_SSL_VERIFYPEER => true,
         ]);
 
-        $url = $this->baseUrl.'/message/send-text';
+        $body   = curl_exec($ch);
+        $errno  = curl_errno($ch);
+        $error  = curl_error($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if ($errno !== 0) {
+            throw new \RuntimeException("WhatsApp Gateway tidak bisa dihubungi: {$error}");
+        }
+
+        if ($status >= 400) {
+            throw new \RuntimeException("WhatsApp Gateway error ({$status}): {$body}");
+        }
+
+        $decoded = json_decode($body, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException("Respons gateway tidak valid: {$body}");
+        }
+
+        return $decoded['data'] ?? $decoded ?? [];
+    }
+
+    private function sendRequest(string $endpoint, array $payload): void
+    {
+        $url = $this->baseUrl.$endpoint;
 
         $ch = curl_init($url);
 
@@ -49,7 +143,7 @@ class WhatsAppGateway
                 'Accept: application/json',
             ],
             CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => 15,
             CURLOPT_CONNECTTIMEOUT => 5,
@@ -81,13 +175,10 @@ class WhatsAppGateway
             return;
         }
 
-        // fallback: anggap gagal bila struktur tidak sesuai
         throw new \RuntimeException('Gateway tidak mengembalikan status sukses: '.$body);
     }
 
     /**
-     * Determine whether the decoded response indicates a successful send.
-     *
      * @param  array<string, mixed>  $response
      */
     protected function responseIndicatesSuccess(array $response): bool
@@ -126,8 +217,6 @@ class WhatsAppGateway
     }
 
     /**
-     * Recursively search for a status value inside the payload.
-     *
      * @param  array<string, mixed>  $payload
      */
     protected function extractStatus(array $payload): ?string
