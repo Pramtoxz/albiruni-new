@@ -4,8 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\ConfigWaGroup;
 use App\Models\DailyReport;
-use App\Models\Kehadiran;
-use App\Models\Siswa;
 use App\Providers\WhatsAppGateway;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -23,12 +21,10 @@ class WaDailyReportSummary extends Command
             $today   = now()->toDateString();
             $now     = now()->setTimezone('Asia/Jakarta');
 
-            // ── Statistik Daily Report ─────────────────────────────────────
             $terkirim = DailyReport::whereDate('tanggal', $today)
                 ->where('is_final', true)
                 ->count();
 
-            // Draft anak sudah pulang: is_final=false & kehadiran.waktu_pulang not null
             $draftAnakPulang = DailyReport::whereDate('daily_reports.tanggal', $today)
                 ->where('daily_reports.is_final', false)
                 ->join('kehadiran', function ($join) use ($today) {
@@ -38,7 +34,6 @@ class WaDailyReportSummary extends Command
                 })
                 ->count();
 
-            // Draft data tidak lengkap: is_final=false & belum checkout
             $draftTidakLengkap = DailyReport::whereDate('daily_reports.tanggal', $today)
                 ->where('daily_reports.is_final', false)
                 ->join('kehadiran', function ($join) use ($today) {
@@ -48,7 +43,6 @@ class WaDailyReportSummary extends Command
                 })
                 ->count();
 
-            // ── Kehadiran per Cabang & Kelas ──────────────────────────────
             $kehadiranStats = DB::table('kehadiran')
                 ->join('siswa', 'siswa.id', '=', 'kehadiran.siswa_id')
                 ->join('kelas', 'kelas.id', '=', 'siswa.kelas_id')
@@ -67,7 +61,6 @@ class WaDailyReportSummary extends Command
 
             $totalHadir = $kehadiranStats->sum('total');
 
-            // ── Build Pesan ────────────────────────────────────────────────
             $message  = "*[RINGKASAN HARIAN] {$now->format('d/m/Y')}*\n";
             $message .= "-----------------------------------\n\n";
 
@@ -92,7 +85,6 @@ class WaDailyReportSummary extends Command
             $message .= "\n-----------------------------------\n";
             $message .= "_Dikirim otomatis pukul {$now->format('H:i')} WIB_";
 
-            // ── Kirim ke semua grup aktif ──────────────────────────────────
             $groups = ConfigWaGroup::where('is_active', true)->get();
 
             if ($groups->isEmpty()) {
