@@ -14,6 +14,25 @@ class NotificationService
         protected WhatsAppGateway $gateway
     ) {}
 
+    protected function normalizePhone(string $phone): string
+    {
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+
+        if (str_starts_with($phone, '08')) {
+            return '62' . substr($phone, 1);
+        }
+
+        if (str_starts_with($phone, '62')) {
+            return $phone;
+        }
+
+        if (str_starts_with($phone, '8')) {
+            return '62' . $phone;
+        }
+
+        return '62' . $phone;
+    }
+
     public function sendDailyReportToParent(DailyReport $report): void
     {
         try {
@@ -30,7 +49,7 @@ class NotificationService
             // Load emosis relationship
             $report->load('emosis');
 
-            $parentPhone = $siswa->user->nohp;
+            $parentPhone = $this->normalizePhone($siswa->user->nohp);
             $message = $this->buildDailyReportMessage($report, $siswa);
 
             // Kirim ke orang tua
@@ -250,7 +269,7 @@ class NotificationService
                 return;
             }
 
-            $parentPhone = $siswa->user->nohp;
+            $parentPhone = $this->normalizePhone($siswa->user->nohp);
             $namaSiswa   = $siswa->nama_lengkap;
 
             $message  = "*📋 RAPOR DIGITAL - {$namaSiswa}*\n";
@@ -293,7 +312,7 @@ class NotificationService
                 return;
             }
 
-            $parentPhone = $siswa->user->nohp;
+            $parentPhone = $this->normalizePhone($siswa->user->nohp);
             $message = $this->buildSppNotificationMessage($pembayaran, $siswa);
 
             // Kirim ke orang tua

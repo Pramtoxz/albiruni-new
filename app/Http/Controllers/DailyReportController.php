@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\SendDailyReportNotification;
 use App\Models\DailyReport;
 use App\Models\Siswa;
 use App\Services\NotificationService;
@@ -29,7 +28,7 @@ class DailyReportController extends Controller
         // If guru exists, filter reports by their accessible students
         if ($guru) {
             $mainGuruId = $guru->getMainGuruId();
-            
+
             $reportsQuery->whereHas('siswa', function ($query) use ($mainGuruId) {
                 $query->where('guru_id', $mainGuruId);
             });
@@ -41,18 +40,19 @@ class DailyReportController extends Controller
 
         // Pre-fetch checkout status untuk semua report (1 query)
         $siswaIds = $reports->pluck('siswa_id');
-        $tanggals  = $reports->pluck('tanggal')->map(fn ($t) => \Carbon\Carbon::parse($t)->toDateString());
+        $tanggals = $reports->pluck('tanggal')->map(fn ($t) => \Carbon\Carbon::parse($t)->toDateString());
 
         $checkoutKeys = \App\Models\Kehadiran::whereIn('siswa_id', $siswaIds)
             ->whereNotNull('waktu_pulang')
             ->get(['siswa_id', 'tanggal'])
             ->mapWithKeys(fn ($k) => [
-                $k->siswa_id . '_' . \Carbon\Carbon::parse($k->tanggal)->toDateString() => true,
+                $k->siswa_id.'_'.\Carbon\Carbon::parse($k->tanggal)->toDateString() => true,
             ]);
 
         $reports->getCollection()->transform(function ($report) use ($checkoutKeys) {
-            $key = $report->siswa_id . '_' . \Carbon\Carbon::parse($report->tanggal)->toDateString();
+            $key = $report->siswa_id.'_'.\Carbon\Carbon::parse($report->tanggal)->toDateString();
             $report->sudah_checkout = $checkoutKeys->has($key);
+
             return $report;
         });
 
@@ -265,7 +265,7 @@ class DailyReportController extends Controller
         }
 
         return Inertia::render('guru/daily-report-show', [
-            'report'        => $dailyReport,
+            'report' => $dailyReport,
             'sudahCheckout' => $sudahCheckout,
             'missingFields' => $missingFields,
         ]);
@@ -503,8 +503,8 @@ class DailyReportController extends Controller
             $missingFields[] = 'Emosi Hari Ini';
         }
 
-        if (!empty($missingFields)) {
-            return back()->with('error', 'Lengkapi data berikut sebelum finalisasi: ' . implode(', ', $missingFields));
+        if (! empty($missingFields)) {
+            return back()->with('error', 'Lengkapi data berikut sebelum finalisasi: '.implode(', ', $missingFields));
         }
 
         $dailyReport->update(['is_final' => true]);
@@ -552,7 +552,7 @@ class DailyReportController extends Controller
     public function orangtuaShow(DailyReport $dailyReport): Response
     {
         $user = auth()->user();
-        
+
         // Authorization check berdasarkan role
         if ($user->role === 'orangtua') {
             // Orangtua: cek berdasarkan user_id di tabel siswa
@@ -562,18 +562,18 @@ class DailyReportController extends Controller
                 abort(403, 'Data siswa tidak ditemukan');
             }
 
-            if (!in_array($dailyReport->siswa_id, $siswaIds)) {
+            if (! in_array($dailyReport->siswa_id, $siswaIds)) {
                 abort(403, 'Anda tidak memiliki akses ke laporan ini');
             }
         } elseif ($user->role === 'guru') {
             // Guru: cek berdasarkan guru_id di tabel siswa (termasuk guru pendamping)
             $guru = $user->guru;
-            
+
             if ($guru) {
                 $mainGuruId = $guru->getMainGuruId();
                 $siswaIds = Siswa::where('guru_id', $mainGuruId)->pluck('id')->toArray();
-                
-                if (!in_array($dailyReport->siswa_id, $siswaIds)) {
+
+                if (! in_array($dailyReport->siswa_id, $siswaIds)) {
                     abort(403, 'Daily report ini bukan untuk siswa yang Anda handle');
                 }
             }
@@ -614,7 +614,7 @@ class DailyReportController extends Controller
         }
 
         $siswaList = $siswaQuery->orderBy('nama_lengkap')->get();
-        $siswaIds  = $siswaList->pluck('id');
+        $siswaIds = $siswaList->pluck('id');
 
         // Pre-fetch semua daily report + kehadiran untuk tanggal ini — hindari N+1
         $dailyReports = DailyReport::with(['user', 'emosis'])
@@ -630,7 +630,7 @@ class DailyReportController extends Controller
 
         $data = $siswaList->map(function ($siswa, $index) use ($dailyReports, $kehadirans) {
             $dailyReport = $dailyReports->get($siswa->id);
-            $kehadiran   = $kehadirans->get($siswa->id);
+            $kehadiran = $kehadirans->get($siswa->id);
 
             $status = 'tidak_hadir';
             if ($dailyReport) {
@@ -649,12 +649,12 @@ class DailyReportController extends Controller
                 'cabang' => $siswa->lokasi_pendaftaran ?? '-',
                 'status' => $status,
                 'daily_report' => $dailyReport ? [
-                    'id'            => $dailyReport->id,
-                    'tanggal'       => $dailyReport->tanggal->format('Y-m-d'),
-                    'rating'        => $dailyReport->rating,
-                    'is_final'      => $dailyReport->is_final,
+                    'id' => $dailyReport->id,
+                    'tanggal' => $dailyReport->tanggal->format('Y-m-d'),
+                    'rating' => $dailyReport->rating,
+                    'is_final' => $dailyReport->is_final,
                     'sudah_checkout' => $kehadiran?->waktu_pulang !== null,
-                    'is_complete'   => $dailyReport->isComplete(),
+                    'is_complete' => $dailyReport->isComplete(),
                 ] : null,
                 'kehadiran' => $kehadiran ? [
                     'tanggal_hadir' => \Carbon\Carbon::parse($kehadiran->tanggal)->format('d-m-Y'),
@@ -707,7 +707,7 @@ class DailyReportController extends Controller
         }
 
         return Inertia::render('admin/daily-report/show', [
-            'report'        => $dailyReport,
+            'report' => $dailyReport,
             'sudahCheckout' => $sudahCheckout,
             'missingFields' => $missingFields,
         ]);
@@ -720,9 +720,27 @@ class DailyReportController extends Controller
         }
 
         $dailyReport->update(['is_final' => true]);
+        $dailyReport->load(['siswa.user', 'siswa.guru', 'emosis', 'user.guru']);
 
-        SendDailyReportNotification::dispatch($dailyReport->id);
+        $notification = app(NotificationService::class);
+        $notification->sendDailyReportToParent($dailyReport);
 
-        return back()->with('success', "Daily report {$dailyReport->siswa->nama_lengkap} sedang dikirim ke orang tua.");
+        $siswa = $dailyReport->siswa;
+        if ($siswa?->user_id) {
+            $fcm = app(\App\Services\FcmService::class);
+            $fcm->sendToUser(
+                userId: $siswa->user_id,
+                title: 'Daily Report Tersedia',
+                body: "Laporan harian {$siswa->nama_lengkap} sudah siap untuk dilihat",
+                url: "/orangtua/daily-report/{$dailyReport->id}",
+                extraData: [
+                    'type' => 'daily_report_final',
+                    'siswa_id' => $siswa->id,
+                    'report_id' => $dailyReport->id,
+                ]
+            );
+        }
+
+        return back()->with('success', "Daily report {$dailyReport->siswa->nama_lengkap} berhasil dikirim ke orang tua.");
     }
 }
