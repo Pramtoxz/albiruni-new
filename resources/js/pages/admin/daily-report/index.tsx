@@ -375,9 +375,6 @@ export default function AdminDailyReportIndex({
                                                 {item.kehadiran ? (
                                                     <div className="text-sm">
                                                         <div className="font-medium">{item.kehadiran.tanggal_hadir}</div>
-                                                        <div className="text-muted-foreground capitalize">
-                                                            {item.kehadiran.jenis_interaksi}
-                                                        </div>
                                                     </div>
                                                 ) : (
                                                     <span className="text-muted-foreground">-</span>
@@ -387,6 +384,10 @@ export default function AdminDailyReportIndex({
                                                 {item.daily_report ? (
                                                     item.daily_report.is_final ? (
                                                         <Badge variant="default">Terkirim</Badge>
+                                                    ) : item.daily_report.sudah_checkout ? (
+                                                        <Badge className="bg-amber-500 hover:bg-amber-500 text-white">Anak Telah Pulang</Badge>
+                                                    ) : !item.daily_report.is_complete ? (
+                                                        <Badge className="bg-orange-400 hover:bg-orange-400 text-white">Data Tidak Lengkap</Badge>
                                                     ) : (
                                                         <Badge variant="secondary">Draft</Badge>
                                                     )
@@ -403,9 +404,7 @@ export default function AdminDailyReportIndex({
                                                                     <Eye className="h-4 w-4" />
                                                                 </Button>
                                                             </Link>
-                                                            {!item.daily_report.is_final
-                                                                && item.daily_report.sudah_checkout
-                                                                && item.daily_report.is_complete && (
+                                                            {!item.daily_report.is_final && (
                                                                 <Button
                                                                     size="sm"
                                                                     className="bg-orange-500 hover:bg-orange-600 text-white"
