@@ -32,25 +32,28 @@ class WhatsAppGateway
 
     public function sendText(string $to, string $message): void
     {
-        $payload = [
+        $payload = json_encode([
             'session' => $this->session,
             'to'      => preg_replace('/\D+/', '', $to),
             'text'    => $message,
-        ];
+        ]);
 
-        $url = $this->baseUrl.'/message/send-text?'.http_build_query($payload);
+        $url = $this->baseUrl.'/message/send-text';
 
         $ch = curl_init($url);
 
         curl_setopt_array($ch, [
             CURLOPT_HTTPHEADER     => [
                 'Authorization: Bearer '.$this->token,
+                'Content-Type: application/json',
                 'Accept: application/json',
             ],
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => 15,
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_SSL_VERIFYPEER => true,   // ubah ke false sementara jika SSL gateway self-signed
+            CURLOPT_SSL_VERIFYPEER => true,
         ]);
 
         $body   = curl_exec($ch);
