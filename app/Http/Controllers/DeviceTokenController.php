@@ -20,35 +20,18 @@ class DeviceTokenController extends Controller
             $userId = auth()->id();
             $fcmToken = $validated['fcm_token'];
 
-            $existingToken = DeviceToken::where('user_id', $userId)
-                ->where('fcm_token', $fcmToken)
-                ->first();
-
-            if ($existingToken) {
-                $existingToken->update([
-                    'is_active' => true,
-                    'last_used_at' => now(),
-                ]);
-
-                Log::info('FCM token updated', [
-                    'user_id' => $userId,
-                    'token_id' => $existingToken->id,
-                ]);
-            } else {
-                DeviceToken::create([
-                    'user_id' => $userId,
-                    'fcm_token' => $fcmToken,
+            DeviceToken::updateOrCreate(
+                ['fcm_token' => $fcmToken],
+                [
+                    'user_id'     => $userId,
                     'device_type' => $validated['device_type'] ?? 'android',
                     'device_name' => $validated['device_name'] ?? null,
-                    'is_active' => true,
+                    'is_active'   => true,
                     'last_used_at' => now(),
-                ]);
+                ]
+            );
 
-                Log::info('FCM token registered', [
-                    'user_id' => $userId,
-                    'device_type' => $validated['device_type'] ?? 'android',
-                ]);
-            }
+            Log::info('FCM token registered', ['user_id' => $userId]);
 
             return response()->json([
                 'success' => true,
