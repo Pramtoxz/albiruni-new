@@ -2,7 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileDown, CheckCircle, Pencil } from 'lucide-react';
 import Swal from 'sweetalert2';
-import WhoChartOverlay, { type WhoDataPoint } from '@/components/who-chart-overlay';
+import WhoLineChart, { type WhoLinePoint } from '@/components/who-line-chart';
 import type { WhoZScorePoint } from '@/lib/whoGrowthStandards';
 
 interface Pertumbuhan {
@@ -58,7 +58,6 @@ interface Props {
     statusLabels: Record<string, string>;
     whoData: WhoData;
     usiaAwalSemester: number;
-    sex: 'boys' | 'girls';
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -68,7 +67,7 @@ const STATUS_COLORS: Record<string, string> = {
     BSB: 'bg-green-100 text-green-800',
 };
 
-export default function GuruRaporShow({ rapor, aspekLabels, statusLabels, whoData, usiaAwalSemester, sex }: Props) {
+export default function GuruRaporShow({ rapor, aspekLabels, statusLabels, whoData, usiaAwalSemester }: Props) {
     const handleFinalize = () => {
         Swal.fire({
             title: 'Finalisasi Rapor?',
@@ -90,7 +89,7 @@ export default function GuruRaporShow({ rapor, aspekLabels, statusLabels, whoDat
 
     // Mapping pertumbuhan → usia anak dalam bulan berdasarkan bulan kalender
     const startBulan = rapor.semester === 1 ? 7 : 1;
-    const buildPoints = (key: 'berat_badan' | 'tinggi_badan' | 'lingkar_kepala'): WhoDataPoint[] =>
+    const buildPoints = (key: 'berat_badan' | 'tinggi_badan' | 'lingkar_kepala'): WhoLinePoint[] =>
         rapor.pertumbuhans.map((p) => ({
             month: usiaAwalSemester + (p.bulan - startBulan),
             value: p[key] !== null ? parseFloat(p[key] as string) : null,
@@ -165,25 +164,22 @@ export default function GuruRaporShow({ rapor, aspekLabels, statusLabels, whoDat
                                 </p>
                                 {/* Vertical stack charts */}
                                 <div className="space-y-4">
-                                    <WhoChartOverlay
-                                        indicator="wfa"
-                                        sex={sex}
+                                    <WhoLineChart
+                                        whoData={whoData.wfa}
                                         dataPoints={buildPoints('berat_badan')}
                                         usiaAwal={usiaAwalSemester}
                                         title="Berat Badan / Umur (BB/U)"
                                         unit="kg"
                                     />
-                                    <WhoChartOverlay
-                                        indicator="lhfa"
-                                        sex={sex}
+                                    <WhoLineChart
+                                        whoData={whoData.lhfa}
                                         dataPoints={buildPoints('tinggi_badan')}
                                         usiaAwal={usiaAwalSemester}
                                         title="Tinggi Badan / Umur (TB/U)"
                                         unit="cm"
                                     />
-                                    <WhoChartOverlay
-                                        indicator="hcfa"
-                                        sex={sex}
+                                    <WhoLineChart
+                                        whoData={whoData.hcfa}
                                         dataPoints={buildPoints('lingkar_kepala')}
                                         usiaAwal={usiaAwalSemester}
                                         title="Lingkar Kepala / Umur (LK/U)"

@@ -203,7 +203,6 @@ class RaporController extends Controller
             'statusLabels'     => RaporPerkembangan::STATUS_LABELS,
             'whoData'          => $whoData,
             'usiaAwalSemester' => $usiaAwal,
-            'sex'              => $sex,
         ]);
     }
 

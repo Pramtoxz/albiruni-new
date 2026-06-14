@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, FileDown } from 'lucide-react';
-import WhoChartOverlay, { type WhoDataPoint } from '@/components/who-chart-overlay';
+import WhoLineChart, { type WhoLinePoint } from '@/components/who-line-chart';
 import type { WhoZScorePoint } from '@/lib/whoGrowthStandards';
 
 interface Pertumbuhan {
@@ -57,7 +57,6 @@ interface Props {
     statusLabels: Record<string, string>;
     whoData: WhoData;
     usiaAwalSemester: number;
-    sex: 'boys' | 'girls';
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -68,10 +67,10 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminRaporShow({
-    rapor, aspekLabels, statusLabels, whoData, usiaAwalSemester, sex,
+    rapor, aspekLabels, statusLabels, whoData, usiaAwalSemester,
 }: Props) {
     // Mapping pertumbuhan index → usia anak dalam bulan
-    const buildPoints = (key: 'berat_badan' | 'tinggi_badan' | 'lingkar_kepala'): WhoDataPoint[] =>
+    const buildPoints = (key: 'berat_badan' | 'tinggi_badan' | 'lingkar_kepala'): WhoLinePoint[] =>
         rapor.pertumbuhans.map((p, i) => ({
             month: usiaAwalSemester + i,
             value: p[key] !== null ? parseFloat(p[key] as string) : null,
@@ -97,7 +96,7 @@ export default function AdminRaporShow({
                             {rapor.status === 'final' ? 'Final' : 'Draft'}
                         </Badge>
                         {rapor.status === 'final' && (
-                            <a href={`/guru/rapor/${rapor.id}/pdf`} target="_blank" rel="noreferrer">
+                            <a href={`/admin/rapor/${rapor.id}/pdf`} target="_blank" rel="noreferrer">
                                 <Button size="sm" variant="outline">
                                     <FileDown className="mr-1 h-4 w-4" /> Unduh PDF
                                 </Button>
@@ -136,9 +135,8 @@ export default function AdminRaporShow({
                     {rapor.pertumbuhans.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="rounded-lg border bg-card p-3">
-                                <WhoChartOverlay
-                                    indicator="wfa"
-                                    sex={sex}
+                                <WhoLineChart
+                                    whoData={whoData.wfa}
                                     dataPoints={buildPoints('berat_badan')}
                                     usiaAwal={usiaAwalSemester}
                                     title="Berat Badan / Umur (BB/U)"
@@ -146,9 +144,8 @@ export default function AdminRaporShow({
                                 />
                             </div>
                             <div className="rounded-lg border bg-card p-3">
-                                <WhoChartOverlay
-                                    indicator="lhfa"
-                                    sex={sex}
+                                <WhoLineChart
+                                    whoData={whoData.lhfa}
                                     dataPoints={buildPoints('tinggi_badan')}
                                     usiaAwal={usiaAwalSemester}
                                     title="Tinggi Badan / Umur (TB/U)"
@@ -156,9 +153,8 @@ export default function AdminRaporShow({
                                 />
                             </div>
                             <div className="rounded-lg border bg-card p-3">
-                                <WhoChartOverlay
-                                    indicator="hcfa"
-                                    sex={sex}
+                                <WhoLineChart
+                                    whoData={whoData.hcfa}
                                     dataPoints={buildPoints('lingkar_kepala')}
                                     usiaAwal={usiaAwalSemester}
                                     title="Lingkar Kepala / Umur (LK/U)"

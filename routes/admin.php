@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('rapor/toggle-aktif', [\App\Http\Controllers\Admin\RaporController::class, 'toggleAktif'])->name('rapor.toggle-aktif');
     Route::post('rapor/setting', [\App\Http\Controllers\Admin\RaporController::class, 'updateSetting'])->name('rapor.setting');
     Route::get('rapor/{rapor}', [\App\Http\Controllers\Admin\RaporController::class, 'show'])->name('rapor.show');
+    Route::get('rapor/{rapor}/pdf', [\App\Http\Controllers\Admin\RaporController::class, 'pdf'])->name('rapor.pdf');
 
     // Template Rapor
     Route::get('template-rapor', [\App\Http\Controllers\Admin\TemplateRaporController::class, 'index'])->name('template-rapor.index');
